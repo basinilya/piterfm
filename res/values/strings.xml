@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources >
+    <string name="hello">Hello World, Lop!</string>
+    <string name="app_name">PiterFm/MoskvaFm</string>
+    <string name="main_no_items">No items</string>
+    <string name="refresh">Обновить</string>
+    <string name="quit">Выход</string>
+    <string name="ok">Ok</string>
+    <string name="loadChannels">Загрузка каналов...</string>
+    <string name="buffering">Буферизация...</string>
+    <string name="translationUnavailable">Трансляция недоступна, попробуйте еще раз</string>
+    <string name="sdCardUnavailable">Нет доступа к SD карте</string>
+    <string name="cantLoadChannels">Невозможно загрузить каналы</string>
+</resources>

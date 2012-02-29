@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="fill_parent"
+              android:layout_height="wrap_content"
+        >
+    <ImageView
+            android:id="@+id/channelIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            />
+    <TextView
+            android:id="@+id/channel_info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:textSize="15sp"
+            android:singleLine="true"
+            android:ellipsize="marquee"
+            android:scrollHorizontally = "true"
+            android:maxWidth="200dp"
+            />
+
+
+    <LinearLayout
+             android:layout_width="fill_parent"
+             android:layout_height="fill_parent"
+             android:gravity="right"
+            >
+        <ImageButton
+                android:id="@+id/play_stop_button"
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:background="@null"
+                android:paddingRight="10dp"                
+                android:paddingLeft="10dp"
+
+
+                />
+    </LinearLayout>
+
+    <!--<ImageButton-->
+    <!--android:id="@+id/play_stop_button"-->
+    <!--android:layout_width="fill_parent"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:background="@null"-->
+    <!--android:layout_gravity="right"-->
+    <!--/>-->
+
+</LinearLayout>
