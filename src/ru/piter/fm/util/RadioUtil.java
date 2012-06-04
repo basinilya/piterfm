@@ -80,6 +80,41 @@ public class RadioUtil {
     }
 
 
+//    public static List<Channel> getRadioChannels(String radio) throws Exception {
+//        List<Channel> channels = new ArrayList<Channel>();
+//        InputStream stream = null;
+//        Source source = null;
+//        if (radio.equals(Radio.PITER_FM)) stream = openConnection(PITER_FM_URL);
+//        if (radio.equals(Radio.MOSKVA_FM)) stream = openConnection(MOSKVA_FM_URL);
+//        source = new Source(stream);
+//
+//        Element mainDiv = source.getElementById("col_main");
+//        Element stationsList = mainDiv.getFirstElementByClass("list_station_wide");
+//        List<Element> stations = stationsList.getAllElements(HTMLElementName.LI);
+//        Iterator iter = stations.iterator();
+//         while (iter.hasNext()) {
+//            try {
+//                Element li = (Element) iter.next();
+//                Element a = li.getFirstElement(HTMLElementName.A);
+//                Element img = a.getFirstElement(HTMLElementName.IMG);
+//                Element p = li.getFirstElement(HTMLElementName.P);
+//                Element rangeSpan = p.getFirstElementByClass("amount");
+//                Element playLink = p.getFirstElementByClass("button_item_play");
+//
+//                Channel ch = new Channel();
+//                ch.setName(img.getAttributeValue("title"));
+//                ch.setRange(rangeSpan.getContent().toString());
+//                String href = playLink.getAttributeValue("href");
+//                ch.setChannelId(href.split("/")[4]);
+//                ch.setLogo(getChannelLogo(img.getAttributeValue("src")));
+//                channels.add(ch);
+//            } catch (Exception e) {
+//                continue;
+//            }
+//        }
+//        return channels;
+//    }
+
     public static List<Channel> getRadioChannels(String radio) throws Exception {
         List<Channel> channels = new ArrayList<Channel>();
         InputStream stream = null;
@@ -88,23 +123,23 @@ public class RadioUtil {
         if (radio.equals(Radio.MOSKVA_FM)) stream = openConnection(MOSKVA_FM_URL);
         source = new Source(stream);
 
-        Element mainDiv = source.getElementById("col_main");
-        Element stationsList = mainDiv.getFirstElementByClass("list_station_wide");
-        List<Element> stations = stationsList.getAllElements(HTMLElementName.LI);
+        net.htmlparser.jericho.Element stationsList = source.getFirstElementByClass("msk-stations-block");
+        List<net.htmlparser.jericho.Element> stations = stationsList.getChildElements();
         Iterator iter = stations.iterator();
-         while (iter.hasNext()) {
+        while (iter.hasNext()) {
             try {
-                Element li = (Element) iter.next();
-                Element a = li.getFirstElement(HTMLElementName.A);
-                Element img = a.getFirstElement(HTMLElementName.IMG);
-                Element p = li.getFirstElement(HTMLElementName.P);
-                Element rangeSpan = p.getFirstElementByClass("amount");
-                Element playLink = p.getFirstElementByClass("button_item_play");
+
+                net.htmlparser.jericho.Element div = (net.htmlparser.jericho.Element) iter.next();
+                net.htmlparser.jericho.Element imgDiv =  div.getFirstElementByClass("thumbnail-img");
+                net.htmlparser.jericho.Element captionDv = div.getFirstElementByClass("thumbnail-caption");
+                net.htmlparser.jericho.Element a = imgDiv.getFirstElement(HTMLElementName.A);
+                net.htmlparser.jericho.Element img = a.getFirstElement(HTMLElementName.IMG);
 
                 Channel ch = new Channel();
                 ch.setName(img.getAttributeValue("title"));
-                ch.setRange(rangeSpan.getContent().toString());
-                String href = playLink.getAttributeValue("href");
+                String range = captionDv.getFirstElementByClass("meta").getContent().toString().replace("&nbsp;", " ");
+                ch.setRange(range);
+                String href = a.getAttributeValue("href");
                 ch.setChannelId(href.split("/")[4]);
                 ch.setLogo(getChannelLogo(img.getAttributeValue("src")));
                 channels.add(ch);

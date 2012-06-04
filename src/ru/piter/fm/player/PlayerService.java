@@ -102,7 +102,7 @@ public class PlayerService extends Service implements MediaPlayer.OnCompletionLi
         try {
             player.reset();
             player.setDataSource(APP_DIR + RadioUtil.getTrackNameFromUrl(currentTrack));
-            player.prepare(); // Вот тут!
+            player.prepare();
             player.seekTo(TIME_TO_SEEK);
             player.start();
         } catch (IOException e) {
