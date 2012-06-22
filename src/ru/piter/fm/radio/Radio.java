@@ -1,7 +1,6 @@
 package ru.piter.fm.radio;
 
-import ru.piter.fm.util.RadioUtil;
-
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -9,24 +8,22 @@ import java.util.List;
  * User: GGobozov
  * Date: 26.08.2010
  * Time: 16:44:38
- * To change this template use File | Settings | File Templates.
+ * To change this template use File | SettingsActivity | File Templates.
  */
-public class Radio implements IRadio {
+public class Radio implements Serializable{
 
-    public static final String PITER_FM = "PiterFm";
-    public static final String MOSKVA_FM = "MoskvaFm";
-
-    long radioId;
     private String name;
+    private String hostUrl;
+    private String stationsUrl;
 
-    public Radio(String name) {
+    private List<Channel> channels;
+
+    public Radio(String name, String hostUrl) {
         this.name = name;
+        this.hostUrl = hostUrl;
+        this.stationsUrl = hostUrl + "/stations";
     }
 
-    public Radio(String name, long radioId) {
-        this.name = name;
-        this.radioId = radioId;
-    }
 
     public String getName() {
         return name;
@@ -36,15 +33,27 @@ public class Radio implements IRadio {
         this.name = name;
     }
 
-    public long getRadioId() {
-        return radioId;
+    public String getHostUrl() {
+        return hostUrl;
     }
 
-    public void setRadioId(long radioId) {
-        this.radioId = radioId;
+    public void setHostUrl(String hostUrl) {
+        this.hostUrl = hostUrl;
     }
 
-    public List<Channel> getChannels() throws Exception{
-        return RadioUtil.getRadioChannels(this.name);
+    public List<Channel> getChannels() {
+        return channels;
+    }
+
+    public void setChannels(List<Channel> channels) {
+        this.channels = channels;
+    }
+
+    public String getStationsUrl() {
+        return stationsUrl;
+    }
+
+    public void setStationsUrl(String stationsUrl) {
+        this.stationsUrl = stationsUrl;
     }
 }

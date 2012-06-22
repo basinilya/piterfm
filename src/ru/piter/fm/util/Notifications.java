@@ -5,59 +5,85 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
+import android.widget.RemoteViews;
+import ru.piter.fm.App;
 import ru.piter.fm.R;
-import ru.piter.fm.activities.MainActivity;
+import ru.piter.fm.player.PlayerService;
+import ru.piter.fm.radio.Channel;
+import ru.piter.fm.radio.Radio;
+
+import java.io.Serializable;
 
 /**
  * Created by IntelliJ IDEA.
  * User: gb
  * Date: 23.09.2010
  * Time: 0:36:18
- * To change this template use File | Settings | File Templates.
+ * To change this template use File | SettingsActivity | File Templates.
  */
 public class Notifications {
 
-    public static final int TRANSLATION_UNAVAILABLE = 1;
-    public static final int SD_CARD_UNAVAILABLE = 2;
-    public static final int CANT_LOAD_CHANNELS = 3;
-    public static final int OPEN_APPLICATION = 4;
-
-    private static final String MESSAGE_TRANSLATION_UNAVAILABLE = "Translation unavailable";
-    private static final String MESSAGE_SD_CARD_UNAVAILABLE = "SD card unavailable";
-    private static final String MESSAGE_CANT_LOAD_CHANNELS = "Can't load channels";
-    private static final String MESSAGE_OPEN_APPLICATION = "PiterFM/MoskvaFM";
-
-    private static final String NOTIFICATION_SERVICE = "notification";
-
-    private static NotificationManager nm;
-    private static Notification n;
-    private static PendingIntent contentIntent;
+    public static final int SD_CARD_UNAVAILABLE = 1;
+    public static final int CANT_LOAD_CHANNELS = 2;
+    public static final int CANT_LOAD_TRACKS = 3;
+    public static final int CANT_LOAD_TRACK = 4;
+    public static final int PLAY_STOP = 5;
 
 
-    public static void showErrorNotification(Context context, String message, int id) {
-        nm = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
-        n = new Notification(R.drawable.logo_error, "", System.currentTimeMillis());
-        contentIntent = PendingIntent.getActivity(context, 0, new Intent(context, MainActivity.class), 0);
-        n.setLatestEventInfo(context, "PiterFM", message, contentIntent);
-        n.flags |= Notification.FLAG_AUTO_CANCEL;
-        n.defaults |= Notification.DEFAULT_SOUND;
-        nm.notify(id, n);
+    private static Context context = App.getContext();
+    private static NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+
+    public static void show(int notificationId, Intent intent) {
+        String message = "";
+        Notification notification = new Notification(R.drawable.logo, "", System.currentTimeMillis());
+        PendingIntent contentIntent = null;
+        switch (notificationId) {
+            case SD_CARD_UNAVAILABLE:
+                message = context.getResources().getString(R.string.sdCardUnavailable);
+                break;
+            case CANT_LOAD_CHANNELS:
+                message = context.getResources().getString(R.string.cantLoadChannels);
+                break;
+            case CANT_LOAD_TRACKS:
+                message = context.getResources().getString(R.string.cantLoadTracks);
+                break;
+            case CANT_LOAD_TRACK:
+                message = context.getResources().getString(R.string.cantLoadTrack);
+                break;
+            case PLAY_STOP:
+                Serializable channel = intent.getExtras().getSerializable("channel");
+                if ( channel != null)
+                    message = ((Channel) channel).getName();
+                break;
+        }
+
+        contentIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        notification.tickerText = message;
+        notification.contentIntent = contentIntent;
+        notification.flags = Notification.FLAG_AUTO_CANCEL;
+        notification.setLatestEventInfo(context, "PITER FM", message, contentIntent);
+
+
+        if (notificationId != PLAY_STOP){
+            notification.vibrate = new long[]{0, 300};
+        }else {
+            if (App.getPlayer().state == PlayerService.State.Playing)
+                notification.flags = Notification.FLAG_NO_CLEAR;
+        }
+
+        if (Settings.isNotificationsSoundEnabled())
+            notification.defaults |= Notification.DEFAULT_SOUND;
+
+        if (Settings.isNotificationsEnabled())
+            nm.notify(notificationId, notification);
+
 
     }
 
-    public static void showAppNotification(Context context, String channel, int id) {
-        nm = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
-        n = new Notification(R.drawable.logo, channel, System.currentTimeMillis());
-        contentIntent = PendingIntent.getActivity(context, 0, new Intent(context, MainActivity.class), 0);
-
-        n.setLatestEventInfo(context, "PiterFM/MoskvaFM", channel.equals("") ? "" : channel, contentIntent);
-        n.flags |= Notification.FLAG_NO_CLEAR;
-        nm.notify(id, n);
-    }
-
-    public static void killAppNotification(Context context, int id) {
-        nm = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
+    public static void killNotification(int id) {
         nm.cancel(id);
     }
+
 
 }

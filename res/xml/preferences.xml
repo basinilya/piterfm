@@ -1,0 +1,73 @@
+<PreferenceScreen
+        xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <android.preference.PreferenceCategory android:title="@string/radio_preferences">
+
+
+
+        <ListPreference
+                android:key="channel_sort_key"
+                android:defaultValue="sort_by_range"
+                android:title="@string/sort_title"
+                android:summary="@string/sort_summary"
+                 android:entries="@array/sort_channel_criteria"
+                android:entryValues="@array/sort_channel_criteria_values"
+                android:dialogTitle="@string/sort_dialog_title"/>
+
+
+
+    </android.preference.PreferenceCategory>
+
+
+    <android.preference.PreferenceCategory android:title="@string/notification_preferences">
+
+        <CheckBoxPreference
+                android:key="notification_key"
+                android:defaultValue="true"
+                android:title="@string/notification_title"
+                android:summary="@string/notification_summary"
+                />
+
+
+        <CheckBoxPreference
+                android:dependency="notification_key"
+                android:key="notification_sound_key"
+                android:defaultValue="false"
+                android:title="@string/notification_sound_title"
+                android:summary="@string/notification_sound_summary"
+                />
+
+    </android.preference.PreferenceCategory>
+
+
+    <android.preference.PreferenceCategory android:title="@string/reconnect_preferences">
+
+        <CheckBoxPreference
+                android:key="reconnect_key"
+                android:defaultValue="true"
+                android:title="@string/reconnect"
+                />
+
+        <ListPreference
+                android:dependency="reconnect_key"
+                android:key="reconnect_count_key"
+                android:defaultValue="5"
+                android:title="@string/reconnect_count"
+                android:entries="@array/reconnect_criteria"
+                android:entryValues="@array/reconnect_criteria"
+                android:dialogTitle="@string/reconnect_count"/>
+
+        <ListPreference
+                android:dependency="reconnect_key"
+                android:key="reconnect_timeout_key"
+                android:defaultValue="10"
+                android:title="@string/reconnect_timeout"
+                android:entries="@array/reconnect_timeout"
+                android:entryValues="@array/reconnect_timeout"
+                android:dialogTitle="@string/reconnect_timeout"/>
+
+
+    </android.preference.PreferenceCategory>
+
+
+</PreferenceScreen>

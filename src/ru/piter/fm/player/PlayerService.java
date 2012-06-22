@@ -3,73 +3,215 @@ package ru.piter.fm.player;
 import android.app.Service;
 import android.content.Intent;
 import android.media.MediaPlayer;
+import android.os.AsyncTask;
 import android.os.Binder;
-import android.os.Environment;
 import android.os.IBinder;
-import ru.piter.fm.R;
-import ru.piter.fm.activities.MainActivity;
 import ru.piter.fm.radio.Channel;
 import ru.piter.fm.util.Notifications;
-import ru.piter.fm.util.RadioUtil;
+import ru.piter.fm.util.RadioUtils;
+import ru.piter.fm.util.Settings;
+import ru.piter.fm.util.Utils;
 
-import java.io.IOException;
+import java.io.File;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Created by IntelliJ IDEA.
  * User: GGobozov
  * Date: 30.08.2010
  * Time: 15:37:13
- * To change this template use File | Settings | File Templates.
+ * To change this template use File | SettingsActivity | File Templates.
  */
-public class PlayerService extends Service implements MediaPlayer.OnCompletionListener,
-        MediaPlayer.OnPreparedListener, MediaPlayer.OnInfoListener, MediaPlayer.OnErrorListener {
+public class PlayerService extends Service implements MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener, MediaPlayer.OnPreparedListener {
 
-
-    private static final String APP_DIR = Environment.getExternalStorageDirectory() + "/piterfm/";
     private static final int TIME_TO_SEEK = 2000;
-    public static final int STOP = 0;
-    public static final int PLAY = 1;
-    public static int CURRENT_STATE = STOP;
+    private final IBinder mBinder = new PlayerServiceListener();
 
-
-    private final IBinder mBinder = new PlayerBinder();
-
-
-    private MediaPlayer player;
-    private Channel currentChannel;
-    private String currentTrack = "";
-    private String nextTrack = "";
-    private String trackToDelete = "";
-
-    /**
-     * Class for clients to access. Because we know this service always runs in
-     * the same process as its clients, we don't need to deal with IPC.
-     */
-    public class PlayerBinder extends Binder {
-        public PlayerService getService() {
-            return PlayerService.this;
-        }
-    }
-
+    private static MediaPlayer player1;
+    private static MediaPlayer player2;
+    private static MediaPlayer prepared;
+    public static Channel channel;
+    private static String track;
+    private static String nextTrack;
+    public static State state = State.Stopped;
+    public static int reconnectCount = 0;
 
     @Override
     public void onCreate() {
-        if (this.player == null) {
-            this.player = new MediaPlayer();
-            this.player.setOnCompletionListener(this);
-        }
-        RadioUtil.clearDirectory(RadioUtil.APP_DIR);
+        Utils.clearDirectory(Utils.CHUNKS_DIR);
+        player1 = new MediaPlayer();
+        player2 = new MediaPlayer();
+        player1.setOnCompletionListener(this);
+        player1.setOnErrorListener(this);
+        player1.setOnPreparedListener(this);
+        player2.setOnCompletionListener(this);
+        player2.setOnErrorListener(this);
+        player2.setOnPreparedListener(this);
+
+    }
+
+
+    private MediaPlayer getPlayer() {
+        if (player1.isPlaying()) return player2;
+        return player1;
     }
 
     @Override
     public void onDestroy() {
-        this.stop(true);
         super.onDestroy();
-        if (player != null) {
-            player.release();
-            player = null;
+        if (player1 != null) {
+            player1.release();
+            player1 = null;
         }
-        RadioUtil.clearDirectory(RadioUtil.APP_DIR);
+        if (player2 != null) {
+            player2.release();
+            player2 = null;
+        }
+        Utils.clearDirectory(Utils.CHUNKS_DIR);
+    }
+
+
+
+    public void play(Channel ch) {
+        reconnectCount = 0;
+        stop();
+
+        // if press on already played channel
+        if (channel != null && channel.equals(ch)) {
+            channel = null;
+            return;
+        }
+
+        channel = ch;
+        play(RadioUtils.getTrackUrl(channel));
+    }
+
+    private void play(String trackUrl) {
+        play(trackUrl, TIME_TO_SEEK);
+    }
+
+
+
+
+    private void play(final String trackUrl, final int offset) {
+        track = trackUrl;
+        String trackPath = Utils.CHUNKS_DIR + "/" + RadioUtils.getTrackNameFromUrl(track);
+
+         if (!new File(trackPath).exists()) {
+             try {
+                 Utils.downloadTrack(track);
+                 preparePlayer(track);
+                 reconnectCount = 0;
+                 Notifications.killNotification(Notifications.CANT_LOAD_TRACK);
+             } catch (Exception e) {
+                 state = State.Stopped;
+                 e.printStackTrace();
+                 //show notification only first time
+                 if (reconnectCount ==0)
+                     Notifications.show(Notifications.CANT_LOAD_TRACK, new Intent());
+                 //check reconnect counter
+                 if (Settings.isReconnect() && Settings.getReconnectCount() > reconnectCount++ ){
+                     System.out.println("Reconnect attemp № " + reconnectCount);
+                     System.out.println("Reconnect timeout " + Settings.getReconnectTimeout() + " sec." );
+                     Timer timer = new Timer();
+                     timer.schedule(new TimerTask() {
+                         @Override
+                         public void run() {
+                             play(trackUrl, offset);
+                         }
+                     }, Settings.getReconnectTimeout() * 1000); // reconnect timeout in seconds
+
+                 }
+                 return;
+             }
+        }
+
+        MediaPlayer mp = prepared != null ? prepared : getPlayer();
+        mp.seekTo(offset);
+        mp.start();
+        state = State.Playing;
+
+
+        nextTrack = RadioUtils.getNextTrackUrl(track);
+        new DownloadTrackTask().execute(nextTrack);
+
+    }
+
+
+    private void preparePlayer(String trackUrl) {
+        try {
+            MediaPlayer p = getPlayer();
+            p.reset();
+            p.setDataSource(Utils.CHUNKS_DIR + "/" + RadioUtils.getTrackNameFromUrl(trackUrl));
+            p.prepare();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    private void deleteTrack(final String track) {
+        new Thread() {
+            public void run() {
+                Utils.deletePreviousTrack(track);
+            }
+        }.start();
+    }
+
+
+    @Override
+    public void onPrepared(MediaPlayer mediaPlayer) {
+        prepared = mediaPlayer;
+    }
+
+    public void onCompletion(MediaPlayer mediaPlayer) {
+        mediaPlayer.reset();
+        deleteTrack(track);
+        play(nextTrack);
+    }
+
+    @Override
+    public boolean onError(MediaPlayer mediaPlayer, int what, int extra) {
+        return false;
+    }
+
+    public void stop() {
+        if (player1.isPlaying()) player1.stop();
+        if (player2.isPlaying()) player2.stop();
+        track = null;
+        nextTrack = null;
+        prepared = null;
+        state = State.Stopped;
+        Utils.clearDirectory(Utils.CHUNKS_DIR);
+    }
+
+    public void pause() {
+        player1.pause();
+        state = State.Paused;
+    }
+
+    public void resume() {
+        play(track);
+        state = State.Playing;
+    }
+
+
+    public enum State {
+        Stopped,
+        Preparing,
+        Playing,
+        Paused
+    }
+
+
+    /**
+     * Class for clients to access. Because we know this service always runs in
+     */
+    public class PlayerServiceListener extends Binder {
+        public PlayerService getService() {
+            return PlayerService.this;
+        }
     }
 
     @Override
@@ -77,107 +219,29 @@ public class PlayerService extends Service implements MediaPlayer.OnCompletionLi
         return mBinder;
     }
 
+    public class DownloadTrackTask extends AsyncTask {
 
-    private void nextSong() {
-        deleteTrack(trackToDelete);
-        play(currentChannel);
+        private Exception exception;
+        private String url;
 
-    }
-
-
-    public void play(Channel channel) {
-        boolean sameChannel = channel.equals(currentChannel);
-        currentChannel = channel;
-        if (!sameChannel) {
-            currentTrack = RadioUtil.getTrackUrl(channel);
-            downloadTrack(currentTrack, true);
-        } else {
-            currentTrack = nextTrack;
-        }
-
-        nextTrack = RadioUtil.getNextTrackUrl(currentTrack);
-        downloadTrack(nextTrack, false);
-
-
-        try {
-            player.reset();
-            player.setDataSource(APP_DIR + RadioUtil.getTrackNameFromUrl(currentTrack));
-            player.prepare();
-            player.seekTo(TIME_TO_SEEK);
-            player.start();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        if (CURRENT_STATE != PLAY) Notifications.showAppNotification(this, currentChannel.getName(), 4);
-            CURRENT_STATE = PLAY;
-        trackToDelete = currentTrack;
-    }
-
-    private void downloadTrack(final String track, boolean isSameThread) {
-        if (isSameThread) {
-            doDownload(track);
-        } else {
-            new Thread() {
-                public void run() {
-                    doDownload(track);
-                }
-            }.start();
-        }
-    }
-
-    private void doDownload(String track) {
-        if (!RadioUtil.isSdAvailible()) {
-            Notifications.showErrorNotification(this, getResources().getString(R.string.sdCardUnavailable), 2);
-            return;
-        }
-        try {
-            RadioUtil.downloadTrack(track);
-        } catch (Exception e) {
-            e.printStackTrace();
-            Notifications.showErrorNotification(this, getResources().getString(R.string.translationUnavailable), 2);
-        }
-    }
-
-    private void deleteTrack(final String track) {
-        new Thread() {
-            public void run() {
-                RadioUtil.deletePreviousTrack(track);
+        @Override
+        public Void doInBackground(Object... objects) {
+            url = objects[0].toString();
+            try {
+                Utils.downloadTrack(url);
+            } catch (Exception e) {
+                e.printStackTrace();
+                exception = e;
             }
-        }.start();
-    }
+            return null;
+        }
 
-
-    public void stop(boolean killNotification) {
-        if (killNotification) Notifications.killAppNotification(this, 4);
-        CURRENT_STATE = STOP;
-        this.player.stop();
-        this.player.reset();
-        currentChannel = null;
-        trackToDelete = null;
-        nextTrack = null;
-    }
-
-
-
-
-    public void onCompletion(MediaPlayer mediaPlayer) {
-        nextSong();
-    }
-
-    public boolean onError(MediaPlayer mediaPlayer, int i, int i1) {
-        return false;
-    }
-
-    public boolean onInfo(MediaPlayer mediaPlayer, int i, int i1) {
-        return false;
-    }
-
-    public void onPrepared(MediaPlayer mediaPlayer) {
+        @Override
+        protected void onPostExecute(Object o) {
+            if (exception == null)
+                preparePlayer(url);
+        }
 
     }
 
-    public Channel getCurrentChannel() {
-        return currentChannel;
-    }
 }

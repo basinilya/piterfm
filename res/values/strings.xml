@@ -1,14 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources >
-    <string name="hello">Hello World, Lop!</string>
-    <string name="app_name">PiterFm/MoskvaFm</string>
-    <string name="main_no_items">No items</string>
-    <string name="refresh">Обновить</string>
-    <string name="quit">Выход</string>
-    <string name="ok">Ok</string>
-    <string name="loadChannels">Загрузка каналов...</string>
+<resources>
+
+
+    <string name="loading">Загрузка...</string>
     <string name="buffering">Буферизация...</string>
+
     <string name="translationUnavailable">Трансляция недоступна, попробуйте еще раз</string>
     <string name="sdCardUnavailable">Нет доступа к SD карте</string>
     <string name="cantLoadChannels">Невозможно загрузить каналы</string>
+    <string name="cantLoadTracks">Невозможно загрузить трэки</string>
+    <string name="cantLoadTrack">Невозможно загрузить трэк</string>
+
+    <string name="context_menu_actions">Действия</string>
+    <string name="settings">Настройки</string>
+
+    <string name="radio_preferences">Настройки радио</string>
+    <string name="favourites_title">Избранное</string>
+    <string name="favourites_summary">Вкл./Выкл. поддержку избранных станций</string>
+
+    <string name="sort_title">Сортировка каналов</string>
+    <string name="sort_summary">Выберите критерий для сортировки каналов</string>
+    <string name="sort_dialog_title">Критерий</string>
+
+    <string name="sort_track_title">Сортировка трэков</string>
+    <string name="sort_track_summary">Выберите критерий для сортировки трэков</string>
+    
+
+    <string name="sort_by_range">Частота</string>
+    <string name="sort_by_name">Имя</string>
+    <string name="sort_by_time">Время</string>
+    <string name="sort_by_rate">Популярность</string>
+
+
+    <string name="delete_channel">Удалить</string>
+    <string name="to_favourites">В избранное</string>
+
+    <string name="channel_preferences">Настройки канала</string>
+    <string name="track_list_range_title">Временной интервал</string>
+    <string name="track_list_range_summary">Временной интервал для загрузки трэков</string>
+    <string name="track_list_range_dialog_title">Интервал</string>
+    <string name="track_list_range_default">Сутки</string>
+
+    <string name="notification_preferences">Настройки уведомления</string>
+
+    <string name="notification_title">Уведомления</string>
+    <string name="notification_summary">Вкл./Выкл. уведомления</string>
+
+    <string name="notification_sound_title">Звук уведомления</string>
+    <string name="notification_sound_summary">Вкл./Выкл. звук уведомления</string>
+
+    <string name="when_playing_title">Только при воспроизведении</string>
+    <string name="when_playing_summary">Отображать уведомление при воспроизведении</string>
+
+    <string name="reconnect_preferences">Переподключаться при потере соединения</string>
+    <string name="reconnect">Переподключаться</string>
+    <string name="reconnect_count">Кол-во попыток</string>
+    <string name="reconnect_timeout">Таймаут (сек)</string>
+
+
+
+    <string name="loadingTracks">Загрузка треков...</string>
+    <string name="search">Поиск</string>
+
+    <string name="unlicensed_dialog_title">Приложение не лицензировано</string>
+    <string name="unlicensed_dialog_body">Данное приложение не лицензировано. Пожалуйста, приобретите его на Android Market.</string>
+    <string name="buy_button">Купить</string>
+    <string name="quit_button">Выход</string>
+
+     <string name="lvl_application_error_title">Ошибка при проверке лицензии</string>
+    <string name="lvl_application_error_dialog_body">Произошла ошибка при проверке лицензионности приложения. Повторить?</string>
+    <string name="retry_button">Повторить</string>
+
+    <string name="on">Вкл.</string>
+    <string name="off">Выкл.</string>
+
+
+
 </resources>

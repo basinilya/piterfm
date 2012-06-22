@@ -5,17 +5,25 @@ package ru.piter.fm.radio;
  * User: gb
  * Date: 26.08.2010
  * Time: 0:04:44
- * To change this template use File | Settings | File Templates.
+ * To change this template use File | SettingsActivity | File Templates.
  */
 public class RadioFactory {
 
-    private IRadio radio;
-    public static final String PITER_FM ="PiterFm";
-    public static final String MOSKVA_FM ="MoskvaFm";
+    public static final String PITER_FM = "PiterFM";
+    public static final String MOSKVA_FM = "MoskvaFM";
+    public static final String FAVOURITE = "Favourite";
 
-     public static IRadio getRadio(String impl){
-        if (impl.equals(PITER_FM)) return new Radio(PITER_FM, 1L);
-        if (impl.equals(MOSKVA_FM)) return new Radio(MOSKVA_FM, 2L);
+
+    public static Radio getRadio(String name) {
+        if (name.equals(PITER_FM))
+            return new Radio(PITER_FM, "http://piter.fm");
+
+        if (name.equals(MOSKVA_FM))
+            return new Radio(MOSKVA_FM, "http://moskva.fm");
+
+        if (name.equals(FAVOURITE))
+            return new Radio(FAVOURITE, "");
+
         return null;
     }
 

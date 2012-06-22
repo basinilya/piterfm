@@ -1,0 +1,27 @@
+<resources>
+
+
+    <style name="PiterFM.Theme" parent="Theme.Sherlock.ForceOverflow">
+        <item name="actionBarStyle">@style/PiterFM.ActionBar</item>
+        <item name="android:actionBarStyle">@style/PiterFM.ActionBar</item>
+        <item name="actionButtonStyle">@style/PiterFM.ActionButton</item>
+
+    </style>
+
+
+    <style name="PiterFM.ActionBar" parent="Widget.Sherlock.ActionBar">
+        <!--<item name="android:background">@drawable/gradient_background</item>-->
+        <!--<item name="background">@drawable/gradient_background</item>-->
+        <item name="android:background">@color/dark_gray</item>
+        <item name="background">@color/dark_gray</item>
+        <!--<item name="android:background">@drawable/tiled_background</item>-->
+        <!--<item name="background">@drawable/tiled_background</item>-->
+    </style>
+
+    <style name="PiterFM.ActionButton" parent="Widget.Sherlock.ActionButton.Overflow">
+        <item name="android:minWidth">28dip</item>
+        <item name="android:paddingLeft">0dip</item>
+        <item name="android:paddingRight">0dip</item>
+    </style>
+
+</resources>

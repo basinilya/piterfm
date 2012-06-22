@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+     <string-array name="sort_channel_criteria">
+        <item>Частота</item>
+        <item>Имя</item>
+    </string-array>
+
+     <string-array name="sort_channel_criteria_values">
+        <item>sort_by_range</item>
+        <item>sort_by_name</item>
+    </string-array>
+
+
+     <string-array name="sort_track_criteria">
+        <item>Время</item>
+        <item>Популярность</item>
+    </string-array>
+
+     <string-array name="sort_track_criteria_values">
+        <item>sort_by_time</item>
+        <item>sort_by_rate</item>
+    </string-array>
+
+
+    <string-array name="reconnect_criteria">
+        <item>1</item>
+        <item>3</item>
+        <item>5</item>
+        <item>10</item>
+        <item>20</item>
+        <item>50</item>
+    </string-array>
+
+    <string-array name="reconnect_timeout">
+        <item>10</item>
+        <item>30</item>
+        <item>60</item>
+        <item>90</item>
+        <item>120</item>
+        <item>180</item>
+    </string-array>
+
+
+     
+</resources>

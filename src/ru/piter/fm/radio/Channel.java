@@ -1,7 +1,7 @@
 package ru.piter.fm.radio;
 
 import android.graphics.Bitmap;
-import android.util.Log;
+import ru.piter.fm.util.SearchFilter;
 
 import java.io.Serializable;
 
@@ -10,17 +10,36 @@ import java.io.Serializable;
  * User: GGobozov
  * Date: 25.08.2010
  * Time: 15:59:25
- * To change this template use File | Settings | File Templates.
+ * To change this template use File | SettingsActivity | File Templates.
  */
-public class Channel implements IChannel, Serializable, Comparable {
+public class Channel implements Serializable, Comparable, SearchFilter.Filterable {
 
     private String channelId;
-    private Bitmap logo;
+    private String logoUrl;
+    private String translationUrl;
     private String name;
     private String range;
+    private Radio radio;
 
 
     public Channel() {
+    }
+
+
+    public Radio getRadio() {
+        return radio;
+    }
+
+    public void setRadio(Radio radio) {
+        this.radio = radio;
+    }
+
+    public String getTranslationUrl() {
+        return translationUrl;
+    }
+
+    public void setTranslationUrl(String translationUrl) {
+        this.translationUrl = translationUrl;
     }
 
     public String getName() {
@@ -40,14 +59,13 @@ public class Channel implements IChannel, Serializable, Comparable {
     }
 
 
-    public Bitmap getLogo() {
-        return logo;
+    public String getLogoUrl() {
+        return logoUrl;
     }
 
-    public void setLogo(Bitmap logo) {
-        this.logo = logo;
+    public void setLogoUrl(String logoUrl) {
+        this.logoUrl = logoUrl;
     }
-
 
     public String getChannelId() {
         return channelId;
@@ -59,6 +77,11 @@ public class Channel implements IChannel, Serializable, Comparable {
 
 
     @Override
+    public String toFilterString() {
+        return name.toLowerCase() + range.toLowerCase();
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
@@ -66,7 +89,7 @@ public class Channel implements IChannel, Serializable, Comparable {
         Channel channel = (Channel) o;
 
         if (!channelId.equals(channel.channelId)) return false;
-        //if (!logo.equals(channel.logo)) return false;
+        if (!logoUrl.equals(channel.logoUrl)) return false;
         if (!name.equals(channel.name)) return false;
         if (!range.equals(channel.range)) return false;
 
@@ -76,7 +99,6 @@ public class Channel implements IChannel, Serializable, Comparable {
     @Override
     public int hashCode() {
         int result = channelId.hashCode();
-        result = 31 * result + logo.hashCode();
         result = 31 * result + name.hashCode();
         result = 31 * result + range.hashCode();
         return result;
@@ -84,12 +106,16 @@ public class Channel implements IChannel, Serializable, Comparable {
 
     public int compareTo(Object o) {
         Channel channel = (Channel) o;
-        float currentValue = Float.parseFloat(this.range.split("\\s")[0]);
-        float newValue = Float.parseFloat(channel.getRange().split("\\s")[0]);
-        if (currentValue < newValue)
-            return -1;
-        else if (currentValue > newValue)
-            return 1;
-        return 0;
+        try {
+            float currentValue = Float.parseFloat(this.range.split("\\s")[0]);
+            float newValue = Float.parseFloat(channel.getRange().split("\\s")[0]);
+            if (currentValue < newValue)
+                return -1;
+            else if (currentValue > newValue)
+                return 1;
+            return 0;
+        } catch (NumberFormatException e) {
+            return 0;
+        }
     }
 }
