@@ -149,9 +149,10 @@ public class RadioFragment extends ListFragment implements GetChannelsTask.Chann
                                 } else {
                                     Notifications.killNotification(Notifications.PLAY_STOP);
                                 }
+                                notifyDataSetChanged();
                             }
                         }.execute(ch);
-                        notifyDataSetChanged();
+
                     }
                 });
 
