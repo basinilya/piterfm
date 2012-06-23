@@ -141,12 +141,14 @@ public class RadioFragment extends ListFragment implements GetChannelsTask.Chann
                             public void onResult(Void result) {
                                 boolean isPlaying = ch.equals(player.channel) && (App.getPlayer().state == PlayerService.State.Playing);
                                 holder.button.setImageResource(isPlaying ? R.drawable.play_on : R.drawable.play);
-                                //if (isPlaying) {
+                                if (isPlaying) {
                                     Intent intent = new Intent(getActivity(), RadioActivity.class);
                                     intent.putExtra("radio", radio);
                                     intent.putExtra("channel", ch);
                                     Notifications.show(Notifications.PLAY_STOP, intent);
-                                //}
+                                } else {
+                                    Notifications.killNotification(Notifications.PLAY_STOP);
+                                }
                             }
                         }.execute(ch);
                         notifyDataSetChanged();
