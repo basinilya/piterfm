@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Environment;
+import android.util.Log;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -52,7 +53,7 @@ public class Utils {
 
 
     public static void downloadTrack(String trackUrl) throws Exception {
-        System.out.println("Download track = " + trackUrl);
+        Log.d("PiterFM", "Download track = " + trackUrl);
         InputStream in = openConnection(trackUrl);
         FileOutputStream fos = new FileOutputStream(new File(CHUNKS_DIR, RadioUtils.getTrackNameFromUrl(trackUrl)));
         byte[] buffer = new byte[512];

@@ -6,6 +6,7 @@ import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.IBinder;
+import android.util.Log;
 import ru.piter.fm.radio.Channel;
 import ru.piter.fm.util.Notifications;
 import ru.piter.fm.util.RadioUtils;
@@ -112,8 +113,8 @@ public class PlayerService extends Service implements MediaPlayer.OnCompletionLi
                      Notifications.show(Notifications.CANT_LOAD_TRACK, new Intent());
                  //check reconnect counter
                  if (Settings.isReconnect() && Settings.getReconnectCount() > reconnectCount++ ){
-                     System.out.println("Reconnect attemp № " + reconnectCount);
-                     System.out.println("Reconnect timeout " + Settings.getReconnectTimeout() + " sec." );
+                     Log.d("PiterFM", "Reconnect attemp № " + reconnectCount);
+                     Log.d("PiterFM", "Reconnect timeout " + Settings.getReconnectTimeout() + " sec.");
                      Timer timer = new Timer();
                      timer.schedule(new TimerTask() {
                          @Override

@@ -187,9 +187,7 @@ public class RadioFragment extends ListFragment implements GetChannelsTask.Chann
     @Override
     public void onResume() {
         super.onResume();
-        System.out.println("Call Radio Fragment On Resume...");
         if (radio != null && radio.getName().equals(RadioFactory.FAVOURITE)) {
-            System.out.println("Call Radio Fragment On Resume Favourite...");
             GetChannelsTask task = new GetChannelsTask(getActivity());
             task.setChannelsLoadingListener(this);
             task.execute(radio);

@@ -90,7 +90,7 @@ public class RadioUtils {
         net.htmlparser.jericho.Element stationsList = source.getFirstElementByClass("msk-stations-block");
         //List<net.htmlparser.jericho.Element> stations = stationsList.getAllElements(HTMLElementName.DIV);
         List<net.htmlparser.jericho.Element> stations = stationsList.getChildElements();
-        System.out.println("stations = " + stations.size());
+        Log.d("PiterFM","stations = " + stations.size());
         Iterator iter = stations.iterator();
         while (iter.hasNext()) {
             try {
@@ -126,7 +126,7 @@ public class RadioUtils {
         Date date = getGMT4Date(new Date(System.currentTimeMillis() - (TIME_MINUTE * 5)), "Europe/Moscow");
         String currentTrack = dateFormat.format(date);
         String trackUrl = CHANNEL_HOST + "/files/" + channelId + "/mp4/" + currentTrack + ".mp4";
-        System.out.println("trackUrl = " + trackUrl);
+        Log.d("PiterFM","trackUrl = " + trackUrl);
         return trackUrl;
     }
 

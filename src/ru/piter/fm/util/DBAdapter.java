@@ -178,7 +178,7 @@ public class DBAdapter {
 
         @Override
         public void onCreate(SQLiteDatabase sqLiteDatabase) {
-            System.out.println("Create tables!");
+            Log.d("PiterFM","Create tables!");
             sqLiteDatabase.execSQL(String.format(CREATE_TABLE, PITER_TABLE));
             sqLiteDatabase.execSQL(String.format(CREATE_TABLE, MOSKVA_TABLE));
             sqLiteDatabase.execSQL(String.format(CREATE_TABLE, FAVOURITES_TABLE));
