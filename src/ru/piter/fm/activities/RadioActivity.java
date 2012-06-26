@@ -26,6 +26,7 @@ import ru.piter.fm.R;
 import ru.piter.fm.fragments.RadioAdapter;
 import ru.piter.fm.fragments.RadioFragment;
 import ru.piter.fm.radio.RadioFactory;
+import ru.piter.fm.util.Notifications;
 import ru.piter.fm.util.Settings;
 
 /**
@@ -106,14 +107,13 @@ public class RadioActivity extends SherlockFragmentActivity implements ViewPager
     @Override
     public boolean onCreateOptionsMenu(com.actionbarsherlock.view.Menu menu) {
 
-        menu.add(0, 1, 1, "Refresh").setIcon(R.drawable.ic_navigation_refresh).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM );
-        menu.add(0, 2, 2, "Settings").setIcon(R.drawable.ic_action_settings).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-        menu.add(0, 3, 3, "Search").setIcon(R.drawable.ic_action_search).setActionView(R.layout.action_search)
-                                    .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
+        menu.add(0, 1, 1, R.string.ac_refresh ).setIcon(R.drawable.ic_navigation_refresh).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM );
+        menu.add(0, 2, 2, R.string.ac_settings).setIcon(R.drawable.ic_action_settings).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+        menu.add(0, 3, 3, R.string.ac_search  ).setIcon(R.drawable.ic_action_search).setActionView(R.layout.action_search).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
+        menu.add(0, 4, 4, R.string.ac_exit).setIcon(R.drawable.ic_cancel).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
 
         return super.onCreateOptionsMenu(menu);
     }
-
     private TextWatcher filterTextWatcher = new TextWatcher() {
         public void afterTextChanged(Editable s) {
         }
@@ -142,6 +142,23 @@ public class RadioActivity extends SherlockFragmentActivity implements ViewPager
             case 3:
                 search = (EditText) item.getActionView();
                 search.addTextChangedListener(filterTextWatcher);
+                break;
+            case 4:
+
+                final AlertDialog alert;
+                AlertDialog.Builder builder = new AlertDialog.Builder(RadioActivity.this)
+                        .setTitle(R.string.request_exit)
+                        .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                App.getPlayer().stop();
+                                Notifications.killNotification(Notifications.PLAY_STOP);
+                                finish();
+                            }
+                        })
+                        .setNegativeButton(R.string.no, null);
+                alert = builder.create();
+                alert.show();
                 break;
         }
         return true;
