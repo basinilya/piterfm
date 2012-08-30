@@ -11,10 +11,9 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
-    <uses-permission android:name="com.android.vending.CHECK_LICENSE" />
     <uses-permission android:name="android.permission.VIBRATE"/>
 
-    <application android:icon="@drawable/logo" android:label="PITER FM" android:name=".App" android:theme="@style/PiterFM.Theme">
+    <application android:icon="@drawable/icon" android:label="PITER FM" android:name=".App" android:theme="@style/PiterFM.Theme">
 
         <activity android:name=".activities.RadioActivity"
                   android:configChanges="keyboardHidden|orientation">
@@ -25,6 +24,8 @@
         </activity>
 
         <activity android:name=".activities.SettingsActivity"/>
+        <activity android:name=".activities.ChannelActivity"
+                  android:windowSoftInputMode="stateHidden" android:configChanges="orientation|keyboardHidden"/>
         <service android:name=".player.PlayerService" />
 
     </application>

@@ -3,18 +3,29 @@
 
     <android.preference.PreferenceCategory android:title="@string/radio_preferences">
 
-
+        <CheckBoxPreference
+                android:key="favourites_key"
+                android:defaultValue="false"
+                android:title="@string/favourites_title"
+                android:summary="@string/favourites_summary"/>
 
         <ListPreference
                 android:key="channel_sort_key"
                 android:defaultValue="sort_by_range"
                 android:title="@string/sort_title"
                 android:summary="@string/sort_summary"
-                 android:entries="@array/sort_channel_criteria"
+                android:entries="@array/sort_channel_criteria"
                 android:entryValues="@array/sort_channel_criteria_values"
                 android:dialogTitle="@string/sort_dialog_title"/>
 
-
+        <ListPreference
+                android:key="track_sort_key"
+                android:defaultValue="sort_by_time"
+                android:title="@string/sort_track_title"
+                android:summary="@string/sort_track_summary"
+                android:entries="@array/sort_track_criteria"
+                android:entryValues="@array/sort_track_criteria_values"
+                android:dialogTitle="@string/sort_dialog_title"/>
 
     </android.preference.PreferenceCategory>
 

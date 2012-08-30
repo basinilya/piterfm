@@ -36,7 +36,7 @@ public class Notifications {
 
     public static void show(int notificationId, Intent intent) {
         String message = "";
-        Notification notification = new Notification(R.drawable.logo, "", System.currentTimeMillis());
+        Notification notification = new Notification(R.drawable.notification, "", System.currentTimeMillis());
         PendingIntent contentIntent = null;
         switch (notificationId) {
             case SD_CARD_UNAVAILABLE:

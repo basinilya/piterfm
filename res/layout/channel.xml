@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:orientation="vertical"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">
+
+
+
+        <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/buttons"
+                android:layout_alignParentBottom="true"
+                android:background="@color/dark_gray"
+                android:weightSum="3"
+                >
+
+
+            <Button android:id="@+id/date_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/buttons"
+                    android:drawableLeft="@drawable/ic_calendar"
+                    android:textColor="@color/white"
+                    android:layout_weight="1"
+                    android:padding="5dp"
+                    />
+
+            <Button android:id="@+id/time_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/buttons"
+                    android:drawableLeft="@drawable/ic_clock"
+                    android:textColor="@color/white"
+                    android:layout_weight="1"
+                    android:padding="5dp"
+                    />
+
+            <ImageButton android:id="@+id/play_button"
+                         android:layout_width="wrap_content"
+                         android:layout_height="fill_parent"
+                         android:background="@drawable/buttons"
+                         android:layout_gravity="center"
+                         android:layout_weight="1"
+                         android:padding="5dp"
+                    />
+
+        </LinearLayout>
+
+    <ListView
+            android:id="@android:id/list"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_above="@id/buttons"
+            android:cacheColorHint="@android:color/transparent"
+            />
+
+</RelativeLayout>

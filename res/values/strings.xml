@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-
     <string name="loading">Загрузка...</string>
     <string name="buffering">Буферизация...</string>
 
@@ -11,8 +10,15 @@
     <string name="cantLoadTracks">Невозможно загрузить трэки</string>
     <string name="cantLoadTrack">Невозможно загрузить трэк</string>
 
-    <string name="context_menu_actions">Действия</string>
-    <string name="settings">Настройки</string>
+    <string name="ac_settings">Настройки</string>
+    <string name="ac_refresh">Обновить</string>
+    <string name="ac_search">Поиск</string>
+    <string name="ac_exit">Выход</string>
+    <string name="ac_favourite">Избранное</string>
+
+    <string name="request_exit">Хотите выйти?</string>
+    <string name="yes">Да</string>
+    <string name="no">Нет</string>
 
     <string name="radio_preferences">Настройки радио</string>
     <string name="favourites_title">Избранное</string>
@@ -24,7 +30,7 @@
 
     <string name="sort_track_title">Сортировка трэков</string>
     <string name="sort_track_summary">Выберите критерий для сортировки трэков</string>
-    
+
 
     <string name="sort_by_range">Частота</string>
     <string name="sort_by_name">Имя</string>
@@ -67,12 +73,15 @@
     <string name="buy_button">Купить</string>
     <string name="quit_button">Выход</string>
 
-     <string name="lvl_application_error_title">Ошибка при проверке лицензии</string>
+    <string name="lvl_application_error_title">Ошибка при проверке лицензии</string>
     <string name="lvl_application_error_dialog_body">Произошла ошибка при проверке лицензионности приложения. Повторить?</string>
     <string name="retry_button">Повторить</string>
 
     <string name="on">Вкл.</string>
     <string name="off">Выкл.</string>
+
+    <string name="incorrect_time">Выбрано неверное время</string>
+    <string name="incorrect_date">Выбрана неверная дата</string>
 
 
 

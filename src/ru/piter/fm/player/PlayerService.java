@@ -8,6 +8,7 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 import ru.piter.fm.radio.Channel;
+import ru.piter.fm.radio.Track;
 import ru.piter.fm.util.Notifications;
 import ru.piter.fm.util.RadioUtils;
 import ru.piter.fm.util.Settings;
@@ -73,6 +74,16 @@ public class PlayerService extends Service implements MediaPlayer.OnCompletionLi
     }
 
 
+    public void play(Channel ch, Track track) {
+        reconnectCount = 0;
+        stop();
+
+        channel = ch;
+        String url = RadioUtils.getTrackUrl(track.getTime(), channel.getChannelId());
+        int offset = RadioUtils.getTrackOffset(track.getTime());
+        play(url, offset);
+    }
+
 
     public void play(Channel ch) {
         reconnectCount = 0;
@@ -90,6 +101,7 @@ public class PlayerService extends Service implements MediaPlayer.OnCompletionLi
 
     private void play(String trackUrl) {
         play(trackUrl, TIME_TO_SEEK);
+        Log.d("PiterFM: ", "play track " + trackUrl);
     }
 
 
@@ -99,33 +111,38 @@ public class PlayerService extends Service implements MediaPlayer.OnCompletionLi
         track = trackUrl;
         String trackPath = Utils.CHUNKS_DIR + "/" + RadioUtils.getTrackNameFromUrl(track);
 
-         if (!new File(trackPath).exists()) {
-             try {
-                 Utils.downloadTrack(track);
-                 preparePlayer(track);
-                 reconnectCount = 0;
-                 Notifications.killNotification(Notifications.CANT_LOAD_TRACK);
-             } catch (Exception e) {
-                 state = State.Stopped;
-                 e.printStackTrace();
-                 //show notification only first time
-                 if (reconnectCount ==0)
-                     Notifications.show(Notifications.CANT_LOAD_TRACK, new Intent());
-                 //check reconnect counter
-                 if (Settings.isReconnect() && Settings.getReconnectCount() > reconnectCount++ ){
-                     Log.d("PiterFM", "Reconnect attemp № " + reconnectCount);
-                     Log.d("PiterFM", "Reconnect timeout " + Settings.getReconnectTimeout() + " sec.");
-                     Timer timer = new Timer();
-                     timer.schedule(new TimerTask() {
-                         @Override
-                         public void run() {
-                             play(trackUrl, offset);
-                         }
-                     }, Settings.getReconnectTimeout() * 1000); // reconnect timeout in seconds
+        if (!new File(trackPath).exists()) {
+            try {
+                Utils.downloadTrack(track);
+                if (new File(trackPath).length() == 0) {
+                    Log.d("PiterFM", "track not exists " + trackPath);
+                    return;
+                }
+                preparePlayer(track);
+                reconnectCount = 0;
+                Notifications.killNotification(Notifications.CANT_LOAD_TRACK);
+            } catch (Exception e) {
+                state = State.Stopped;
+                e.printStackTrace();
+                Log.d("PiterFM", e.getMessage() + "\n" + getStackTrace(e));
+                //show notification only first time
+                if (reconnectCount ==0)
+                    Notifications.show(Notifications.CANT_LOAD_TRACK, new Intent());
+                //check reconnect counter
+                if (Settings.isReconnect() && Settings.getReconnectCount() > reconnectCount++ ){
+                    Log.d("PiterFM", "Reconnect attemp № " + reconnectCount);
+                    Log.d("PiterFM", "Reconnect timeout " + Settings.getReconnectTimeout() + " sec.");
+                    Timer timer = new Timer();
+                    timer.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            play(trackUrl, offset);
+                        }
+                    }, Settings.getReconnectTimeout() * 1000); // reconnect timeout in seconds
 
-                 }
-                 return;
-             }
+                }
+                return;
+            }
         }
 
         MediaPlayer mp = prepared != null ? prepared : getPlayer();
@@ -148,6 +165,7 @@ public class PlayerService extends Service implements MediaPlayer.OnCompletionLi
             p.prepare();
         } catch (Exception e) {
             e.printStackTrace();
+            Log.d("PiterFM: ", e.getMessage() + getStackTrace(e));
         }
     }
 
@@ -155,6 +173,7 @@ public class PlayerService extends Service implements MediaPlayer.OnCompletionLi
     private void deleteTrack(final String track) {
         new Thread() {
             public void run() {
+                Log.d("PiterFM: ", "Delete track " + track);
                 Utils.deletePreviousTrack(track);
             }
         }.start();
@@ -233,6 +252,7 @@ public class PlayerService extends Service implements MediaPlayer.OnCompletionLi
             } catch (Exception e) {
                 e.printStackTrace();
                 exception = e;
+                Log.d("PiterFM: ", e.getMessage() + "\n" + getStackTrace(e));
             }
             return null;
         }
@@ -243,6 +263,15 @@ public class PlayerService extends Service implements MediaPlayer.OnCompletionLi
                 preparePlayer(url);
         }
 
+    }
+
+    private String getStackTrace(Exception e){
+        StackTraceElement[] arr = e.getStackTrace();
+        String report = e.toString() + "\n\n";
+        for (int i = 0; i < arr.length; i++) {
+            report += arr[i].toString() + "\n";
+        }
+        return report;
     }
 
 }

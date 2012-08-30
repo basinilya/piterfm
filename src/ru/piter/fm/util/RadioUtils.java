@@ -9,6 +9,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+import ru.piter.fm.radio.Track;
 
 import javax.xml.parsers.*;
 import java.io.IOException;
@@ -42,6 +43,68 @@ public class RadioUtils {
         //http://www.piter.fm/station.xml.html?station=7835&day=20101218&r=0.47836548276245594
     }
 
+    public static List<Track> getTracks(String url) {
+        Log.d("PiterFM","tracks url = " + url);
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        List<Track> trackList = new ArrayList<Track>();
+        DocumentBuilder builder = null;
+        try {
+            builder = factory.newDocumentBuilder();
+            Document dom = null;
+            Log.d("Parser", new URL(url).getContent().toString());
+            dom = builder.parse(new URL(url).openStream());
+            Element root = dom.getDocumentElement();
+            NodeList tracks = root.getElementsByTagName("track");
+            Log.d("Parser ", "Tracks size = " + tracks.getLength());
+            for (int i = 0; i < tracks.getLength(); i++) {
+                Track trackInfo = new Track(Track.TYPE_TRACK);
+                Element track = (Element) tracks.item(i);
+                trackInfo.setArtistName(track.getAttribute("name"));
+                trackInfo.setTrackName(track.getAttribute("artistName"));
+                trackInfo.setDuration(track.getAttribute("duration"));
+
+                String time = track.getAttribute("startAt");
+                trackInfo.setStartAt(Long.parseLong(time));
+                Date date = getGMT4Date(new Date(Long.parseLong(time) * 1000), "Europe/Moscow");
+                DateFormat df = new SimpleDateFormat("yyyy:MM:dd:HH:mm:ss");
+                time = df.format(date);
+                trackInfo.setTime(time);
+
+                trackInfo.setPlayCount(track.getAttribute("playCount"));
+                trackList.add(trackInfo);
+            }
+
+            tracks = root.getElementsByTagName("show");
+            Log.d("PiterFM","shows length = " + tracks.getLength());
+            for (int i = 0; i < tracks.getLength(); i++) {
+                Track trackInfo = new Track(Track.TYPE_SHOW);
+                Element track = (Element) tracks.item(i);
+                trackInfo.setTrackName(track.getAttribute("name"));
+                trackInfo.setDuration(track.getAttribute("duration"));
+                String time = track.getAttribute("startAt");
+                trackInfo.setStartAt(Long.parseLong(time));
+                Date date = getGMT4Date(new Date(Long.parseLong(time) * 1000), "Europe/Moscow");
+                DateFormat df = new SimpleDateFormat("yyyy:MM:dd:HH:mm:ss");
+                time = df.format(date);
+                trackInfo.setTime(time);
+                trackInfo.setPlayCount("0");
+                trackList.add(trackInfo);
+            }
+
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+            Log.d("PiterFM: ", e.getMessage());
+        } catch (SAXException e) {
+            e.printStackTrace();
+            Log.d("PiterFM: ", e.getMessage());
+        } catch (IOException e) {
+            e.printStackTrace();
+            Log.d("PiterFM: ", e.getMessage());
+        }
+
+
+        return trackList;
+    }
 
     public static Date getGMT4Date(Date currentDate, String timeZoneId) {
         // TimeZone tz = TimeZone.getTimeZone(timeZoneId);
@@ -113,6 +176,7 @@ public class RadioUtils {
                 channels.add(ch);
             } catch (Exception e) {
                 e.printStackTrace();
+                Log.d("PiterFM: ", e.getMessage());
                 continue;
             }
         }
@@ -126,6 +190,9 @@ public class RadioUtils {
         Date date = getGMT4Date(new Date(System.currentTimeMillis() - (TIME_MINUTE * 5)), "Europe/Moscow");
         String currentTrack = dateFormat.format(date);
         String trackUrl = CHANNEL_HOST + "/files/" + channelId + "/mp4/" + currentTrack + ".mp4";
+        if (trackUrl == null){
+            Log.d("PiterFM","trackUrl is null ! Date = " + date + " Channel = " + channel + " currentTrack = " + currentTrack);
+        }
         Log.d("PiterFM","trackUrl = " + trackUrl);
         return trackUrl;
     }
@@ -151,6 +218,7 @@ public class RadioUtils {
             return nextTrack;
         } catch (ParseException e) {
             e.printStackTrace();
+            Log.d("PiterFM: ", e.getMessage() + "\n" + e.getCause());
         }
 
         return nextTrack;

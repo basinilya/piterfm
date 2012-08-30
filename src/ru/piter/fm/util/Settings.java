@@ -15,6 +15,8 @@ import ru.piter.fm.App;
 public class Settings {
 
     public static final String CHANNEL_SORT_TYPE = "channel_sort_key";
+    public static final String TRACK_SORT_TYPE = "track_sort_key";
+    public static final String FAVOURITES = "favourites_key";
     public static final String NOTIFICATION = "notification_key";
     public static final String NOTIFICATION_SOUND = "notification_sound_key";
     public static final String RECONNECT = "reconnect_key";
@@ -42,6 +44,14 @@ public class Settings {
         return getString(CHANNEL_SORT_TYPE);
     }
 
+    public static String getTrackSort() {
+        return getString(TRACK_SORT_TYPE);
+    }
+
+    public static boolean isFavouritesEnabled() {
+        return getBoolean(FAVOURITES);
+    }
+
     public static boolean isNotificationsEnabled() {
         return getBoolean(NOTIFICATION);
     }
@@ -61,5 +71,4 @@ public class Settings {
     public static int getReconnectTimeout(){
         return getInt(RECONNECT_TIMEOUT);
     }
-
 }

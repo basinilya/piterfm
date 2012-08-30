@@ -26,6 +26,7 @@ import ru.piter.fm.R;
 import ru.piter.fm.fragments.RadioAdapter;
 import ru.piter.fm.fragments.RadioFragment;
 import ru.piter.fm.radio.RadioFactory;
+import ru.piter.fm.util.Notifications;
 import ru.piter.fm.util.Settings;
 
 /**
@@ -38,7 +39,7 @@ import ru.piter.fm.util.Settings;
 public class RadioActivity extends SherlockFragmentActivity implements ViewPager.OnPageChangeListener, ActionBar.TabListener, SharedPreferences.OnSharedPreferenceChangeListener {
 
 
-
+    public static final int REQUEST_EXIT = 5;
     private ViewPager mPager;
     private RadioAdapter mAdapter;
     private ActionBar actionBar;
@@ -93,6 +94,10 @@ public class RadioActivity extends SherlockFragmentActivity implements ViewPager
         mAdapter.addFragment(new RadioFragment(RadioFactory.getRadio(RadioFactory.PITER_FM)));
         mAdapter.addFragment(new RadioFragment(RadioFactory.getRadio(RadioFactory.MOSKVA_FM)));
 
+        if(Settings.isFavouritesEnabled()){
+            actionBar.addTab(actionBar.newTab().setText("FAV").setTabListener(this));
+            mAdapter.addFragment(new RadioFragment(RadioFactory.getRadio(RadioFactory.FAVOURITE)));
+        }
 
         mPager.setAdapter(mAdapter);
         mPager.setOnPageChangeListener(this);
@@ -110,6 +115,7 @@ public class RadioActivity extends SherlockFragmentActivity implements ViewPager
         menu.add(0, 2, 2, "Settings").setIcon(R.drawable.ic_action_settings).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
         menu.add(0, 3, 3, "Search").setIcon(R.drawable.ic_action_search).setActionView(R.layout.action_search)
                                     .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
+        menu.add(0, 4, 4, R.string.ac_exit    ).setIcon(R.drawable.ic_cancel).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
 
         return super.onCreateOptionsMenu(menu);
     }
@@ -143,12 +149,37 @@ public class RadioActivity extends SherlockFragmentActivity implements ViewPager
                 search = (EditText) item.getActionView();
                 search.addTextChangedListener(filterTextWatcher);
                 break;
+            case 4:
+
+                final AlertDialog alert;
+                AlertDialog.Builder builder = new AlertDialog.Builder(RadioActivity.this)
+                        .setTitle(R.string.request_exit)
+                        .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                App.getPlayer().stop();
+                                Notifications.killNotification(Notifications.PLAY_STOP);
+                                finish();
+                            }
+                        })
+                        .setNegativeButton(R.string.no, null);
+                alert = builder.create();
+                alert.show();
+                break;
         }
         return true;
     }
 
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
+        if (requestCode == REQUEST_EXIT) {
+            if (resultCode == RESULT_OK) {
+                finish();
+            }
+        }
+    }
 
     @Override
     public void onTabReselected(ActionBar.Tab tab, FragmentTransaction transaction) {

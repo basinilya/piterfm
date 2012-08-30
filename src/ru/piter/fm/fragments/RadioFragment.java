@@ -12,6 +12,7 @@ import android.widget.*;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import ru.piter.fm.App;
 import ru.piter.fm.R;
+import ru.piter.fm.activities.ChannelActivity;
 import ru.piter.fm.activities.RadioActivity;
 import ru.piter.fm.player.PlayerService;
 import ru.piter.fm.radio.Channel;
@@ -158,6 +159,15 @@ public class RadioFragment extends ListFragment implements GetChannelsTask.Chann
 
 
             }
+
+            convertView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(getActivity(), ChannelActivity.class);
+                    intent.putExtra("channel", ch);
+                    getActivity().startActivityForResult(intent, RadioActivity.REQUEST_EXIT);
+                }
+            });
 
             return convertView;
         }
