@@ -28,6 +28,7 @@ import java.util.TimerTask;
 public class PlayerService extends Service implements MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener, MediaPlayer.OnPreparedListener {
 
     private static final int TIME_TO_SEEK = 2000;
+    private static final int TRACK_MIN_LENGTH_BYTES = 10000;
     private final IBinder mBinder = new PlayerServiceListener();
 
     private static MediaPlayer player1;
@@ -112,7 +113,7 @@ public class PlayerService extends Service implements MediaPlayer.OnCompletionLi
         if (!new File(trackPath).exists()) {
             try {
                 Utils.downloadTrack(track);
-                if (new File(trackPath).length() == 0) {
+                if (new File(trackPath).length() < TRACK_MIN_LENGTH_BYTES) {
                     Log.d("PiterFM", "track not exists " + trackPath);
                     return;
                 }
