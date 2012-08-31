@@ -196,15 +196,18 @@ public class ChannelActivity extends SherlockListActivity implements GetTracksTa
 
     private TimePickerDialog.OnTimeSetListener mTimeSetListener = new TimePickerDialog.OnTimeSetListener() {
         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-            day.set(Calendar.HOUR_OF_DAY, hourOfDay);
-            day.set(Calendar.MINUTE, minute);
-            day.set(Calendar.SECOND, 0);
-
+            //day.set(Calendar.HOUR_OF_DAY, hourOfDay);
+           // day.set(Calendar.MINUTE, minute);
+           // day.set(Calendar.SECOND, 0);
+            day.set(day.get(Calendar.YEAR), day.get(Calendar.MONTH), day.get(Calendar.DAY_OF_MONTH), hourOfDay, minute);
             timeButton.setText(day.get(Calendar.HOUR_OF_DAY) + ":" + getRightMinutes(day));
             Track ti = new Track();
             DateFormat df = new SimpleDateFormat("yyyy:MM:dd:HH:mm:ss");
-            ti.setTime(df.format(day.getTime()));
-            if (!new Date().before(day.getTime())) {
+            day.setTimeZone(TimeZone.getTimeZone("GMT+4"));
+            Date trackTime = day.getTime();
+            ti.setTime(df.format(trackTime));
+
+            if (!new Date().before(trackTime)) {
                 new PlayerTask(ChannelActivity.this) {
                     @Override
                     public void onResult(Void result) {

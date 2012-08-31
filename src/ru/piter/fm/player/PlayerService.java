@@ -105,8 +105,6 @@ public class PlayerService extends Service implements MediaPlayer.OnCompletionLi
     }
 
 
-
-
     private void play(final String trackUrl, final int offset) {
         track = trackUrl;
         String trackPath = Utils.CHUNKS_DIR + "/" + RadioUtils.getTrackNameFromUrl(track);
@@ -126,10 +124,10 @@ public class PlayerService extends Service implements MediaPlayer.OnCompletionLi
                 e.printStackTrace();
                 Log.d("PiterFM", e.getMessage() + "\n" + getStackTrace(e));
                 //show notification only first time
-                if (reconnectCount ==0)
+                if (reconnectCount == 0)
                     Notifications.show(Notifications.CANT_LOAD_TRACK, new Intent());
                 //check reconnect counter
-                if (Settings.isReconnect() && Settings.getReconnectCount() > reconnectCount++ ){
+                if (Settings.isReconnect() && Settings.getReconnectCount() > reconnectCount++) {
                     Log.d("PiterFM", "Reconnect attemp № " + reconnectCount);
                     Log.d("PiterFM", "Reconnect timeout " + Settings.getReconnectTimeout() + " sec.");
                     Timer timer = new Timer();
@@ -188,7 +186,8 @@ public class PlayerService extends Service implements MediaPlayer.OnCompletionLi
     public void onCompletion(MediaPlayer mediaPlayer) {
         mediaPlayer.reset();
         deleteTrack(track);
-        play(nextTrack);
+        if (nextTrack != null)
+            play(nextTrack);
     }
 
     @Override
@@ -265,7 +264,7 @@ public class PlayerService extends Service implements MediaPlayer.OnCompletionLi
 
     }
 
-    private String getStackTrace(Exception e){
+    private String getStackTrace(Exception e) {
         StackTraceElement[] arr = e.getStackTrace();
         String report = e.toString() + "\n\n";
         for (int i = 0; i < arr.length; i++) {

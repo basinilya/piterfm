@@ -25,7 +25,7 @@ import java.io.*;
 public class Utils {
 
     public static final File SD_DIR = Environment.getExternalStorageDirectory();
-    public static final File APP_DIR = new File(SD_DIR + "/.piterfm");
+    public static final File APP_DIR = new File(SD_DIR + "/piterfm");
     public static final File CACHE_DIR = new File(APP_DIR + "/cache");
     public static final File CHUNKS_DIR = new File(APP_DIR + "/chunks");
     public static final File LOG_DIR = new File(APP_DIR + "/log");
@@ -43,7 +43,7 @@ public class Utils {
         InputStream content = null;
         HttpGet httpGet = new HttpGet(url);
         HttpParams httpParameters = new BasicHttpParams();
-        HttpConnectionParams.setConnectionTimeout(httpParameters, 10000);
+        HttpConnectionParams.setConnectionTimeout(httpParameters, 20000);
         HttpConnectionParams.setSoTimeout(httpParameters, 30000);
         HttpClient httpclient = new DefaultHttpClient(httpParameters);
         HttpResponse response = httpclient.execute(httpGet);
