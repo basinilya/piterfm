@@ -25,7 +25,7 @@ import java.io.*;
 public class Utils {
 
     public static final File SD_DIR = Environment.getExternalStorageDirectory();
-    public static final File APP_DIR = new File(SD_DIR + "/piterfm");
+    public static final File APP_DIR = new File(SD_DIR + "/.piterfm");
     public static final File CACHE_DIR = new File(APP_DIR + "/cache");
     public static final File CHUNKS_DIR = new File(APP_DIR + "/chunks");
     public static final File LOG_DIR = new File(APP_DIR + "/log");

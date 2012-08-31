@@ -41,7 +41,7 @@ public class App extends Application {
 
         ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getApplicationContext())
                 .threadPoolSize(3)
-                .threadPriority(Thread.NORM_PRIORITY - 2)
+                .threadPriority(Thread.NORM_PRIORITY)
                 .discCache(new UnlimitedDiscCache(Utils.isSdAvailable() ? Utils.CACHE_DIR : getApplicationContext().getCacheDir()))
                 .denyCacheImageMultipleSizesInMemory()
                 .defaultDisplayImageOptions(options)
