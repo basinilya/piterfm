@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -18,9 +19,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 
+import com.google.ads.AdRequest;
+import com.google.ads.AdSize;
+import com.google.ads.AdView;
 import ru.piter.fm.App;
 import ru.piter.fm.R;
 import ru.piter.fm.fragments.RadioAdapter;
@@ -101,6 +106,11 @@ public class RadioActivity extends SherlockFragmentActivity implements ViewPager
 
         mPager.setAdapter(mAdapter);
         mPager.setOnPageChangeListener(this);
+
+        LinearLayout adsLayout = (LinearLayout) findViewById(R.id.ads);
+        AdView adView =  new AdView(this, AdSize.BANNER, "a15044929d0ad8b");
+        adsLayout.addView(adView);
+        adView.loadAd(new AdRequest());
 
         TelephonyManager tm = (TelephonyManager)getSystemService(TELEPHONY_SERVICE);
         tm.listen(phoneListener, PhoneStateListener.LISTEN_CALL_STATE);

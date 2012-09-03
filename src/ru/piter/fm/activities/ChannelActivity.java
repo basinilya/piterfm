@@ -17,6 +17,9 @@ import android.view.MenuItem;
 import android.widget.*;
 import com.actionbarsherlock.app.*;
 import com.actionbarsherlock.app.ActionBar;
+import com.google.ads.AdRequest;
+import com.google.ads.AdSize;
+import com.google.ads.AdView;
 import ru.piter.fm.App;
 import ru.piter.fm.R;
 import ru.piter.fm.player.PlayerService;
@@ -62,6 +65,7 @@ public class ChannelActivity extends SherlockListActivity implements GetTracksTa
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.channel);
+
 
         channel = (Channel) getIntent().getExtras().get("channel");
         day = Calendar.getInstance(TimeZone.getTimeZone("GMT+4"));
@@ -145,6 +149,11 @@ public class ChannelActivity extends SherlockListActivity implements GetTracksTa
         boolean isPlaying = channel.equals(App.getPlayer().channel) && (App.getPlayer().state == PlayerService.State.Playing);
         playButton.setImageResource(isPlaying ? R.drawable.ic_stop : R.drawable.ic_play);
 
+
+        LinearLayout adsLayout = (LinearLayout) findViewById(R.id.ads);
+        AdView adView = new AdView(this, AdSize.BANNER, "a15044929d0ad8b");
+        adsLayout.addView(adView);
+        adView.loadAd(new AdRequest());
     }
 
     private void inflatePlayStopButton() {
@@ -197,8 +206,8 @@ public class ChannelActivity extends SherlockListActivity implements GetTracksTa
     private TimePickerDialog.OnTimeSetListener mTimeSetListener = new TimePickerDialog.OnTimeSetListener() {
         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
             //day.set(Calendar.HOUR_OF_DAY, hourOfDay);
-           // day.set(Calendar.MINUTE, minute);
-           // day.set(Calendar.SECOND, 0);
+            // day.set(Calendar.MINUTE, minute);
+            // day.set(Calendar.SECOND, 0);
             day.set(day.get(Calendar.YEAR), day.get(Calendar.MONTH), day.get(Calendar.DAY_OF_MONTH), hourOfDay, minute);
             timeButton.setText(day.get(Calendar.HOUR_OF_DAY) + ":" + getRightMinutes(day));
             Track ti = new Track();
