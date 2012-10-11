@@ -72,7 +72,14 @@ public class DBAdapter {
         SQLiteDatabase db = getHelper().getWritableDatabase();
         String table = radio.getName();
         db.execSQL("delete from " + table + " where id = " + channel.getChannelId());
-        Log.d("", "Delete channel " + channel.getName() + " from " + table + " table");
+        Log.d("PiterFM", "Delete channel " + channel.getName() + " from " + table + " table");
+    }
+
+    public void deleteChannels(Radio radio) {
+        SQLiteDatabase db = getHelper().getWritableDatabase();
+        String table = radio.getName();
+        db.execSQL("delete from " + table);
+        Log.d("PiterFM", "Delete all channels from " + table + " table");
     }
 
     public void insertChannels(List<Channel> channels, Radio radio) {

@@ -34,24 +34,28 @@ public class GetChannelsTask extends BaseTask<List<Channel>> {
         DBAdapter db = App.getDb();
         List<Channel> channels = null;
 
-        channels = db.selectAllChannels(radio);
+        if (radio.getName().equals(RadioFactory.FAVOURITE))
+            channels = db.selectAllChannels(radio);
+        else
+            channels = RadioUtils.getRadioChannels(radio, context);
 
-        // force update
-        if (!radio.getName().equals(RadioFactory.FAVOURITE) && (channels == null || objects.length > 1)) {
-            if (!isOnline) {
-                this.cancel(true);
-                this.onError(new NoInternetException("No Internet Available"));
-                return null;
-            } else {
-                channels = RadioUtils.getRadioChannels(radio);
-                db.insertChannels(channels, radio);
-            }
-        }
+//        // force update
+//        if (!radio.getName().equals(RadioFactory.FAVOURITE) && (channels == null || objects.length > 1)) {
+//            if (!isOnline) {
+//                this.cancel(true);
+//                this.onError(new NoInternetException("No Internet Available"));
+//                return null;
+//            } else {
+//                channels = RadioUtils.getRadioChannels(radio, context);
+//                db.deleteChannels(radio);
+//                db.insertChannels(channels, radio);
+//            }
+//        }
 
-        if (channels == null)
-            return null;
 
-        Collections.sort(channels, new ChannelComparator(Settings.getChannelSort()));
+        if (channels != null)
+            Collections.sort(channels, new ChannelComparator(Settings.getChannelSort()));
+
         return channels;
 
     }

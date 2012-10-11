@@ -1,10 +1,9 @@
 package ru.piter.fm.util;
 
+import android.content.Context;
 import android.util.Log;
 import ru.piter.fm.radio.Channel;
 import ru.piter.fm.radio.Radio;
-import net.htmlparser.jericho.HTMLElementName;
-import net.htmlparser.jericho.Source;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -75,7 +74,7 @@ public class RadioUtils {
             }
 
             tracks = root.getElementsByTagName("show");
-            Log.d("PiterFM","shows length = " + tracks.getLength());
+            Log.d("PiterFM", "shows length = " + tracks.getLength());
             for (int i = 0; i < tracks.getLength(); i++) {
                 Track trackInfo = new Track(Track.TYPE_SHOW);
                 Element track = (Element) tracks.item(i);
@@ -145,41 +144,45 @@ public class RadioUtils {
         return minutes + ":" + seconds;
     }
 
-    public static List<Channel> getRadioChannels(Radio radio) throws Exception {
+
+    private static String getNodeValue(NodeList list) {
+        return list.item(0).getTextContent();
+    }
+
+    public static List<Channel> getRadioChannels(Radio radio, Context context) throws Exception {
         List<Channel> channels = new ArrayList<Channel>();
-        InputStream stream = Utils.openConnection(radio.getStationsUrl());
-        Source source = new Source(stream);
 
-        net.htmlparser.jericho.Element stationsList = source.getFirstElementByClass("msk-stations-block");
-        //List<net.htmlparser.jericho.Element> stations = stationsList.getAllElements(HTMLElementName.DIV);
-        List<net.htmlparser.jericho.Element> stations = stationsList.getChildElements();
-        Log.d("PiterFM","stations = " + stations.size());
-        Iterator iter = stations.iterator();
-        while (iter.hasNext()) {
+        //InputStream stream = Utils.openConnection(radio.getStationsUrl());
+        InputStream stream = context.getAssets().open("xml/" + radio.getName() + ".xml");
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = null;
+
+        builder = factory.newDocumentBuilder();
+        Document dom = builder.parse(stream);
+        Element root = dom.getDocumentElement();
+        NodeList tracks = root.getElementsByTagName("channel");
+
+        for (int i = 0; i < tracks.getLength(); i++) {
             try {
-                net.htmlparser.jericho.Element div = (net.htmlparser.jericho.Element) iter.next();
-                net.htmlparser.jericho.Element imgDiv =  div.getFirstElementByClass("thumbnail-img");
-                net.htmlparser.jericho.Element captionDv = div.getFirstElementByClass("thumbnail-caption");
-                net.htmlparser.jericho.Element a = imgDiv.getFirstElement(HTMLElementName.A);
-                net.htmlparser.jericho.Element img = a.getFirstElement(HTMLElementName.IMG);
+                Channel channel = new Channel();
+                Element ch = (Element) tracks.item(i);
 
-
-                Channel ch = new Channel();
-                ch.setName(img.getAttributeValue("title"));
-                String range = captionDv.getFirstElementByClass("meta").getContent().toString().replace("&nbsp;", " ");
-                ch.setRange(range);
-                String href = a.getAttributeValue("href");
-                ch.setTranslationUrl(href);
-                ch.setChannelId(href.split("/")[4]);
-                ch.setLogoUrl(img.getAttributeValue("src"));
-                ch.setRadio(radio);
-                channels.add(ch);
+                channel.setChannelId(getNodeValue(ch.getElementsByTagName("id")));
+                channel.setName(getNodeValue(ch.getElementsByTagName("name")));
+                channel.setRange(getNodeValue(ch.getElementsByTagName("range")));
+                channel.setLogoUrl(getNodeValue(ch.getElementsByTagName("logo")));
+                channel.setTranslationUrl(getNodeValue(ch.getElementsByTagName("translation")));
+                channel.setRadio(radio);
+                channels.add(channel);
             } catch (Exception e) {
                 e.printStackTrace();
                 Log.d("PiterFM: ", e.getMessage());
                 continue;
             }
         }
+
+
+
         return channels;
     }
 
@@ -190,10 +193,10 @@ public class RadioUtils {
         Date date = getGMT4Date(new Date(System.currentTimeMillis() - (TIME_MINUTE * 5)), "Europe/Moscow");
         String currentTrack = dateFormat.format(date);
         String trackUrl = CHANNEL_HOST + "/files/" + channelId + "/mp4/" + currentTrack + ".mp4";
-        if (trackUrl == null){
-            Log.d("PiterFM","trackUrl is null ! Date = " + date + " Channel = " + channel + " currentTrack = " + currentTrack);
+        if (trackUrl == null) {
+            Log.d("PiterFM", "trackUrl is null ! Date = " + date + " Channel = " + channel + " currentTrack = " + currentTrack);
         }
-        Log.d("PiterFM","trackUrl = " + trackUrl);
+        Log.d("PiterFM", "trackUrl = " + trackUrl);
         return trackUrl;
     }
 
@@ -226,7 +229,7 @@ public class RadioUtils {
     }
 
     public static String getTrackNameFromUrl(String trackUrl) {
-        if (trackUrl == null )return "";
+        if (trackUrl == null) return "";
         String[] a = trackUrl.split("/");
         return a[4] + "_" + a[5] + "_" + a[6] + "_" + a[7] + "_" + a[8] + "_" + a[9];
     }

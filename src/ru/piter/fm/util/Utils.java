@@ -25,7 +25,7 @@ import java.io.*;
 public class Utils {
 
     public static final File SD_DIR = Environment.getExternalStorageDirectory();
-    public static final File APP_DIR = new File(SD_DIR + "/.piterfm");
+    public static final File APP_DIR = new File(SD_DIR + "/piterfm");
     public static final File CACHE_DIR = new File(APP_DIR + "/cache");
     public static final File CHUNKS_DIR = new File(APP_DIR + "/chunks");
     public static final File LOG_DIR = new File(APP_DIR + "/log");
@@ -36,6 +36,20 @@ public class Utils {
         if (!CACHE_DIR.exists()) CACHE_DIR.mkdir();
         if (!CHUNKS_DIR.exists()) CHUNKS_DIR.mkdir();
         if (!LOG_DIR.exists()) LOG_DIR.mkdir();
+    }
+
+
+    public static void writeFile(String filename, String content){
+
+        try {
+            Writer writer = new BufferedWriter(new FileWriter(new File(APP_DIR, filename)));
+            writer.write(content);
+            writer.flush();
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     public static InputStream openConnection(String url) throws Exception {

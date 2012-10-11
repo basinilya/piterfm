@@ -118,4 +118,14 @@ public class Channel implements Serializable, Comparable, SearchFilter.Filterabl
             return 0;
         }
     }
+
+    @Override
+    public String toString() {
+        return "Channel{" +
+                "channelId='" + channelId + '\'' +
+                ", translationUrl='" + translationUrl + '\'' +
+                ", name='" + name + '\'' +
+                ", range='" + range + '\'' +
+                '}';
+    }
 }
