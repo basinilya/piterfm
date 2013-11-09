@@ -70,9 +70,9 @@ public class RadioFragment extends ListFragment implements GetChannelsTask.Chann
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         this.inflater = inflater;
         ListView list = (ListView) inflater.inflate(R.layout.radio, container, false);
-        BitmapDrawable bg = (BitmapDrawable) getResources().getDrawable(R.drawable.asphalt);
-        bg.setTileModeXY(Shader.TileMode.REPEAT, Shader.TileMode.REPEAT);
-        list.setBackgroundDrawable(bg);
+//        BitmapDrawable bg = (BitmapDrawable) getResources().getDrawable(R.drawable.asphalt);
+//        bg.setTileModeXY(Shader.TileMode.REPEAT, Shader.TileMode.REPEAT);
+//        list.setBackgroundDrawable(bg);
         return list;
     }
 

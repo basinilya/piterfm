@@ -108,7 +108,7 @@ public class RadioActivity extends SherlockFragmentActivity implements ViewPager
         mPager.setOnPageChangeListener(this);
 
         LinearLayout adsLayout = (LinearLayout) findViewById(R.id.ads);
-        AdView adView =  new AdView(this, AdSize.BANNER, "a15044929d0ad8b");
+        AdView adView =  new AdView(this, AdSize.SMART_BANNER, "a15044929d0ad8b");
         adsLayout.addView(adView);
         adView.loadAd(new AdRequest());
 
