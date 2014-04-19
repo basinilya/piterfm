@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest android:versionCode="10" android:versionName="2.0.6" package="ru.piter.fm"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-sdk android:minSdkVersion="3" android:targetSdkVersion="4" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <application android:theme="@style/PiterFM.Theme" android:label="PITER FM" android:icon="@drawable/icon" android:name=".App">
+        <activity android:name=".activities.RadioActivity" android:configChanges="keyboardHidden|orientation">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".activities.SettingsActivity" />
+        <activity android:name=".activities.ChannelActivity" android:configChanges="keyboardHidden|orientation" android:windowSoftInputMode="stateHidden" />
+        <activity android:name="com.google.ads.AdActivity" android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize" />
+        <service android:name=".player.PlayerService" />
+    </application>
+</manifest>

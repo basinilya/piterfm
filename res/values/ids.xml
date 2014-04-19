@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item type="id" name="abs__home" />
+    <item type="id" name="abs__up" />
+    <item type="id" name="abs__action_menu_divider" />
+    <item type="id" name="abs__action_menu_presenter" />
+    <item type="id" name="abs__progress_circular" />
+    <item type="id" name="abs__progress_horizontal" />
+    <item type="id" name="abs__action_bar_title">false</item>
+    <item type="id" name="abs__action_bar_subtitle">false</item>
+    <item type="id" name="abs__imageButton">false</item>
+    <item type="id" name="abs__textButton">false</item>
+    <item type="id" name="abs__action_mode_close_button">false</item>
+    <item type="id" name="abs__activity_chooser_view_content">false</item>
+    <item type="id" name="abs__expand_activities_button">false</item>
+    <item type="id" name="abs__image">false</item>
+    <item type="id" name="abs__default_activity_button">false</item>
+    <item type="id" name="abs__list_item">false</item>
+    <item type="id" name="abs__icon">false</item>
+    <item type="id" name="abs__title">false</item>
+    <item type="id" name="abs__titleDivider">false</item>
+    <item type="id" name="abs__content">false</item>
+    <item type="id" name="abs__checkbox">false</item>
+    <item type="id" name="abs__shortcut">false</item>
+    <item type="id" name="abs__radio">false</item>
+    <item type="id" name="abs__action_bar_container">false</item>
+    <item type="id" name="abs__action_bar">false</item>
+    <item type="id" name="abs__action_context_bar">false</item>
+    <item type="id" name="abs__split_action_bar">false</item>
+    <item type="id" name="abs__action_mode_bar_stub">false</item>
+    <item type="id" name="abs__action_mode_bar">false</item>
+    <item type="id" name="ads">false</item>
+    <item type="id" name="buttons">false</item>
+    <item type="id" name="date_button">false</item>
+    <item type="id" name="time_button">false</item>
+    <item type="id" name="play_button">false</item>
+    <item type="id" name="channelIcon">false</item>
+    <item type="id" name="channel_info">false</item>
+    <item type="id" name="play_stop_button">false</item>
+    <item type="id" name="pager">false</item>
+    <item type="id" name="track_time">false</item>
+    <item type="id" name="track">false</item>
+</resources>
