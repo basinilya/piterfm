@@ -68,7 +68,7 @@ public class Notifications {
         if (notificationId != PLAY_STOP){
             notification.vibrate = new long[]{0, 300};
         }else {
-            if (App.getPlayer().state == PlayerService.State.Playing)
+            if (App.getPlayer().getState() == PlayerService.State.Playing)
                 notification.flags = Notification.FLAG_NO_CLEAR;
         }
 

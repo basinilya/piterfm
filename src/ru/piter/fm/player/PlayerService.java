@@ -25,11 +25,10 @@ import java.util.TimerTask;
  * Time: 15:37:13
  * To change this template use File | SettingsActivity | File Templates.
  */
-public class PlayerService extends Service implements MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener, MediaPlayer.OnPreparedListener {
+public class PlayerService implements MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener, MediaPlayer.OnPreparedListener, PlayerInterface {
 
     private static final int TIME_TO_SEEK = 2000;
     private static final int TRACK_MIN_LENGTH_BYTES = 10000;
-    private final IBinder mBinder = new PlayerServiceListener();
 
     private static MediaPlayer player1;
     private static MediaPlayer player2;
@@ -48,7 +47,7 @@ public class PlayerService extends Service implements MediaPlayer.OnCompletionLi
         return state;
     }
 
-    public void onCreate() {
+    public PlayerService() {
         Utils.clearDirectory(Utils.CHUNKS_DIR);
         player1 = new MediaPlayer();
         player2 = new MediaPlayer();
@@ -72,8 +71,7 @@ public class PlayerService extends Service implements MediaPlayer.OnCompletionLi
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
+    public void terminate() {
         if (player1 != null) {
             player1.release();
             player1 = null;
@@ -212,21 +210,6 @@ public class PlayerService extends Service implements MediaPlayer.OnCompletionLi
     public enum State {
         Stopped,
         Playing
-    }
-
-
-    /**
-     * Class for clients to access. Because we know this service always runs in
-     */
-    public class PlayerServiceListener extends Binder {
-        public PlayerService getService() {
-            return PlayerService.this;
-        }
-    }
-
-    @Override
-    public IBinder onBind(Intent intent) {
-        return mBinder;
     }
 
     public class DownloadTrackTask extends AsyncTask {

@@ -11,6 +11,8 @@ import com.nostra13.universalimageloader.cache.disc.impl.UnlimitedDiscCache;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+
+import ru.piter.fm.player.PlayerInterface;
 import ru.piter.fm.player.PlayerService;
 import ru.piter.fm.util.DBAdapter;
 import ru.piter.fm.util.Utils;
@@ -25,7 +27,7 @@ import ru.piter.fm.util.Utils;
 public class App extends Application {
 
     private static Context context;
-    private static PlayerService player;
+    private static PlayerInterface player;
     private static DBAdapter db;
 
     @Override
@@ -53,7 +55,7 @@ public class App extends Application {
 
         // bind player service
         if (player == null)
-            bindService(new Intent(App.this, PlayerService.class), connection, Context.BIND_AUTO_CREATE);
+            player = new PlayerService();
 
         // init preferences
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
@@ -66,11 +68,11 @@ public class App extends Application {
     public void onTerminate() {
         super.onTerminate();
         player.stop();
+        player.terminate();
         player = null;
-        getApplicationContext().unbindService(connection);
     }
 
-    public static PlayerService getPlayer() {
+    public static PlayerInterface getPlayer() {
         return player;
     }
 
@@ -81,16 +83,5 @@ public class App extends Application {
     public static Context getContext(){
         return context;
     }
-
-    private ServiceConnection connection = new ServiceConnection() {
-        public void onServiceConnected(ComponentName className, IBinder service) {
-            player = ((PlayerService.PlayerServiceListener) service).getService();
-        }
-
-        public void onServiceDisconnected(ComponentName className) {
-            player = null;
-        }
-    };
-
 
 }
