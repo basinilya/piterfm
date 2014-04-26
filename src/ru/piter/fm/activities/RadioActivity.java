@@ -30,6 +30,7 @@ import ru.piter.fm.App;
 import ru.piter.fm.R;
 import ru.piter.fm.fragments.RadioAdapter;
 import ru.piter.fm.fragments.RadioFragment;
+import ru.piter.fm.player.PlayerInterface;
 import ru.piter.fm.radio.RadioFactory;
 import ru.piter.fm.util.Notifications;
 import ru.piter.fm.util.Settings;
@@ -66,16 +67,25 @@ public class RadioActivity extends SherlockFragmentActivity implements ViewPager
 
 
     private PhoneStateListener phoneListener = new PhoneStateListener() {
+        private boolean wasPausedByMe;
         @Override
         public void onCallStateChanged(int state, String incomingNumber) {
+            PlayerInterface pl = App.getPlayer();
             switch (state) {
                 case TelephonyManager.CALL_STATE_IDLE:
+                    if (wasPausedByMe) {
+                        wasPausedByMe = false;
+                        if (App.getPlayer().getChannelId() != null)
+                            App.getPlayer().resume();
+                    }
                     break;
                 case TelephonyManager.CALL_STATE_OFFHOOK:
-                    App.getPlayer().stop();
-                    break;
+                    /* fallthrough */
                 case TelephonyManager.CALL_STATE_RINGING:
-                    App.getPlayer().stop();
+                    if (!pl.isPaused()) {
+                        wasPausedByMe = true;
+                        App.getPlayer().pause();
+                    }
                     break;
             }
         }
@@ -162,7 +172,7 @@ public class RadioActivity extends SherlockFragmentActivity implements ViewPager
                         .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                App.getPlayer().stop();
+                                App.getPlayer().release();
                                 Notifications.killNotification(Notifications.PLAY_STOP);
                                 finish();
                             }

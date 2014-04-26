@@ -9,7 +9,6 @@ import android.os.Build;
 import android.widget.RemoteViews;
 import ru.piter.fm.App;
 import ru.piter.fm.R;
-import ru.piter.fm.player.PlayerService;
 import ru.piter.fm.radio.Channel;
 import ru.piter.fm.radio.Radio;
 
@@ -68,7 +67,7 @@ public class Notifications {
         if (notificationId != PLAY_STOP){
             notification.vibrate = new long[]{0, 300};
         }else {
-            if (App.getPlayer().state == PlayerService.State.Playing)
+            if (!App.getPlayer().isPaused())
                 notification.flags = Notification.FLAG_NO_CLEAR;
         }
 
