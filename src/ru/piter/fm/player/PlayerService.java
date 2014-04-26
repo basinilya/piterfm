@@ -1,25 +1,16 @@
 package ru.piter.fm.player;
 
+import ru.piter.fm.util.Notifications;
+import android.annotation.SuppressLint;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Intent;
-import android.media.MediaPlayer;
-import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.IBinder;
+import android.os.PowerManager;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
-import android.util.Log;
-import ru.piter.fm.App;
-import ru.piter.fm.radio.Channel;
-import ru.piter.fm.radio.Track;
-import ru.piter.fm.util.Notifications;
-import ru.piter.fm.util.RadioUtils;
-import ru.piter.fm.util.Settings;
-import ru.piter.fm.util.Utils;
-
-import java.io.File;
-import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  * Created by IntelliJ IDEA.
@@ -28,212 +19,82 @@ import java.util.TimerTask;
  * Time: 15:37:13
  * To change this template use File | SettingsActivity | File Templates.
  */
-public class PlayerService extends Service implements MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener, MediaPlayer.OnPreparedListener {
+public class PlayerService extends Service implements PlayerInterface {
 
-    private static final int TIME_TO_SEEK = 2000;
-    private static final int TRACK_MIN_LENGTH_BYTES = 10000;
     private final IBinder mBinder = new PlayerServiceListener();
 
-    private static MediaPlayer player1;
-    private static MediaPlayer player2;
-    private static MediaPlayer prepared;
-    public static String channelId;
-    private static String track;
-    private static String nextTrack;
-    public static State state = State.Stopped;
-    public static int reconnectCount = 0;
+    private NotificationManager nm;
 
-    private PhoneStateListener phoneListener = new PhoneStateListener() {
+    private PiterFMPlayer player;
+
+    private PowerManager.WakeLock cpuWakeLock;
+
+    private Notification currentNotif;
+    private boolean notifVisible;
+
+    private boolean wasPausedByMe;
+
+    private final PhoneStateListener phoneListener = new PhoneStateListener() {
         @Override
         public void onCallStateChanged(int state, String incomingNumber) {
             switch (state) {
                 case TelephonyManager.CALL_STATE_IDLE:
+                    if (wasPausedByMe) {
+                        wasPausedByMe = false;
+                        player.resume();
+                    }
                     break;
                 case TelephonyManager.CALL_STATE_OFFHOOK:
-                    App.getPlayer().stop();
-                    break;
+                    /* fallthrough */
                 case TelephonyManager.CALL_STATE_RINGING:
-                    App.getPlayer().stop();
+                    if (!player.isPaused()) {
+                        wasPausedByMe = true;
+                        player.pause();
+                    }
                     break;
             }
         }
     };
 
+    @SuppressLint("NewApi")
     @Override
     public void onCreate() {
-        Utils.clearDirectory(Utils.CHUNKS_DIR);
-        player1 = new MediaPlayer();
-        player2 = new MediaPlayer();
-        player1.setOnCompletionListener(this);
-        player1.setOnErrorListener(this);
-        player1.setOnPreparedListener(this);
-        player2.setOnCompletionListener(this);
-        player2.setOnErrorListener(this);
-        player2.setOnPreparedListener(this);
+        super.onCreate();
+
+        nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
+        cpuWakeLock = ((PowerManager) getSystemService(POWER_SERVICE)).newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
+                "PiterFMPlayerWakeLock");
+
+        player = new PiterFMPlayer() {
+            @Override
+            protected void locksAcquire() {
+                super.locksAcquire();
+                cpuWakeLock.acquire();
+                startForeground(Notifications.PLAY_STOP, currentNotif);
+                notifVisible = true;
+            }
+            @Override
+            protected void locksRelease() {
+                stopForeground(true);
+                notifVisible = false;
+                cpuWakeLock.release();
+                super.locksRelease();
+            }
+        };
 
         TelephonyManager tm = (TelephonyManager)getSystemService(TELEPHONY_SERVICE);
         tm.listen(phoneListener, PhoneStateListener.LISTEN_CALL_STATE);
     }
 
-
-    private MediaPlayer getPlayer() {
-        if (player1.isPlaying()) return player2;
-        return player1;
-    }
-
-    public boolean isPaused() {
-        return state != State.Playing;
-    }
-
     @Override
     public void onDestroy() {
+        player.release();
         super.onDestroy();
-        if (player1 != null) {
-            player1.release();
-            player1 = null;
-        }
-        if (player2 != null) {
-            player2.release();
-            player2 = null;
-        }
-        Utils.clearDirectory(Utils.CHUNKS_DIR);
     }
 
-
-    public void play(String ch, String trackTime) {
-        reconnectCount = 0;
-        stop();
-
-        // if press on already played channel
-        if (channelId != null && channelId.equals(ch)) {
-            channelId = null;
-            return;
-        }
-
-        channelId = ch;
-
-        String url = RadioUtils.getTrackUrl(trackTime, channelId);
-        int offset = RadioUtils.getTrackOffset(trackTime);
-        playInternal(url, offset);
-    }
-
-    private void playInternal(String trackUrl) {
-        playInternal(trackUrl, TIME_TO_SEEK);
-        Log.d("PiterFM: ", "play track " + trackUrl);
-    }
-
-
-    private void playInternal(final String trackUrl, final int offset) {
-        track = trackUrl;
-        String trackPath = Utils.CHUNKS_DIR + "/" + RadioUtils.getTrackNameFromUrl(track);
-
-        if (!new File(trackPath).exists()) {
-            try {
-                Utils.downloadTrack(track);
-                if (new File(trackPath).length() < TRACK_MIN_LENGTH_BYTES) {
-                    Log.d("PiterFM", "track not exists " + trackPath);
-                    return;
-                }
-                preparePlayer(track);
-                reconnectCount = 0;
-                Notifications.killNotification(Notifications.CANT_LOAD_TRACK);
-            } catch (Exception e) {
-                state = State.Stopped;
-                e.printStackTrace();
-                Log.d("PiterFM", e.getMessage() + "\n" + getStackTrace(e));
-                //show notification only first time
-                if (reconnectCount == 0)
-                    Notifications.show(Notifications.CANT_LOAD_TRACK, new Intent());
-                //check reconnect counter
-                if (Settings.isReconnect() && Settings.getReconnectCount() > reconnectCount++) {
-                    Log.d("PiterFM", "Reconnect attemp № " + reconnectCount);
-                    Log.d("PiterFM", "Reconnect timeout " + Settings.getReconnectTimeout() + " sec.");
-                    Timer timer = new Timer();
-                    timer.schedule(new TimerTask() {
-                        @Override
-                        public void run() {
-                            playInternal(trackUrl, offset);
-                        }
-                    }, Settings.getReconnectTimeout() * 1000); // reconnect timeout in seconds
-
-                }
-                return;
-            }
-        }
-
-        MediaPlayer mp = prepared != null ? prepared : getPlayer();
-        mp.seekTo(offset);
-        mp.start();
-        state = State.Playing;
-
-
-        nextTrack = RadioUtils.getNextTrackUrl(track);
-        new DownloadTrackTask().execute(nextTrack);
-
-    }
-
-
-    private void preparePlayer(String trackUrl) {
-        try {
-            MediaPlayer p = getPlayer();
-            p.reset();
-            p.setDataSource(Utils.CHUNKS_DIR + "/" + RadioUtils.getTrackNameFromUrl(trackUrl));
-            p.prepare();
-        } catch (Exception e) {
-            e.printStackTrace();
-            Log.d("PiterFM: ", e.getMessage() + getStackTrace(e));
-        }
-    }
-
-
-    private void deleteTrack(final String track) {
-        new Thread() {
-            public void run() {
-                Log.d("PiterFM: ", "Delete track " + track);
-                Utils.deletePreviousTrack(track);
-            }
-        }.start();
-    }
-
-
-    @Override
-    public void onPrepared(MediaPlayer mediaPlayer) {
-        prepared = mediaPlayer;
-    }
-
-    public void onCompletion(MediaPlayer mediaPlayer) {
-        mediaPlayer.reset();
-        deleteTrack(track);
-        if (nextTrack != null)
-            playInternal(nextTrack);
-    }
-
-    @Override
-    public boolean onError(MediaPlayer mediaPlayer, int what, int extra) {
-        return false;
-    }
-
-    public void stop() {
-        if (player1.isPlaying()) player1.stop();
-        if (player2.isPlaying()) player2.stop();
-        track = null;
-        nextTrack = null;
-        prepared = null;
-        state = State.Stopped;
-        Utils.clearDirectory(Utils.CHUNKS_DIR);
-    }
-
-    public enum State {
-        Stopped,
-        Playing
-    }
-
-
-    /**
-     * Class for clients to access. Because we know this service always runs in
-     */
     public class PlayerServiceListener extends Binder {
-        public PlayerService getService() {
+        public PlayerInterface getService() {
             return PlayerService.this;
         }
     }
@@ -243,39 +104,49 @@ public class PlayerService extends Service implements MediaPlayer.OnCompletionLi
         return mBinder;
     }
 
-    public class DownloadTrackTask extends AsyncTask {
-
-        private Exception exception;
-        private String url;
-
-        @Override
-        public Void doInBackground(Object... objects) {
-            url = objects[0].toString();
-            try {
-                Utils.downloadTrack(url);
-            } catch (Exception e) {
-                e.printStackTrace();
-                exception = e;
-                Log.d("PiterFM: ", e.getMessage() + "\n" + getStackTrace(e));
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Object o) {
-            if (exception == null)
-                preparePlayer(url);
-        }
-
+    @Override
+    public void open(Intent notificationIntent, String channelId, String trackTime) {
+        beforeOpenOrResume(notificationIntent);
+        player.open(channelId, trackTime);
+        afterOpenOrResume();
     }
 
-    private String getStackTrace(Exception e) {
-        StackTraceElement[] arr = e.getStackTrace();
-        String report = e.toString() + "\n\n";
-        for (int i = 0; i < arr.length; i++) {
-            report += arr[i].toString() + "\n";
-        }
-        return report;
+    @Override
+    public void pause() {
+        player.pause();
     }
 
+    @Override
+    public void resume(Intent notificationIntent) {
+        beforeOpenOrResume(notificationIntent);
+        player.resume();
+        afterOpenOrResume();
+    }
+
+    @Override
+    public String getChannelId() {
+        return player.getChannelId();
+    }
+
+    @Override
+    public boolean isPaused() {
+        return player.isPaused();
+    }
+
+    @Override
+    public void setEventHandler(EventHandler handler) {
+        player.setEventHandler(handler);
+    }
+
+    private void beforeOpenOrResume(Intent notificationIntent) {
+        wasPausedByMe = false;
+        currentNotif = Notifications.newNotification(Notifications.PLAY_STOP, notificationIntent);
+        notifVisible = false;
+    }
+
+    private void afterOpenOrResume() {
+        if (!notifVisible) {
+            nm.notify(Notifications.PLAY_STOP, currentNotif);
+        }
+    }
 }

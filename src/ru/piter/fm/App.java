@@ -13,6 +13,9 @@ import com.nostra13.universalimageloader.cache.disc.impl.UnlimitedDiscCache;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+
+import ru.piter.fm.player.PlayerInterface;
+import ru.piter.fm.R;
 import ru.piter.fm.player.PlayerService;
 import ru.piter.fm.radio.Channel;
 import ru.piter.fm.BuildConfig;
@@ -32,7 +35,7 @@ import ru.piter.fm.util.Utils;
 public class App extends Application implements OnSharedPreferenceChangeListener {
 
     private static Context context;
-    private static PlayerService player;
+    private static PlayerInterface player;
     private static DBAdapter db;
 
     static {
@@ -84,16 +87,7 @@ public class App extends Application implements OnSharedPreferenceChangeListener
         db = new DBAdapter(context);
     }
 
-
-    @Override
-    public void onTerminate() {
-        super.onTerminate();
-        player.stop();
-        player = null;
-        getApplicationContext().unbindService(connection);
-    }
-
-    public static PlayerService getPlayer() {
+    public static PlayerInterface getPlayer() {
         return player;
     }
 
@@ -102,11 +96,11 @@ public class App extends Application implements OnSharedPreferenceChangeListener
     }
 
     public static boolean isPlaying(Channel ch) {
-        return ch.getChannelId().equals(PlayerService.channelId) && (PlayerService.state == PlayerService.State.Playing);
+        return ch.getChannelId().equals(player.getChannelId()) && (!player.isPaused());
     }
 
     public static boolean isPlaying() {
-        return PlayerService.state == PlayerService.State.Playing;
+        return !player.isPaused();
     }
 
     public static Context getContext(){
