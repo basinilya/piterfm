@@ -14,7 +14,7 @@ import ru.piter.fm.App;
 import ru.piter.fm.R;
 import ru.piter.fm.activities.ChannelActivity;
 import ru.piter.fm.activities.RadioActivity;
-import ru.piter.fm.player.PlayerService;
+import ru.piter.fm.player.PlayerInterface;
 import ru.piter.fm.radio.Channel;
 import ru.piter.fm.radio.Radio;
 import ru.piter.fm.radio.RadioFactory;
@@ -134,15 +134,15 @@ public class RadioFragment extends ListFragment implements GetChannelsTask.Chann
                             public void onResult(Void result) {
                                 boolean isPlaying = App.isPlaying(ch);
                                 holder.button.setImageResource(isPlaying ? R.drawable.play_on : R.drawable.play);
-                                if (isPlaying) {
-                                    Intent intent = new Intent(getActivity(), RadioActivity.class);
-                                    intent.putExtra("radio", radio);
-                                    intent.putExtra("channel", ch);
-                                    Notifications.show(Notifications.PLAY_STOP, intent);
-                                } else {
-                                    Notifications.killNotification(Notifications.PLAY_STOP);
-                                }
                                 notifyDataSetChanged();
+                            }
+
+                            @Override
+                            public Intent getPlayingNotificationIntent() {
+                                Intent intent = new Intent(getActivity(), RadioActivity.class);
+                                intent.putExtra("radio", radio);
+                                intent.putExtra("channel", ch);
+                                return intent;
                             }
                         }.execute(ch);
 
