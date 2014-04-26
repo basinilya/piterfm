@@ -21,7 +21,6 @@ import com.actionbarsherlock.app.ActionBar;
 
 import ru.piter.fm.App;
 import ru.piter.fm.R;
-import ru.piter.fm.player.PlayerService;
 import ru.piter.fm.radio.Channel;
 import ru.piter.fm.radio.Radio;
 import ru.piter.fm.radio.RadioFactory;
@@ -153,14 +152,14 @@ public class ChannelActivity extends SherlockListActivity implements GetTracksTa
             public void onResult(Void result) {
                 boolean isPlaying = App.isPlaying(channel);
                 playButton.setImageResource(isPlaying ? R.drawable.ic_stop : R.drawable.ic_play);
-                if (isPlaying) {
-                    Intent intent = new Intent(ChannelActivity.this, ChannelActivity.class);
-                    intent.putExtra("channel", channel);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    Notifications.show(Notifications.PLAY_STOP, intent);
-                } else {
-                    Notifications.killNotification(Notifications.PLAY_STOP);
-                }
+            }
+
+            @Override
+            protected Intent getPlayingNotificationIntent() {
+                Intent intent = new Intent(ChannelActivity.this, ChannelActivity.class);
+                intent.putExtra("channel", channel);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                return intent;
             }
         };
     }
@@ -443,8 +442,7 @@ public class ChannelActivity extends SherlockListActivity implements GetTracksTa
                         .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                App.getPlayer().stop();
-                                Notifications.killNotification(Notifications.PLAY_STOP);
+                                App.getPlayer().pause();
                                 //finish();
                                 //ChannelActivity.this.moveTaskToBack(true);
                                 setResult(RESULT_OK, null);
