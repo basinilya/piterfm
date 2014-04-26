@@ -197,10 +197,10 @@
         <translation>http://www.moskva.fm/play/4012/translation</translation>
     </channel>
     <channel>
-        <id>4025</id>
-        <name>RU.FM</name>
+        <id>4030</id>
+        <name>govoritmoskva</name>
         <range>94.8 FM</range>
-        <logo>http://t2.moskva.fm/uimg/stations/165x165/13/1384a1bb61ca523425d8005ff378f537.png</logo>
+        <logo>http://t2.moskva.fm/uimg/stations/165x165/a9/a97260aa9cb806855eaade3c0b27defb.png</logo>
         <translation>http://www.moskva.fm/play/4025/translation</translation>
     </channel>
     <channel>
