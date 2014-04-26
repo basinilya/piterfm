@@ -78,40 +78,6 @@ public class Utils {
         return content;
     }
 
-
-    public static void downloadTrack(String trackUrl) throws Exception {
-        Log.d("PiterFM", "Download track = " + trackUrl);
-        InputStream in = openConnection(trackUrl);
-        FileOutputStream fos = new FileOutputStream(new File(CHUNKS_DIR, RadioUtils.getTrackNameFromUrl(trackUrl)));
-        byte[] buffer = new byte[512];
-        int len = 0;
-        while ((len = in.read(buffer)) != -1) {
-            fos.write(buffer, 0, len);
-        }
-        fos.flush();
-        fos.close();
-        in.close();
-
-    }
-
-    public static void clearDirectory(final File dir) {
-        new Thread() {
-            public void run() {
-                if (!isSdAvailable()) return;
-                if (!dir.exists()) return;
-                for (File f : dir.listFiles())
-                    f.delete();
-            }
-        }.start();
-
-    }
-
-    public static boolean deletePreviousTrack(String previousTrackUrl) {
-        File fileToDelete = new File(CHUNKS_DIR, RadioUtils.getTrackNameFromUrl(previousTrackUrl));
-        return fileToDelete.delete();
-    }
-
-
     public static boolean isInternetAvailable(Context context) {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();

@@ -28,8 +28,7 @@ import java.util.*;
  */
 public class RadioUtils {
 
-    private static final String CHANNEL_HOST = "http://fresh.moskva.fm";
-    private static final DateFormat DF = new SimpleDateFormat("yyyy/MM/dd/HHmm");
+    public static final String CHANNEL_PREFIX = "http://fresh.moskva.fm/files/";
     private static final long TIME_MINUTE = 60000;
 
     public static String getTracksUrl(Date startAt, Channel channel) {
@@ -104,18 +103,6 @@ public class RadioUtils {
         return trackList;
     }
 
-    public static int getTrackOffset(String time) {
-        time = time.replaceAll(":", "/");
-        String offset = time.substring(17, 19);
-        return Integer.parseInt(offset);
-    }
-
-    public static String getTrackUrl(String time /*2010:11:13:20:31:12 */, String channelId) {
-        time = time.replaceAll(":", "/");
-        String currentTrack = time.substring(0, 11) + time.substring(11, 17).replaceAll("/", "");
-        return getTrackUrlNew(channelId, currentTrack);
-    }
-
     public static String getDuration(String durationInSeconds) {
         String minutes = String.valueOf(Integer.parseInt(durationInSeconds) / 60);
         int sec = Integer.parseInt(durationInSeconds) % 60;
@@ -175,46 +162,4 @@ public class RadioUtils {
         String currentTrack = trackCal.asTrackTime();
         return currentTrack;
     }
-
-    public static String getTrackUrlNew(String channelId, String currentTrack) {
-        String trackUrl = CHANNEL_HOST + "/files/" + channelId + "/mp4/" + currentTrack + ".mp4";
-        Log.d("PiterFM", "trackUrl = " + trackUrl);
-        return trackUrl;
-    }
-
-    public static String getNextTrackUrl(String currentTrack) {
-        String nextTrack = currentTrack;
-        String array[] = currentTrack.split("/");
-        String channelId = array[4];
-        String year = array[6];
-        String month = array[7];
-        String day = array[8];
-        String hs = (array[9]).split("\\.")[0];
-        String hours = hs.substring(0, 2);
-        String minutes = hs.substring(2, 4);
-
-        try {
-            Date date = DF.parse(year + "/" + month + "/" + day + "/" + hours + minutes);
-            TrackCalendar calendar = new TrackCalendar();
-            calendar.setTime(date);
-            calendar.add(Calendar.MINUTE, 1);
-            String track = calendar.asURLPart();
-            nextTrack = CHANNEL_HOST + "/files/" + channelId + "/mp4/" + track + ".mp4";
-            return nextTrack;
-        } catch (ParseException e) {
-            e.printStackTrace();
-            Log.d("PiterFM: ", e.getMessage() + "\n" + e.getCause());
-        }
-
-        return nextTrack;
-
-    }
-
-    public static String getTrackNameFromUrl(String trackUrl) {
-        if (trackUrl == null) return "";
-        String[] a = trackUrl.split("/");
-        return a[4] + "_" + a[5] + "_" + a[6] + "_" + a[7] + "_" + a[8] + "_" + a[9];
-    }
-
-
 }
