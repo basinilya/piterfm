@@ -9,7 +9,6 @@ import android.os.Build;
 import android.widget.RemoteViews;
 import ru.piter.fm.App;
 import ru.piter.fm.R;
-import ru.piter.fm.player.PlayerService;
 import ru.piter.fm.radio.Channel;
 import ru.piter.fm.radio.Radio;
 
@@ -34,7 +33,7 @@ public class Notifications {
     private static Context context = App.getContext();
     private static NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
-    public static void show(int notificationId, Intent intent) {
+    public static Notification newNotification(int notificationId, Intent intent) {
         String message = "";
         Notification notification = new Notification(R.drawable.notification, "", System.currentTimeMillis());
         PendingIntent contentIntent = null;
@@ -75,6 +74,11 @@ public class Notifications {
         if (Settings.isNotificationsSoundEnabled())
             notification.defaults |= Notification.DEFAULT_SOUND;
 
+        return notification;
+    }
+
+    public static void show(int notificationId, Intent intent) {
+        Notification notification = newNotification(notificationId, intent);
         if (Settings.isNotificationsEnabled())
             nm.notify(notificationId, notification);
 
