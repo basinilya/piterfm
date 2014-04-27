@@ -200,12 +200,14 @@ public class RadioUtils {
     }
 
 
-    public static String getTrackUrl(String channelId) {
+    public static String getCurrentTrackTime(String channelId) {
         TrackCalendar trackCal = new TrackCalendar();
         Date date = new Date(System.currentTimeMillis() - (TIME_MINUTE * 5));
         trackCal.setTime(date);
-        String currentTrack = trackCal.asURLPart();
-        return getTrackUrlNew(channelId, currentTrack);
+        trackCal.set(Calendar.SECOND, 0);
+        trackCal.set(Calendar.MILLISECOND, 0);
+        String currentTrack = trackCal.asTrackTime();
+        return currentTrack;
     }
 
     public static String getTrackUrlNew(String channelId, String currentTrack) {
