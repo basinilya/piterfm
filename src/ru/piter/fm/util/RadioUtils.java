@@ -31,8 +31,6 @@ import java.util.*;
 public class RadioUtils {
 
     private static final String CHANNEL_HOST = "http://fresh.moskva.fm";
-    private static final String PITER_FM_URL = "http://piter.fm/stations";
-    private static final String MOSKVA_FM_URL = "http://moskva.fm/stations";
     private static final DateFormat DF = new SimpleDateFormat("yyyy/MM/dd/HHmm");
     private static final long TIME_MINUTE = 60000;
 
@@ -210,9 +208,6 @@ public class RadioUtils {
         trackCal.setTime(date);
         String currentTrack = trackCal.asURLPart();
         String trackUrl = CHANNEL_HOST + "/files/" + channelId + "/mp4/" + currentTrack + ".mp4";
-        if (trackUrl == null) {
-            Log.d("PiterFM", "trackUrl is null ! Date = " + date + " Channel = " + channel + " currentTrack = " + currentTrack);
-        }
         Log.d("PiterFM", "trackUrl = " + trackUrl);
         return trackUrl;
     }

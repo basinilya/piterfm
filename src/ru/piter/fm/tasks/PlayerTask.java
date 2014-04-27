@@ -19,8 +19,6 @@ import ru.piter.fm.util.Utils;
  */
 public class PlayerTask extends BaseTask<Void> {
 
-    private Channel channel;
-
     public PlayerTask(Context context) {
         super(context);
     }
@@ -37,7 +35,7 @@ public class PlayerTask extends BaseTask<Void> {
 
     @Override
     public Void doWork(Object... objects) throws Exception {
-        channel = (Channel) objects[0];
+        Channel channel = (Channel) objects[0];
         if (objects.length > 1) {
             Track track = (Track) objects[1];
             App.getPlayer().play(channel, track);
