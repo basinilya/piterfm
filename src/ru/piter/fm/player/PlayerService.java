@@ -206,22 +206,9 @@ public class PlayerService extends Service implements MediaPlayer.OnCompletionLi
         Utils.clearDirectory(Utils.CHUNKS_DIR);
     }
 
-    public void pause() {
-        player1.pause();
-        state = State.Paused;
-    }
-
-    public void resume() {
-        play(track);
-        state = State.Playing;
-    }
-
-
     public enum State {
         Stopped,
-        Preparing,
-        Playing,
-        Paused
+        Playing
     }
 
 
