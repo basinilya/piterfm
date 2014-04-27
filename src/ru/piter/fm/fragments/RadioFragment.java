@@ -129,7 +129,7 @@ public class RadioFragment extends ListFragment implements GetChannelsTask.Chann
             final Channel ch = channels.get(position);
 
             if (ch != null) {
-                boolean isPlaying = ch.equals(player.channel) && (App.getPlayer().state == PlayerService.State.Playing);
+                boolean isPlaying = ch.getChannelId().equals(player.getChannelId()) && (!App.getPlayer().isPaused());
                 holder.channelInfo.setTypeface(font);
                 holder.channelInfo.setText(ch.getName() + " " + ch.getRange());
                 imageLoader.displayImage(ch.getLogoUrl(), holder.image);
@@ -140,7 +140,7 @@ public class RadioFragment extends ListFragment implements GetChannelsTask.Chann
                         new PlayerTask(getActivity()) {
                             @Override
                             public void onResult(Void result) {
-                                boolean isPlaying = ch.equals(player.channel) && (App.getPlayer().state == PlayerService.State.Playing);
+                                boolean isPlaying = ch.getChannelId().equals(player.getChannelId()) && (!App.getPlayer().isPaused());
                                 holder.button.setImageResource(isPlaying ? R.drawable.play_on : R.drawable.play);
                                 if (isPlaying) {
                                     Intent intent = new Intent(getActivity(), RadioActivity.class);
