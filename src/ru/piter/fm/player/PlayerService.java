@@ -34,7 +34,7 @@ public class PlayerService extends Service implements MediaPlayer.OnCompletionLi
     private static MediaPlayer player1;
     private static MediaPlayer player2;
     private static MediaPlayer prepared;
-    public static Channel channel;
+    public static String channelId;
     private static String track;
     private static String nextTrack;
     public static State state = State.Stopped;
@@ -60,6 +60,10 @@ public class PlayerService extends Service implements MediaPlayer.OnCompletionLi
         return player1;
     }
 
+    public boolean isPaused() {
+        return state != State.Playing;
+    }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -75,38 +79,37 @@ public class PlayerService extends Service implements MediaPlayer.OnCompletionLi
     }
 
 
-    public void play(Channel ch, Track track) {
+    public void play(String channelId, String trackTime) {
         reconnectCount = 0;
         stop();
 
-        channel = ch;
-        String url = RadioUtils.getTrackUrl(track.getTime(), channel.getChannelId());
-        int offset = RadioUtils.getTrackOffset(track.getTime());
-        play(url, offset);
+        String url = RadioUtils.getTrackUrl(trackTime, channelId);
+        int offset = RadioUtils.getTrackOffset(trackTime);
+        playInternal(url, offset);
     }
 
 
-    public void play(Channel ch) {
+    public void play(String ch) {
         reconnectCount = 0;
         stop();
 
         // if press on already played channel
-        if (channel != null && channel.equals(ch)) {
-            channel = null;
+        if (channelId != null && channelId.equals(ch)) {
+            channelId = null;
             return;
         }
 
-        channel = ch;
-        play(RadioUtils.getTrackUrl(channel));
+        channelId = ch;
+        playInternal(RadioUtils.getTrackUrl(channelId));
     }
 
-    private void play(String trackUrl) {
-        play(trackUrl, TIME_TO_SEEK);
+    private void playInternal(String trackUrl) {
+        playInternal(trackUrl, TIME_TO_SEEK);
         Log.d("PiterFM: ", "play track " + trackUrl);
     }
 
 
-    private void play(final String trackUrl, final int offset) {
+    private void playInternal(final String trackUrl, final int offset) {
         track = trackUrl;
         String trackPath = Utils.CHUNKS_DIR + "/" + RadioUtils.getTrackNameFromUrl(track);
 
@@ -135,7 +138,7 @@ public class PlayerService extends Service implements MediaPlayer.OnCompletionLi
                     timer.schedule(new TimerTask() {
                         @Override
                         public void run() {
-                            play(trackUrl, offset);
+                            playInternal(trackUrl, offset);
                         }
                     }, Settings.getReconnectTimeout() * 1000); // reconnect timeout in seconds
 
@@ -188,7 +191,7 @@ public class PlayerService extends Service implements MediaPlayer.OnCompletionLi
         mediaPlayer.reset();
         deleteTrack(track);
         if (nextTrack != null)
-            play(nextTrack);
+            playInternal(nextTrack);
     }
 
     @Override

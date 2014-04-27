@@ -102,7 +102,7 @@ public class App extends Application implements OnSharedPreferenceChangeListener
     }
 
     public static boolean isPlaying(Channel ch) {
-        return ch.equals(PlayerService.channel) && (PlayerService.state == PlayerService.State.Playing);
+        return ch.getChannelId().equals(PlayerService.channelId) && (PlayerService.state == PlayerService.State.Playing);
     }
 
     public static boolean isPlaying() {

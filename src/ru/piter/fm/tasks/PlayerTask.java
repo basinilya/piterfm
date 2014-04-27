@@ -38,9 +38,9 @@ public class PlayerTask extends BaseTask<Void> {
         Channel channel = (Channel) objects[0];
         if (objects.length > 1) {
             Track track = (Track) objects[1];
-            App.getPlayer().play(channel, track);
+            App.getPlayer().play(channel.getChannelId(), track.getTime());
         } else {
-            App.getPlayer().play(channel);
+            App.getPlayer().play(channel.getChannelId());
         }
         return null;
     }
