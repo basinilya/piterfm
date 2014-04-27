@@ -79,17 +79,7 @@ public class PlayerService extends Service implements MediaPlayer.OnCompletionLi
     }
 
 
-    public void play(String channelId, String trackTime) {
-        reconnectCount = 0;
-        stop();
-
-        String url = RadioUtils.getTrackUrl(trackTime, channelId);
-        int offset = RadioUtils.getTrackOffset(trackTime);
-        playInternal(url, offset);
-    }
-
-
-    public void play(String ch) {
+    public void play(String ch, String trackTime) {
         reconnectCount = 0;
         stop();
 
@@ -100,7 +90,10 @@ public class PlayerService extends Service implements MediaPlayer.OnCompletionLi
         }
 
         channelId = ch;
-        playInternal(RadioUtils.getTrackUrl(channelId));
+
+        String url = RadioUtils.getTrackUrl(trackTime, channelId);
+        int offset = RadioUtils.getTrackOffset(trackTime);
+        playInternal(url, offset);
     }
 
     private void playInternal(String trackUrl) {

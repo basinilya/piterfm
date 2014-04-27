@@ -8,6 +8,7 @@ import ru.piter.fm.exception.NoSDCardException;
 import ru.piter.fm.radio.Channel;
 import ru.piter.fm.radio.Track;
 import ru.piter.fm.util.Notifications;
+import ru.piter.fm.util.RadioUtils;
 import ru.piter.fm.util.Utils;
 
 /**
@@ -36,12 +37,14 @@ public class PlayerTask extends BaseTask<Void> {
     @Override
     public Void doWork(Object... objects) throws Exception {
         Channel channel = (Channel) objects[0];
+        String trackTime;
         if (objects.length > 1) {
             Track track = (Track) objects[1];
-            App.getPlayer().play(channel.getChannelId(), track.getTime());
+            trackTime = track.getTime();
         } else {
-            App.getPlayer().play(channel.getChannelId());
+            trackTime = RadioUtils.getCurrentTrackTime(channel.getChannelId());
         }
+        App.getPlayer().play(channel.getChannelId(), trackTime);
         return null;
     }
 
