@@ -130,8 +130,7 @@ public class RadioUtils {
     public static String getTrackUrl(String time /*2010:11:13:20:31:12 */, String channelId) {
         time = time.replaceAll(":", "/");
         String currentTrack = time.substring(0, 11) + time.substring(11, 17).replaceAll("/", "");
-        String url = CHANNEL_HOST + "/files/" + channelId + "/mp4/" + currentTrack + ".mp4";
-        return url;
+        return getTrackUrlNew(channelId, currentTrack);
     }
 
     public static String getDuration(String durationInSeconds) {
@@ -185,11 +184,15 @@ public class RadioUtils {
     }
 
 
-    public static String getTrackUrl(Channel channel) {
-        String channelId = channel.getChannelId();
+    public static String getTrackUrl(String channelId) {
         TrackCalendar trackCal = new TrackCalendar();
         Date date = getGMT4Date(new Date(System.currentTimeMillis() - (TIME_MINUTE * 5)));
+        trackCal.setTime(date);
         String currentTrack = trackCal.asURLPart();
+        return getTrackUrlNew(channelId, currentTrack);
+    }
+
+    public static String getTrackUrlNew(String channelId, String currentTrack) {
         String trackUrl = CHANNEL_HOST + "/files/" + channelId + "/mp4/" + currentTrack + ".mp4";
         Log.d("PiterFM", "trackUrl = " + trackUrl);
         return trackUrl;
