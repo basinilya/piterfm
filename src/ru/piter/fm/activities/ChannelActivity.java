@@ -142,7 +142,7 @@ public class ChannelActivity extends SherlockListActivity implements GetTracksTa
         });
         // inflatePlayStopButton();
         boolean isPlaying = App.isPlaying(channel);
-        playButton.setImageResource(isPlaying ? R.drawable.ic_stop : R.drawable.ic_play);
+        playButton.setImageResource(isPlaying ? R.drawable.ic_pause : R.drawable.ic_play);
 
     }
 
@@ -151,7 +151,7 @@ public class ChannelActivity extends SherlockListActivity implements GetTracksTa
             @Override
             public void onResult(Void result) {
                 boolean isPlaying = App.isPlaying(channel);
-                playButton.setImageResource(isPlaying ? R.drawable.ic_stop : R.drawable.ic_play);
+                playButton.setImageResource(isPlaying ? R.drawable.ic_pause : R.drawable.ic_play);
             }
 
             @Override
