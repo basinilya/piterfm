@@ -58,6 +58,8 @@ public class App extends Application implements OnSharedPreferenceChangeListener
 
         sp.registerOnSharedPreferenceChangeListener(this);
 
+        Utils.fixProxy(this);
+
         // init image loader
         DisplayImageOptions options = new DisplayImageOptions.Builder()
                 .cacheInMemory()
