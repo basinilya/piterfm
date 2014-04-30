@@ -43,6 +43,8 @@ public class App extends Application {
         super.onCreate();
         context = this;
 
+        Utils.fixProxy(this);
+
         // init image loader
         DisplayImageOptions options = new DisplayImageOptions.Builder()
                 .cacheInMemory()
