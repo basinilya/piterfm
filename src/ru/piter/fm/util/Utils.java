@@ -14,6 +14,8 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
 import java.io.*;
+import java.net.URL;
+import java.net.URLConnection;
 
 /**
  * Created by IntelliJ IDEA.
@@ -52,16 +54,27 @@ public class Utils {
 
     }
 
-    public static InputStream openConnection(String url) throws Exception {
+    /** On Gingerbread system property "http.proxyHost" not set by default */
+    @SuppressWarnings("deprecation")
+    public static void fixProxy(Context ctx) {
+        if (System.getProperty("http.proxyHost") == null) {
+            final String proxyHost = android.net.Proxy.getHost(ctx);
+            final int proxyPort = android.net.Proxy.getPort(ctx); // returns -1 if not set
+            if (proxyPort != -1) {
+                System.setProperty("http.proxyHost", proxyHost);
+                System.setProperty("http.proxyPort", Integer.toString(proxyPort));
+            }
+        }
+    }
+
+    public static InputStream openConnection(String url) throws IOException {
 
         InputStream content = null;
-        HttpGet httpGet = new HttpGet(url);
-        HttpParams httpParameters = new BasicHttpParams();
-        HttpConnectionParams.setConnectionTimeout(httpParameters, 20000);
-        HttpConnectionParams.setSoTimeout(httpParameters, 30000);
-        HttpClient httpclient = new DefaultHttpClient(httpParameters);
-        HttpResponse response = httpclient.execute(httpGet);
-        content = response.getEntity().getContent();
+        URLConnection httpclient = new URL(url).openConnection();
+        httpclient.setUseCaches(false);
+        httpclient.setConnectTimeout(20000);
+        httpclient.setReadTimeout(30000);
+        content = httpclient.getInputStream();
         return content;
     }
 
