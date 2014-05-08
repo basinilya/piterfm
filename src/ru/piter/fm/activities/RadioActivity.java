@@ -23,9 +23,6 @@ import android.widget.LinearLayout;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 
-import com.google.ads.AdRequest;
-import com.google.ads.AdSize;
-import com.google.ads.AdView;
 import ru.piter.fm.App;
 import ru.piter.fm.R;
 import ru.piter.fm.fragments.RadioAdapter;
@@ -106,11 +103,6 @@ public class RadioActivity extends SherlockFragmentActivity implements ViewPager
 
         mPager.setAdapter(mAdapter);
         mPager.setOnPageChangeListener(this);
-
-        LinearLayout adsLayout = (LinearLayout) findViewById(R.id.ads);
-        AdView adView =  new AdView(this, AdSize.BANNER, "a15044929d0ad8b");
-        adsLayout.addView(adView);
-        adView.loadAd(new AdRequest());
 
         TelephonyManager tm = (TelephonyManager)getSystemService(TELEPHONY_SERVICE);
         tm.listen(phoneListener, PhoneStateListener.LISTEN_CALL_STATE);
