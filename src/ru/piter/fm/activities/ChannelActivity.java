@@ -185,8 +185,13 @@ public class ChannelActivity extends SherlockListActivity implements GetTracksTa
     };
 
 
+    private boolean dlgClicked; // workaround for event raised twice, see https://code.google.com/p/android/issues/detail?id=34833
+
     private final DatePickerDialog.OnDateSetListener mDateSetListener = new DatePickerDialog.OnDateSetListener() {
         public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+            if (!dlgClicked)
+                return;
+            dlgClicked = false;
             day.set(Calendar.DAY_OF_MONTH, dayOfMonth);
             day.set(Calendar.MONTH, monthOfYear);
             day.set(Calendar.YEAR, year);
@@ -205,6 +210,9 @@ public class ChannelActivity extends SherlockListActivity implements GetTracksTa
 
     private TimePickerDialog.OnTimeSetListener mTimeSetListener = new TimePickerDialog.OnTimeSetListener() {
         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+            if (!dlgClicked)
+                return;
+            dlgClicked = false;
             //day.set(Calendar.HOUR_OF_DAY, hourOfDay);
             // day.set(Calendar.MINUTE, minute);
             // day.set(Calendar.SECOND, 0);
@@ -380,9 +388,21 @@ public class ChannelActivity extends SherlockListActivity implements GetTracksTa
                 ProgressDialog dialog = ProgressDialog.show(this, "", getResources().getString(R.string.buffering), true);
                 return dialog;
             case DATEPICKER_DIALOG:
-                return new DatePickerDialog(ChannelActivity.this, mDateSetListener, day.get(Calendar.YEAR), day.get(Calendar.MONTH), day.get(Calendar.DAY_OF_MONTH));
+                return new DatePickerDialog(ChannelActivity.this, mDateSetListener, day.get(Calendar.YEAR), day.get(Calendar.MONTH), day.get(Calendar.DAY_OF_MONTH)) {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dlgClicked = true;
+                        super.onClick(dialog, which);
+                    }
+                };
             case TIMEPICKER_DIALOG:
-                return new TimePickerDialog(ChannelActivity.this, mTimeSetListener, day.get(Calendar.HOUR_OF_DAY), day.get(Calendar.MINUTE), true);
+                return new TimePickerDialog(ChannelActivity.this, mTimeSetListener, day.get(Calendar.HOUR_OF_DAY), day.get(Calendar.MINUTE), true) {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dlgClicked = true;
+                        super.onClick(dialog, which);
+                    }
+                };
         }
         return super.onCreateDialog(id);
     }
