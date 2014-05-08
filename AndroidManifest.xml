@@ -26,8 +26,6 @@
         <activity android:name=".activities.SettingsActivity"/>
         <activity android:name=".activities.ChannelActivity"
                   android:windowSoftInputMode="stateHidden" android:configChanges="orientation|keyboardHidden"/>
-        <activity android:name="com.google.ads.AdActivity"
-                  android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"/>
         <service android:name=".player.PlayerService" />
 
     </application>

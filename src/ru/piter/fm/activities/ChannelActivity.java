@@ -154,11 +154,6 @@ public class ChannelActivity extends SherlockListActivity implements GetTracksTa
         boolean isPlaying = channel.equals(App.getPlayer().channel) && (App.getPlayer().state == PlayerService.State.Playing);
         playButton.setImageResource(isPlaying ? R.drawable.ic_stop : R.drawable.ic_play);
 
-
-        LinearLayout adsLayout = (LinearLayout) findViewById(R.id.ads);
-        AdView adView = new AdView(this, AdSize.BANNER, "a15044929d0ad8b");
-        adsLayout.addView(adView);
-        adView.loadAd(new AdRequest());
     }
 
     private void inflatePlayStopButton() {
