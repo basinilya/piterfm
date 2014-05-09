@@ -65,8 +65,7 @@ public abstract class BaseTask<T> extends AsyncTask<Object, Void, T> {
     }
 
     @Override
-    protected void onCancelled(T t) {
-        super.onCancelled(t);
+    protected void onCancelled() {
         if (dialog.isShowing()) dialog.dismiss();
     }
 
