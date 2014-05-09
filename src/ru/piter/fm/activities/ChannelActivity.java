@@ -13,7 +13,6 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.*;
-import android.view.MenuItem;
 import android.widget.*;
 import com.actionbarsherlock.app.*;
 import com.actionbarsherlock.app.ActionBar;

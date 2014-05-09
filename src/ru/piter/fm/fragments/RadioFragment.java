@@ -11,7 +11,6 @@ import android.view.*;
 import android.widget.*;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import ru.piter.fm.App;
-import ru.piter.fm.R;
 import ru.piter.fm.activities.ChannelActivity;
 import ru.piter.fm.activities.RadioActivity;
 import ru.piter.fm.player.PlayerInterface;
