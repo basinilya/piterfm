@@ -14,7 +14,7 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
 import ru.piter.fm.player.PiterFMPlayer;
 import ru.piter.fm.player.PlayerInterface;
-import ru.piter.fm.R;
+import ru.piter.fm.prototype.R;
 import ru.piter.fm.util.DBAdapter;
 import ru.piter.fm.util.Utils;
 
