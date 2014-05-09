@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="ru.piter.fm.test"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk android:minSdkVersion="3" android:targetSdkVersion="19"/>
+
+    <instrumentation
+        android:name="android.test.InstrumentationTestRunner"
+        android:targetPackage="ru.piter.fm" />
+
+    <application
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name" >
+        <uses-library android:name="android.test.runner" />
+
+        <!-- android:exported="true" - allow launch test activity in context of testee -->
+        <activity
+            android:name="org.foo.StopperActivity"
+            android:exported="true"
+            android:theme="@android:style/Theme"
+            android:windowSoftInputMode="adjustResize|stateVisible">
+        </activity>
+    </application>
+
+</manifest>
