@@ -186,7 +186,7 @@ public class RadioUtils {
 
     public static String getCurrentTrackTime(String channelId) {
         TrackCalendar trackCal = new TrackCalendar();
-        Date date = getGMT4Date(new Date(System.currentTimeMillis() - (TIME_MINUTE * 5)));
+        Date date = new Date(System.currentTimeMillis() - (TIME_MINUTE * 5));
         trackCal.setTime(date);
         trackCal.set(Calendar.SECOND, 0);
         String currentTrack = trackCal.asTrackTime();
