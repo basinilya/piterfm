@@ -32,6 +32,7 @@ public abstract class BaseTask<T> extends AsyncTask<Object, Void, T> {
     public BaseTask(Context context) {
         this.context = context;
         this.dialog = new ProgressDialog(context);
+        dialog.setCanceledOnTouchOutside(true); // before ICS the default was false
     }
 
     @Override
