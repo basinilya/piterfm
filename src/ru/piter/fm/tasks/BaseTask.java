@@ -8,8 +8,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
-import ru.piter.fm.R;
 import ru.piter.fm.activities.RadioActivity;
+import ru.piter.fm.prototype.R;
 import ru.piter.fm.util.Utils;
 
 /**

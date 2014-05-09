@@ -20,7 +20,7 @@ import com.actionbarsherlock.app.*;
 import com.actionbarsherlock.app.ActionBar;
 
 import ru.piter.fm.App;
-import ru.piter.fm.R;
+import ru.piter.fm.prototype.R;
 import ru.piter.fm.radio.Channel;
 import ru.piter.fm.radio.Radio;
 import ru.piter.fm.radio.RadioFactory;

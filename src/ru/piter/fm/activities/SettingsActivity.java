@@ -3,7 +3,7 @@ package ru.piter.fm.activities;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.*;
-import ru.piter.fm.R;
+import ru.piter.fm.prototype.R;
 import ru.piter.fm.util.Settings;
 import ru.piter.fm.util.Utils;
 
