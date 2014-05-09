@@ -15,10 +15,10 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
 import ru.piter.fm.player.PlayerInterface;
-import ru.piter.fm.R;
 import ru.piter.fm.player.PlayerService;
 import ru.piter.fm.radio.Channel;
-import ru.piter.fm.BuildConfig;
+import ru.piter.fm.prototype.BuildConfig;
+import ru.piter.fm.prototype.R;
 import ru.piter.fm.util.DBAdapter;
 import ru.piter.fm.util.GetAllStackTracesTimer;
 import ru.piter.fm.util.SelfLogcatSaver;
