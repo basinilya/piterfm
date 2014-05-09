@@ -25,10 +25,10 @@ import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 
 import ru.piter.fm.App;
-import ru.piter.fm.R;
 import ru.piter.fm.fragments.RadioAdapter;
 import ru.piter.fm.fragments.RadioFragment;
 import ru.piter.fm.player.PlayerInterface;
+import ru.piter.fm.prototype.R;
 import ru.piter.fm.radio.RadioFactory;
 import ru.piter.fm.util.Notifications;
 import ru.piter.fm.util.Settings;
