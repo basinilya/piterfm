@@ -1,13 +1,40 @@
 package ru.piter.fm.player;
 
-import ru.piter.fm.player.PlayerService.State;
-import ru.piter.fm.radio.Channel;
-import ru.piter.fm.radio.Track;
-
 public interface PlayerInterface {
-    void stop();
+
+    /**
+     * try to start playback. Will raise {@link EventHandler#onPlaying()} or
+     * {@link EventHandler#onError()}
+     */
+    void open(String channelId, String trackTime);
+
+    /** pause */
+    void pause();
+
+    /**
+     * try to resume playback. Will raise {@link EventHandler#onPlaying()} or
+     * {@link EventHandler#onError()}
+     */
+    void resume();
+
     String getChannelId();
-    State getState();
-    void play(String channelId, String trackTime);
-    void terminate();
+
+    boolean isPaused();
+
+    void release();
+
+    void setEventHandler(EventHandler handler);
+
+    public interface EventHandler {
+        void onEvent(EventType ev);
+    }
+
+    public enum EventType {
+        /** Buffering. Expect subsequent Playing or Error. */
+        Buffering,
+        /** Successfully started playback. Expect subsequent Buffering or Error. */
+        Playing,
+        /** failed to start or continue playback. Player becomes paused */
+        Error
+    }
 }

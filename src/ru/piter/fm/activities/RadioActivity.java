@@ -72,10 +72,10 @@ public class RadioActivity extends SherlockFragmentActivity implements ViewPager
                 case TelephonyManager.CALL_STATE_IDLE:
                     break;
                 case TelephonyManager.CALL_STATE_OFFHOOK:
-                    App.getPlayer().stop();
+                    App.getPlayer().pause();
                     break;
                 case TelephonyManager.CALL_STATE_RINGING:
-                    App.getPlayer().stop();
+                    App.getPlayer().pause();
                     break;
             }
         }
@@ -162,7 +162,7 @@ public class RadioActivity extends SherlockFragmentActivity implements ViewPager
                         .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                App.getPlayer().stop();
+                                App.getPlayer().release();
                                 Notifications.killNotification(Notifications.PLAY_STOP);
                                 finish();
                             }

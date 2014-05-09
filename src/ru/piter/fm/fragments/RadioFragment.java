@@ -16,6 +16,7 @@ import ru.piter.fm.activities.ChannelActivity;
 import ru.piter.fm.activities.RadioActivity;
 import ru.piter.fm.player.PlayerInterface;
 import ru.piter.fm.player.PlayerService;
+import ru.piter.fm.prototype.R;
 import ru.piter.fm.radio.Channel;
 import ru.piter.fm.radio.Radio;
 import ru.piter.fm.radio.RadioFactory;

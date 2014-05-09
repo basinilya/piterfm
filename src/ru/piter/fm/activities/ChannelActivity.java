@@ -21,8 +21,8 @@ import com.google.ads.AdRequest;
 import com.google.ads.AdSize;
 import com.google.ads.AdView;
 import ru.piter.fm.App;
-import ru.piter.fm.R;
 import ru.piter.fm.player.PlayerService;
+import ru.piter.fm.prototype.R;
 import ru.piter.fm.radio.Channel;
 import ru.piter.fm.radio.Radio;
 import ru.piter.fm.radio.RadioFactory;
@@ -456,7 +456,7 @@ public class ChannelActivity extends SherlockListActivity implements GetTracksTa
                         .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                App.getPlayer().stop();
+                                App.getPlayer().release();
                                 Notifications.killNotification(Notifications.PLAY_STOP);
                                 //finish();
                                 //ChannelActivity.this.moveTaskToBack(true);
