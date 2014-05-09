@@ -47,8 +47,7 @@ public class ChannelActivity extends SherlockListActivity implements GetTracksTa
     private TrackAdapter adapter;
     private Track currentTrack;
     private Channel channel;
-    private Calendar day;
-    private DateFormat FMT_TRACK_TIME = new SimpleDateFormat("yyyy:MM:dd:HH:mm:ss", Locale.US);
+    private TrackCalendar day = new TrackCalendar();
     private DateFormat FMT_DATE_BUTTON = new SimpleDateFormat("dd.MM.yyyy", Locale.US);
 
     private EditText search;
@@ -70,8 +69,6 @@ public class ChannelActivity extends SherlockListActivity implements GetTracksTa
 
         channel = (Channel) getIntent().getExtras().get("channel");
         TimeZone tz = TimeZone.getTimeZone("GMT+4");
-        day = Calendar.getInstance(tz);
-        FMT_TRACK_TIME.setTimeZone(tz);
         FMT_DATE_BUTTON.setTimeZone(tz);
         font = Typeface.createFromAsset(getAssets(), "fonts/Roboto-Light.ttf");
 
@@ -219,7 +216,7 @@ public class ChannelActivity extends SherlockListActivity implements GetTracksTa
             timeButton.setText(day.get(Calendar.HOUR_OF_DAY) + ":" + getRightMinutes(day));
             Track ti = new Track();
             Date trackTime = day.getTime();
-            ti.setTime(FMT_TRACK_TIME.format(trackTime));
+            ti.setTime(day.asTrackTime());
 
             if (!new Date().before(trackTime)) {
                 new PlayerTask(ChannelActivity.this) {
