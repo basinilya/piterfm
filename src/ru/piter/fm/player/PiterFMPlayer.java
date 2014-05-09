@@ -4,14 +4,18 @@ import static junit.framework.Assert.*;
 
 import java.io.IOException;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.PowerManager;
 import android.util.Log;
 
+import ru.piter.fm.App;
 import ru.piter.fm.util.TrackCalendar;
 import ru.piter.fm.util.PiterFMCachingDownloader;
 
@@ -22,6 +26,8 @@ public class PiterFMPlayer implements PlayerInterface {
     private static final boolean HAVE_SETNEXTMEDIAPLAYER = haveSetNextMediaPlayer();
 
     private final Handler handler = new Handler();
+    private final PowerManager.WakeLock cpuWakeLock = ((PowerManager) App.getContext().getSystemService(
+            Context.POWER_SERVICE)).newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "PiterFMPlayerWakeLock");
 
     private final TrackCalendar trackCal = new TrackCalendar();
     private String channelId;
@@ -51,7 +57,7 @@ public class PiterFMPlayer implements PlayerInterface {
         channelId = ch;
         trackCal.setTrackTime(trackTimeStr);
 
-        isPaused = false;
+        setPaused(false);
         reopen();
     }
 
@@ -294,7 +300,7 @@ public class PiterFMPlayer implements PlayerInterface {
         assertUIThread();
         if (!isPaused) {
             Log.d(Tag, funcname + ",isPaused == false, maybe there is a player to pause");
-            isPaused = true;
+            setPaused(true);
             postEvent(EventType.NotBuffering);
             if (currentPlayer != null) {
                 Log.d(Tag, funcname + ",currentPlayer != null, calling pause()");
@@ -313,7 +319,7 @@ public class PiterFMPlayer implements PlayerInterface {
         assertNotNull(channelId);
         if (isPaused) {
             Log.d(Tag, funcname + ",isPaused == true, maybe there is a player to resume");
-            isPaused = false;
+            setPaused(false);
             if (currentPlayer != null) {
                 Log.d(Tag, funcname + ",currentPlayer != null, calling start()");
                 currentPlayer.start();
@@ -344,7 +350,7 @@ public class PiterFMPlayer implements PlayerInterface {
         final String funcname = "giveUp";
         Log.d(Tag, funcname + ",");
         assertFalse(isPaused);
-        isPaused = true;
+        setPaused(true);
         callEvent(EventType.Error);
     }
 
@@ -385,6 +391,18 @@ public class PiterFMPlayer implements PlayerInterface {
             return true;
         } catch (NoSuchMethodException e1) {
             return false;
+        }
+    }
+
+    @SuppressLint("Wakelock")
+    private void setPaused(boolean newPaused) {
+        if (isPaused != newPaused) {
+            isPaused = newPaused;
+            if (newPaused) {
+                cpuWakeLock.release();
+            } else {
+                cpuWakeLock.acquire();
+            }
         }
     }
 }
