@@ -55,6 +55,7 @@ public class RadioUtils {
             Element root = dom.getDocumentElement();
             NodeList tracks = root.getElementsByTagName("track");
             Log.d("Parser ", "Tracks size = " + tracks.getLength());
+            TrackCalendar trackCal = new TrackCalendar();
             for (int i = 0; i < tracks.getLength(); i++) {
                 Track trackInfo = new Track(Track.TYPE_TRACK);
                 Element track = (Element) tracks.item(i);
@@ -65,8 +66,8 @@ public class RadioUtils {
                 String time = track.getAttribute("startAt");
                 trackInfo.setStartAt(Long.parseLong(time));
                 Date date = getGMT4Date(new Date(Long.parseLong(time) * 1000), "Europe/Moscow");
-                DateFormat df = new SimpleDateFormat("yyyy:MM:dd:HH:mm:ss");
-                time = df.format(date);
+                trackCal.setTime(date);
+                time = trackCal.asTrackTime();
                 trackInfo.setTime(time);
 
                 trackInfo.setPlayCount(track.getAttribute("playCount"));
@@ -83,8 +84,8 @@ public class RadioUtils {
                 String time = track.getAttribute("startAt");
                 trackInfo.setStartAt(Long.parseLong(time));
                 Date date = getGMT4Date(new Date(Long.parseLong(time) * 1000), "Europe/Moscow");
-                DateFormat df = new SimpleDateFormat("yyyy:MM:dd:HH:mm:ss");
-                time = df.format(date);
+                trackCal.setTime(date);
+                time = trackCal.asTrackTime();
                 trackInfo.setTime(time);
                 trackInfo.setPlayCount("0");
                 trackList.add(trackInfo);
@@ -189,9 +190,9 @@ public class RadioUtils {
 
     public static String getTrackUrl(Channel channel) {
         String channelId = channel.getChannelId();
-        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd/HHmm");
+        TrackCalendar trackCal = new TrackCalendar();
         Date date = getGMT4Date(new Date(System.currentTimeMillis() - (TIME_MINUTE * 5)), "Europe/Moscow");
-        String currentTrack = dateFormat.format(date);
+        String currentTrack = trackCal.asURLPart();
         String trackUrl = CHANNEL_HOST + "/files/" + channelId + "/mp4/" + currentTrack + ".mp4";
         if (trackUrl == null) {
             Log.d("PiterFM", "trackUrl is null ! Date = " + date + " Channel = " + channel + " currentTrack = " + currentTrack);
@@ -213,10 +214,10 @@ public class RadioUtils {
 
         try {
             Date date = DF.parse(year + "/" + month + "/" + day + "/" + hours + minutes);
-            Calendar calendar = Calendar.getInstance();
+            TrackCalendar calendar = new TrackCalendar();
             calendar.setTime(date);
             calendar.add(Calendar.MINUTE, 1);
-            String track = DF.format(calendar.getTime());
+            String track = calendar.asURLPart();
             nextTrack = CHANNEL_HOST + "/files/" + channelId + "/mp4/" + track + ".mp4";
             return nextTrack;
         } catch (ParseException e) {
