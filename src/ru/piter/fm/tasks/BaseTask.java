@@ -1,5 +1,6 @@
 package ru.piter.fm.tasks;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -64,9 +65,12 @@ public abstract class BaseTask<T> extends AsyncTask<Object, Void, T> {
         }
     }
 
+    @SuppressLint("Override")
+    protected final void onCancelled(T result) {
+    }
+
     @Override
-    protected void onCancelled(T t) {
-        super.onCancelled(t);
+    protected void onCancelled() {
         if (dialog.isShowing()) dialog.dismiss();
     }
 
