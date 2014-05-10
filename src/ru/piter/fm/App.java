@@ -12,7 +12,10 @@ import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import ru.piter.fm.player.PlayerService;
+import ru.piter.fm.BuildConfig;
 import ru.piter.fm.util.DBAdapter;
+import ru.piter.fm.util.GetAllStackTracesTimer;
+import ru.piter.fm.util.SelfLogcatSaver;
 import ru.piter.fm.util.Utils;
 
 /**
@@ -27,6 +30,13 @@ public class App extends Application {
     private static Context context;
     private static PlayerService player;
     private static DBAdapter db;
+
+    static {
+        if (BuildConfig.DEBUG) {
+            new SelfLogcatSaver().start();
+            new GetAllStackTracesTimer();
+        }
+    }
 
     @Override
     public void onCreate() {
