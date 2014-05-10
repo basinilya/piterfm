@@ -5,11 +5,9 @@ import static junit.framework.Assert.*;
 import java.io.IOException;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.media.MediaPlayer;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.PowerManager;
@@ -23,8 +21,6 @@ public class PiterFMPlayer implements PlayerInterface {
 
     private static final String Tag = "PiterFMPlayer";
 
-    private static final boolean HAVE_SETNEXTMEDIAPLAYER = haveSetNextMediaPlayer();
-
     private final Handler handler = new Handler();
     private final PowerManager.WakeLock cpuWakeLock = ((PowerManager) App.getContext().getSystemService(
             Context.POWER_SERVICE)).newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "PiterFMPlayerWakeLock");
@@ -36,7 +32,7 @@ public class PiterFMPlayer implements PlayerInterface {
     private AsyncTask<?,?,?> getFileTask;
     private final PlayerWrap player1 = new PlayerWrap();
     private final PlayerWrap player2 = new PlayerWrap();
-    private MediaPlayer currentPlayer;
+    private SmoothMediaPlayer currentPlayer;
 
     private boolean isPaused = true;
 
@@ -90,13 +86,12 @@ public class PiterFMPlayer implements PlayerInterface {
             MediaPlayer.OnPreparedListener, MediaPlayer.OnSeekCompleteListener,
             MediaPlayer.OnCompletionListener
     {
-        public final MediaPlayer player = new MediaPlayer();
+        private final int dbgId = player1 == null ? 1 : 2;
+        public final SmoothMediaPlayer player = SmoothMediaPlayer.newInstance(dbgId);
         public String path;
 
         /** Gingerbread has a bug that onSeekComplete() is called twice: 1st after seekTo() and 2nd after start() */
         private boolean onSeekCompleteCalled;
-
-        private final int dbgId = player1 == null ? 1 : 2;
 
         {
             final String funcname = "PlayerWrap," + dbgId;
@@ -219,6 +214,7 @@ public class PiterFMPlayer implements PlayerInterface {
             internalOnSeekComplete();
         }
 
+        @SuppressLint("NewApi")
         private void internalOnSeekComplete() {
             final String funcname = "PlayerWrap," + dbgId + ",internalOnSeekComplete";
             Log.d(Tag, funcname + ",");
@@ -239,23 +235,8 @@ public class PiterFMPlayer implements PlayerInterface {
                 other.scheduleGetFile();
             } else {
                 Log.d(Tag, funcname + ",currentPlayer != null, trying to set me as NextMediaPlayer");
-                trySetNextMediaPlayer(other.player, player);
+                other.player.setNextSmoothMediaPlayer(player);
                 isNextPlayerSet = true;
-            }
-        }
-
-        @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-        private void trySetNextMediaPlayer(MediaPlayer current, MediaPlayer next) {
-            if (HAVE_SETNEXTMEDIAPLAYER) {
-                current.setNextMediaPlayer(next);
-            }
-        }
-
-        private void tryStartNextMediaPlayer(MediaPlayer next) {
-            //assertTrue(!isNextPlayerSet || SDK_INT < Build.VERSION_CODES.JELLY_BEAN || getOtherPlayer().player.isPlaying());
-            if (!HAVE_SETNEXTMEDIAPLAYER) {
-                next.start();
-                try { Thread.sleep(500); } catch (InterruptedException e) {} // yield a lot
             }
         }
 
@@ -266,7 +247,6 @@ public class PiterFMPlayer implements PlayerInterface {
             if (isNextPlayerSet) {
                 //Log.d(Tag, funcname + ",isNextPlayerSet == true, trying to start next mediaplayer");
                 currentPlayer = getOtherPlayer().player;
-                tryStartNextMediaPlayer(currentPlayer);
             }
             Log.d(Tag, funcname + ",");
             reset();
@@ -383,15 +363,6 @@ public class PiterFMPlayer implements PlayerInterface {
     public void setEventHandler(EventHandler handler) {
         assertUIThread();
         eventHandler = handler;
-    }
-
-    private static boolean haveSetNextMediaPlayer() {
-        try {
-            MediaPlayer.class.getMethod("setNextMediaPlayer", MediaPlayer.class);
-            return true;
-        } catch (NoSuchMethodException e1) {
-            return false;
-        }
     }
 
     @SuppressLint("Wakelock")
