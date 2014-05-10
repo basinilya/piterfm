@@ -63,6 +63,9 @@
     <string name="reconnect_count">Кол-во попыток</string>
     <string name="reconnect_timeout">Таймаут (сек)</string>
 
+    <string name="debug_preferences">Отладка</string>
+    <string name="debug_log_enabled">Лог</string>
+
 
 
     <string name="loadingTracks">Загрузка треков...</string>

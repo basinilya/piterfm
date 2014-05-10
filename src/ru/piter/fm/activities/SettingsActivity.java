@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.preference.*;
 import ru.piter.fm.R;
 import ru.piter.fm.util.Settings;
+import ru.piter.fm.util.Utils;
 
 
 /**
@@ -22,6 +23,7 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
     private CheckBoxPreference reconnectPref;
     private ListPreference reconnectCountPref;
     private ListPreference reconnectTimeoutPref;
+    private CheckBoxPreference debugLogPref;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -35,6 +37,8 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
         reconnectPref = (CheckBoxPreference) getPreferenceScreen().findPreference(Settings.RECONNECT);
         reconnectCountPref = (ListPreference) getPreferenceScreen().findPreference(Settings.RECONNECT_COUNT);
         reconnectTimeoutPref = (ListPreference) getPreferenceScreen().findPreference(Settings.RECONNECT_TIMEOUT);
+        debugLogPref = (CheckBoxPreference) getPreferenceScreen().findPreference(Settings.DEBUG_LOG_ENABLED);
+        debugLogPref.setSummary(Utils.LOG_DIR.getAbsolutePath() + '/');
     }
 
 

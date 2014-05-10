@@ -22,6 +22,7 @@ public class Settings {
     public static final String RECONNECT = "reconnect_key";
     public static final String RECONNECT_COUNT = "reconnect_count_key";
     public static final String RECONNECT_TIMEOUT = "reconnect_timeout_key";
+    public static final String DEBUG_LOG_ENABLED = "debug_log_enabled_key";
 
 
     public static SharedPreferences getPreferences() {
