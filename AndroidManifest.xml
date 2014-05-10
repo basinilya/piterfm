@@ -12,6 +12,7 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.READ_LOGS" />
     <uses-permission android:name="android.permission.VIBRATE"/>
 
     <application android:icon="@drawable/icon" android:label="PITER FM (testver)" android:name="ru.piter.fm.App" android:theme="@style/PiterFM.Theme">

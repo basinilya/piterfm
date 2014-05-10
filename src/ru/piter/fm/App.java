@@ -14,8 +14,10 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
 import ru.piter.fm.player.PiterFMPlayer;
 import ru.piter.fm.player.PlayerInterface;
+import ru.piter.fm.prototype.BuildConfig;
 import ru.piter.fm.prototype.R;
 import ru.piter.fm.util.DBAdapter;
+import ru.piter.fm.util.SelfLogcatSaver;
 import ru.piter.fm.util.Utils;
 
 /**
@@ -30,6 +32,11 @@ public class App extends Application {
     private static Context context;
     private static PlayerInterface player;
     private static DBAdapter db;
+
+    static {
+        if (BuildConfig.DEBUG)
+            new SelfLogcatSaver().start();
+    }
 
     @Override
     public void onCreate() {
