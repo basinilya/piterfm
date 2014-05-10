@@ -8,7 +8,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.widget.RemoteViews;
 import ru.piter.fm.App;
-import ru.piter.fm.player.PlayerService;
+import ru.piter.fm.player.PlayerInterface;
 import ru.piter.fm.prototype.R;
 import ru.piter.fm.radio.Channel;
 import ru.piter.fm.radio.Radio;

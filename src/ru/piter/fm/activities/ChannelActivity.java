@@ -21,7 +21,7 @@ import com.google.ads.AdRequest;
 import com.google.ads.AdSize;
 import com.google.ads.AdView;
 import ru.piter.fm.App;
-import ru.piter.fm.player.PlayerService;
+import ru.piter.fm.player.PlayerInterface;
 import ru.piter.fm.prototype.R;
 import ru.piter.fm.radio.Channel;
 import ru.piter.fm.radio.Radio;
