@@ -17,6 +17,7 @@ import ru.piter.fm.player.PlayerInterface;
 import ru.piter.fm.prototype.BuildConfig;
 import ru.piter.fm.prototype.R;
 import ru.piter.fm.util.DBAdapter;
+import ru.piter.fm.util.GetAllStackTracesTimer;
 import ru.piter.fm.util.SelfLogcatSaver;
 import ru.piter.fm.util.Utils;
 
@@ -34,8 +35,10 @@ public class App extends Application {
     private static DBAdapter db;
 
     static {
-        if (BuildConfig.DEBUG)
+        if (BuildConfig.DEBUG) {
             new SelfLogcatSaver().start();
+            new GetAllStackTracesTimer();
+        }
     }
 
     @Override
