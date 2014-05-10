@@ -5,6 +5,8 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import com.nostra13.universalimageloader.cache.disc.impl.UnlimitedDiscCache;
@@ -12,7 +14,11 @@ import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import ru.piter.fm.player.PlayerService;
+import ru.piter.fm.BuildConfig;
 import ru.piter.fm.util.DBAdapter;
+import ru.piter.fm.util.GetAllStackTracesTimer;
+import ru.piter.fm.util.SelfLogcatSaver;
+import ru.piter.fm.util.Settings;
 import ru.piter.fm.util.Utils;
 
 /**
@@ -22,16 +28,35 @@ import ru.piter.fm.util.Utils;
  * Time: 0:11:48
  * To change this template use File | SettingsActivity | File Templates.
  */
-public class App extends Application {
+public class App extends Application implements OnSharedPreferenceChangeListener {
 
     private static Context context;
     private static PlayerService player;
     private static DBAdapter db;
 
+    static {
+        if (BuildConfig.DEBUG)
+            new GetAllStackTracesTimer();
+    }
+
+    private final SelfLogcatSaver selfLogcatSaver = new SelfLogcatSaver();
+
     @Override
     public void onCreate() {
         super.onCreate();
+
+        // init preferences
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, true);
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+        if (!sp.contains(Settings.DEBUG_LOG_ENABLED)) {
+            sp.edit().putBoolean(Settings.DEBUG_LOG_ENABLED, BuildConfig.DEBUG).commit();
+        }
+
         context = this;
+
+        switchSelfLogcatSaver(sp);
+
+        sp.registerOnSharedPreferenceChangeListener(this);
 
         // init image loader
         DisplayImageOptions options = new DisplayImageOptions.Builder()
@@ -52,9 +77,6 @@ public class App extends Application {
         // bind player service
         if (player == null)
             bindService(new Intent(App.this, PlayerService.class), connection, Context.BIND_AUTO_CREATE);
-
-        // init preferences
-        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 
         db = new DBAdapter(context);
     }
@@ -90,5 +112,19 @@ public class App extends Application {
         }
     };
 
+    private void switchSelfLogcatSaver(SharedPreferences sp) {
+        if (sp.getBoolean(Settings.DEBUG_LOG_ENABLED, false)) {
+            selfLogcatSaver.enable();
+        } else {
+            selfLogcatSaver.disable();
+        }
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (key.equals(Settings.DEBUG_LOG_ENABLED)) {
+            switchSelfLogcatSaver(sharedPreferences);
+        }
+    }
 
 }

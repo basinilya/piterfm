@@ -77,6 +77,14 @@
                 android:entryValues="@array/reconnect_timeout"
                 android:dialogTitle="@string/reconnect_timeout"/>
 
+    </android.preference.PreferenceCategory>
+
+    <android.preference.PreferenceCategory android:title="@string/debug_preferences">
+
+        <CheckBoxPreference
+                android:key="debug_log_enabled_key"
+                android:title="@string/debug_log_enabled"
+                />
 
     </android.preference.PreferenceCategory>
 
