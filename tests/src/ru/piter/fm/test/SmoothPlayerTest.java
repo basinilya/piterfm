@@ -18,7 +18,7 @@ import android.util.Log;
 
 public class SmoothPlayerTest extends InstrumentationTestCase implements MediaPlayer.OnPreparedListener, MediaPlayer.OnSeekCompleteListener {
 
-    public static final String T = "PiterFMPlayerCacheTest";
+    public static final String T = "SmoothPlayerTest";
 
     private SmoothMediaPlayer player1;
     private SmoothMediaPlayer player2;

@@ -207,7 +207,9 @@ class SmoothMediaPlayerImpl extends SmoothMediaPlayer implements OnCompletionLis
                 int curposBefore = waitPosChange(this, 1);
                 //int curposBefore = getCurrentPosition();
                 long nanotimeBefore = System.nanoTime();
-                final int remainingMs = OVERLAP_BEGIN_MS + nextPlayerPos - curposBefore + 100;
+                // 15 on AVD 2_3_3_x86
+                // 100 on Zopo ZP300+
+                final int remainingMs = OVERLAP_BEGIN_MS + nextPlayerPos - curposBefore  + 100;
 
                 if (remainingMs > 0) {
                     PreciseSleeper.sleep(remainingMs);
@@ -215,17 +217,31 @@ class SmoothMediaPlayerImpl extends SmoothMediaPlayer implements OnCompletionLis
                 long realDelay = (System.nanoTime() - nanotimeBefore) / M;
 
                 curposAfter = getCurrentPosition();
-                newNextPlayerPos =  nextPlayer.getCurrentPosition();
-                Log.i(Tag, funcname + ",called nextPlayer.start()" + ", pos: "
+                newNextPlayerPos =  nextPlayerPos; // !!!
+
+                Log.i(Tag, funcname + ",before nextPlayer.start()" + ", pos: "
                         + curposAfter + ", nextPlayerPos: " + newNextPlayerPos);
+
+                long magic1 = System.nanoTime();
+
+                int bagic1 = newNextPlayerPos;
 
                 nextPlayer.internalStart();
                 Thread.sleep(SLEEP_AFTER_SWITCH_MS);
 
+                newNextPlayerPos =  waitPosChange(nextPlayer, 1);
                 curposAfter = getCurrentPosition();
-                newNextPlayerPos =  nextPlayer.getCurrentPosition();
-                Log.i(Tag, funcname + ",called nextPlayer.start()" + ", pos: "
-                        + curposAfter + ", nextPlayerPos: " + newNextPlayerPos);
+                int bagic2 = newNextPlayerPos;
+
+                long magic2 = System.nanoTime();
+
+                long magic3 =  (bagic2 - bagic1) - ((magic2 - magic1) / M);
+
+                Log.i(Tag, funcname + ",after  nextPlayer.start()" + ", pos: "
+                        + curposAfter
+                        + ", nextPlayerPos: " + newNextPlayerPos
+                        + ", magic: " + magic3
+                        );
                 
                 this.setVolume(0f, 0f);
                 long delayMid = (System.nanoTime() - nanotimeBefore) / M - SLEEP_AFTER_SWITCH_MS;
@@ -237,7 +253,7 @@ class SmoothMediaPlayerImpl extends SmoothMediaPlayer implements OnCompletionLis
                 curposAfter = getCurrentPosition();
                 newNextPlayerPos =  nextPlayer.getCurrentPosition();
                 Log.
-                    i(Tag, funcname + ",called nextPlayer.start()"
+                    i(Tag, funcname + ",after2 nextPlayer.start()"
                         + ", pos: " + curposAfter
                         + ", nextPlayerPos: " + newNextPlayerPos
                         /*
