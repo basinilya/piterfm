@@ -3,11 +3,14 @@
  */
 package ru.piter.fm.test;
 
+import java.io.File;
+
 import org.foo.StopButtonInstrumentationTestCase;
 
 import ru.piter.fm.player.SmoothMediaPlayer;
 import android.annotation.SuppressLint;
 import android.media.MediaPlayer;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.test.InstrumentationTestCase;
@@ -67,11 +70,14 @@ public class SmoothPlayerTest extends InstrumentationTestCase implements MediaPl
             @SuppressLint({ "NewApi", "SdCardPath" })
             @Override
             public void run() {
-                String f1 = "/mnt/sdcard/piterfm/1.mp4";
-                String f2 = "/mnt/sdcard/piterfm/2.mp4";
+                String sdcard = Environment.getExternalStorageDirectory().getAbsolutePath();
+                String f1 = sdcard + "/piterfm/1.mp4";
+                String f2 = sdcard + "/piterfm/2.mp4";
                 
                 try {
+                    assertTrue(new File(f1).exists());
                     player1.setDataSource(f1);
+                    assertTrue(new File(f2).exists());
                     player2.setDataSource(f2);
                     player1.prepare();
                     player2.prepare();
