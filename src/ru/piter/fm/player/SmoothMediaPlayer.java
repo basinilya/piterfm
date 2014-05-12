@@ -120,6 +120,7 @@ class SmoothMediaPlayerImpl extends SmoothMediaPlayer implements OnCompletionLis
     public void reset() {
         final String funcname = dbgId + ",reset";
         Log.d(Tag, funcname + ",");
+        setVolume(1.0f, 1.0f);
         resetCommon();
         super.reset();
     }
@@ -198,38 +199,55 @@ class SmoothMediaPlayerImpl extends SmoothMediaPlayer implements OnCompletionLis
         onCompletionCalled = true;
 
         if (nextPlayer != null) {
-            Thread t = Thread.currentThread();
             try {
-                int sleepInaccuracy = 0;
+                int curposAfter;
+                int newNextPlayerPos;
+
                 int nextPlayerPos = nextPlayer.getCurrentPosition();
-                int curposBefore = waitPosChange(this);
+                int curposBefore = waitPosChange(this, 1);
+                //int curposBefore = getCurrentPosition();
                 long nanotimeBefore = System.nanoTime();
-                final int remainingMs = OVERLAP_BEGIN_MS + nextPlayerPos - curposBefore - 38;
+                final int remainingMs = OVERLAP_BEGIN_MS + nextPlayerPos - curposBefore + 100;
 
                 if (remainingMs > 0) {
                     PreciseSleeper.sleep(remainingMs);
                 }
                 long realDelay = (System.nanoTime() - nanotimeBefore) / M;
 
+                curposAfter = getCurrentPosition();
+                newNextPlayerPos =  nextPlayer.getCurrentPosition();
+                Log.i(Tag, funcname + ",called nextPlayer.start()" + ", pos: "
+                        + curposAfter + ", nextPlayerPos: " + newNextPlayerPos);
+
                 nextPlayer.internalStart();
-                long delayMid = (System.nanoTime() - nanotimeBefore) / M;
-                super.pause();
+                Thread.sleep(SLEEP_AFTER_SWITCH_MS);
 
-                long delayAfter = (System.nanoTime() - nanotimeBefore) / M;
+                curposAfter = getCurrentPosition();
+                newNextPlayerPos =  nextPlayer.getCurrentPosition();
+                Log.i(Tag, funcname + ",called nextPlayer.start()" + ", pos: "
+                        + curposAfter + ", nextPlayerPos: " + newNextPlayerPos);
+                
+                this.setVolume(0f, 0f);
+                long delayMid = (System.nanoTime() - nanotimeBefore) / M - SLEEP_AFTER_SWITCH_MS;
+                nextPlayer.setVolume(1.0f, 1.0f);
+                long delayAfter = (System.nanoTime() - nanotimeBefore) / M - SLEEP_AFTER_SWITCH_MS;
 
-                if (SLEEP_AFTER_SWITCH_MS > 0)
-                    Thread.sleep(SLEEP_AFTER_SWITCH_MS); // yield a lot
-                int curposAfter = getCurrentPosition();
+                Thread.sleep(SLEEP_AFTER_SWITCH_MS); // yield a lot
+
+                curposAfter = getCurrentPosition();
+                newNextPlayerPos =  nextPlayer.getCurrentPosition();
                 Log.
                     i(Tag, funcname + ",called nextPlayer.start()"
-                        + ", stopped at: " + curposAfter
+                        + ", pos: " + curposAfter
+                        + ", nextPlayerPos: " + newNextPlayerPos
+                        /*
                         + ", nextPlayerPos was: " + nextPlayerPos
                         + ", curposBefore was: " + curposBefore
                         + ", remainingMs was: " + remainingMs
                         + ", real delay was: " + realDelay
                         + ", delayMid: " + delayMid
                         + ", delayAfter: " + delayAfter
-                        + ", sleepInaccuracy: " + sleepInaccuracy
+                        */
                         );
             } catch (InterruptedException e) {
                 //
@@ -245,16 +263,10 @@ class SmoothMediaPlayerImpl extends SmoothMediaPlayer implements OnCompletionLis
     public void seekTo(int msec) throws IllegalStateException {
         final String funcname = dbgId + ",seekTo";
         Log.d(Tag, funcname + ", msec = " + msec);
-        if (msec == 2000)
-            msec = DECODED_SILENCE_MS; /*
-                                        * Next track detected, but only play without seek assures seamless playback.
-                                        * Changing to the minimal value
-                                        */
-        if (msec > WARMUP_MS) {
-            super.seekTo(msec);
-        } else {
+        if (msec == 2000) {
+            /* Next track detected */
             onSeekCompleteCalled = true;
-            warmUp(msec);
+            warmUp();
 
             activeOnSeekCompleteEvent = new Runnable() {
                 public void run() {
@@ -266,6 +278,8 @@ class SmoothMediaPlayerImpl extends SmoothMediaPlayer implements OnCompletionLis
                 }
             };
             handler.post(activeOnSeekCompleteEvent);
+        } else {
+            super.seekTo(msec);
         }
     }
 
@@ -282,37 +296,36 @@ class SmoothMediaPlayerImpl extends SmoothMediaPlayer implements OnCompletionLis
         }
     }
 
-    private void warmUp(int desiredPos) {
+    private void warmUp() {
         setVolume(0, 0);
-        int delay = desiredPos - getCurrentPosition();
-
-        Thread t = Thread.currentThread();
-        int oldPrio = t.getPriority();
-        t.setPriority(Thread.MAX_PRIORITY);
         try {
             super.start();
-            if (delay > 0)
-                Thread.sleep(delay);
-            waitPosChange(this);
+            waitPosChange(this, 3);
             super.pause();
-            if (SLEEP_AFTER_SWITCH_MS > 0)
-                Thread.sleep(SLEEP_AFTER_SWITCH_MS); // yield a lot
+            Thread.sleep(SLEEP_AFTER_SWITCH_MS); // yield a lot
         } catch (InterruptedException e) {
             //
-        } finally {
-            t.setPriority(oldPrio);
         }
-        setVolume(1.0f, 1.0f);
     }
 
-    // required, because position granularity is 93ms.
-    private static int waitPosChange(SmoothMediaPlayer pl) {
-        if ("".length() == 0)
+    /**/
+    private static int waitPosChange(SmoothMediaPlayer pl, int count) throws InterruptedException {
+        if ("".length() != 0)
             return pl.getCurrentPosition();
+
         int pos1 = pl.getCurrentPosition();
-        int pos2;
-        do {
-        } while((pos2 = pl.getCurrentPosition()) == pos1);
+        int pos2 = pos1;
+        while(count > 0) {
+            for (;;) {
+                Thread.sleep(1);
+                pos2 = pl.getCurrentPosition();
+                if (pos1 != pos2) {
+                    pos1 = pos2;
+                    count--;
+                    break; // for
+                }
+            }
+        }
         return pos2;
     }
 

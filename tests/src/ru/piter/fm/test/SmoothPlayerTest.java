@@ -66,28 +66,33 @@ public class SmoothPlayerTest extends InstrumentationTestCase implements MediaPl
     }
 
     public void testB() throws Exception {
-        handler.post(new Runnable() {
-            @SuppressLint({ "NewApi", "SdCardPath" })
-            @Override
-            public void run() {
-                String sdcard = Environment.getExternalStorageDirectory().getAbsolutePath();
-                String f1 = sdcard + "/piterfm/1.mp4";
-                String f2 = sdcard + "/piterfm/2.mp4";
-                
-                try {
-                    assertTrue(new File(f1).exists());
-                    player1.setDataSource(f1);
-                    assertTrue(new File(f2).exists());
-                    player2.setDataSource(f2);
-                    player1.prepare();
-                    player2.prepare();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    System.exit(1);
+        String sdcard = Environment.getExternalStorageDirectory().getAbsolutePath();
+        final String f1 = sdcard + "/piterfm/1.mp4";
+        final String f2 = sdcard + "/piterfm/2.mp4";
+        assertTrue(new File(f2).exists());
+        assertTrue(new File(f1).exists());
+
+        for(;;) {
+            handler.post(new Runnable() {
+                @SuppressLint({ "NewApi" })
+                @Override
+                public void run() {
+    
+                    try {
+                        player1.reset();
+                        player2.reset();
+                        player1.setDataSource(f1);
+                        player2.setDataSource(f2);
+                        player1.prepare();
+                        player2.prepare();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        System.exit(1);
+                    }
                 }
-            }
-        });
-        Thread.sleep(12000); // should be stopped by the stop button on device screen
+            });
+            Thread.sleep(12000);
+        }
     }
 
     @Override
