@@ -3,7 +3,6 @@
  */
 package ru.piter.fm.player;
 
-import ru.piter.fm.util.PreciseSleeper;
 import ru.piter.fm.util.StatsCalc;
 import android.annotation.SuppressLint;
 import android.media.MediaPlayer;
@@ -88,8 +87,8 @@ class SmoothMediaPlayerImpl extends SmoothMediaPlayer implements OnCompletionLis
      */
     private static final int EARLY_SWITCH_MS = 500;
 
-    /** Not sure it's needed */
-    private static final int SLEEP_AFTER_SWITCH_MS = 50;
+    /** Sleep to let player finish its operations in time */
+    private static final int YIELD_MS = 50;
 
     /**
      * unpaused player skips some milliseconds: if entered
@@ -217,13 +216,13 @@ class SmoothMediaPlayerImpl extends SmoothMediaPlayer implements OnCompletionLis
                 final long toSleep = whenToStartNextPlayer - curposBefore;
 
                 if (toSleep > 0) {
-                    PreciseSleeper.sleep(toSleep);
+                    Thread.sleep(toSleep);
                 }
 
                 final long nanosBeforeResumeNextPlayer = System.nanoTime();
 
                 nextPlayer.internalStart();
-                Thread.sleep(SLEEP_AFTER_SWITCH_MS);
+                Thread.sleep(YIELD_MS);
 
                 final int nextPlayerPosAfterResumeAndWait = waitPosChange(nextPlayer, 1); // synchronize with next player
                 final long nanosAfterResumeAndWait = System.nanoTime();
@@ -234,24 +233,12 @@ class SmoothMediaPlayerImpl extends SmoothMediaPlayer implements OnCompletionLis
                 final long unpausedPlayerSkipped =  (nextPlayerPosAfterResumeAndWait - nextPlayerPosBeforeResume) - ((nanosAfterResumeAndWait - nanosBeforeResumeNextPlayer) / M);
                 unpausedPlayerSkipsMs.put(unpausedPlayerSkipped);
                 
-                //Thread.sleep(SLEEP_AFTER_SWITCH_MS); // yield a lot
-
-                //curposAfter = getCurrentPosition();
-                //nextPlayerPosAfterResumeAndWait =  nextPlayer.getCurrentPosition();
                 Log.
                     i(Tag, funcname + ",after switch"
                             + ", unpausedPlayerSkipsAvg: " + unpausedPlayerSkipsAvg
                             + ", unpausedPlayerSkipped: " + unpausedPlayerSkipped
                             + ", pos: " + getCurrentPosition()
                             + ", nextPlayerPos: " + nextPlayer.getCurrentPosition()
-                        /*
-                        + ", nextPlayerPos was: " + nextPlayerPos
-                        + ", curposBefore was: " + curposBefore
-                        + ", remainingMs was: " + remainingMs
-                        + ", real delay was: " + realDelay
-                        + ", delayMid: " + delayMid
-                        + ", delayAfter: " + delayAfter
-                        */
                         );
             } catch (InterruptedException e) {
                 //
@@ -306,7 +293,7 @@ class SmoothMediaPlayerImpl extends SmoothMediaPlayer implements OnCompletionLis
             super.start();
             waitPosChange(this, 3);
             super.pause();
-            Thread.sleep(SLEEP_AFTER_SWITCH_MS); // yield a lot
+            Thread.sleep(YIELD_MS); // yield a lot
         } catch (InterruptedException e) {
             //
         }
