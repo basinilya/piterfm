@@ -1,21 +1,20 @@
 package ru.piter.fm.util;
 
 public class PreciseSleeper {
-    public static void sleep(int remainingMs) throws InterruptedException {
+    public static void sleep(long remainingMs) throws InterruptedException {
         long nanotimeBefore = System.nanoTime();
-        int sleepInaccuracy;
-        long nLoops = 0;
+        long sleepInaccuracy;
         if (remainingMs > 0) {
-            int toSleep = remainingMs - maxSleepInaccuracy;
+            long toSleep = remainingMs - inaccuracyStats.getMax();
             if (toSleep > 0) {
                 Thread.sleep(toSleep);
-                sleepInaccuracy = (int)((System.nanoTime() - nanotimeBefore) / M) - toSleep;
-                inaccuracyStats_put(sleepInaccuracy);
+                sleepInaccuracy = ((System.nanoTime() - nanotimeBefore) / M) - toSleep;
+                inaccuracyStats.put(sleepInaccuracy);
             }
 
             long breakTime = nanotimeBefore + (remainingMs * M);
             long remainingNanos;
-            for (;;nLoops++) {
+            for (;;) {
                 remainingNanos = breakTime - System.nanoTime();
                 if (remainingNanos <= 0)
                     break;
@@ -30,24 +29,9 @@ public class PreciseSleeper {
      */
     private static final int MAX_HASTE_MS = 50;
 
-    /** contains maximum sleep inaccuracy seen lately */
-    private static int maxSleepInaccuracy = MAX_HASTE_MS;
 
     private static final long M = 1000000L; // prevents typos
 
-    // ring buffer for stats values
-    private static int[] inaccuracyStatsRbuf = new int[] { maxSleepInaccuracy ,0,0,0,0 };
-    private static int inaccuracyStatsRbuf_index = 0;
-
-    private static void inaccuracyStats_put(int newval) {
-        if (newval > MAX_HASTE_MS)
-            newval = MAX_HASTE_MS;
-        inaccuracyStatsRbuf_index = (inaccuracyStatsRbuf_index + 1) % inaccuracyStatsRbuf.length;
-        inaccuracyStatsRbuf[inaccuracyStatsRbuf_index] = newval;
-        maxSleepInaccuracy = 0;
-        for (int val : inaccuracyStatsRbuf) {
-            if (maxSleepInaccuracy < val)
-                maxSleepInaccuracy = val;
-        }
-    }
+    /** calculates maximum sleep inaccuracy seen lately */
+    private static StatsCalc inaccuracyStats = new StatsCalc(5, MAX_HASTE_MS, 0, MAX_HASTE_MS);
 }

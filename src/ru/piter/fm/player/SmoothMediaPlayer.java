@@ -4,6 +4,7 @@
 package ru.piter.fm.player;
 
 import ru.piter.fm.util.PreciseSleeper;
+import ru.piter.fm.util.StatsCalc;
 import android.annotation.SuppressLint;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
@@ -89,6 +90,14 @@ class SmoothMediaPlayerImpl extends SmoothMediaPlayer implements OnCompletionLis
 
     /** Not sure it's needed */
     private static final int SLEEP_AFTER_SWITCH_MS = 50;
+
+    /**
+     * unpaused player skips some milliseconds: if entered
+     * {@link MediaPlayer#start()} at system time 0ms and measured
+     * {@link MediaPlayer#getCurrentPosition() getCurrentPosition()} at 200ms,
+     * it may show 300. Then we consider that it skipped 100ms.
+     */
+    private static StatsCalc unpausedPlayerSkipsMs = new StatsCalc(5, 80, -50, 150);
 
     private OnCompletionListener onCompletionListener;
     private OnSeekCompleteListener onSeekCompleteListener;
@@ -200,62 +209,41 @@ class SmoothMediaPlayerImpl extends SmoothMediaPlayer implements OnCompletionLis
 
         if (nextPlayer != null) {
             try {
-                int curposAfter;
-                int newNextPlayerPos;
+                final int nextPlayerPosBeforeResume = nextPlayer.getCurrentPosition();
+                final long unpausedPlayerSkipsAvg = unpausedPlayerSkipsMs.getAvg();
+                final long whenToStartNextPlayer = OVERLAP_BEGIN_MS + nextPlayerPosBeforeResume + unpausedPlayerSkipsAvg;
 
-                int nextPlayerPos = nextPlayer.getCurrentPosition();
-                int curposBefore = waitPosChange(this, 1);
-                //int curposBefore = getCurrentPosition();
-                long nanotimeBefore = System.nanoTime();
-                // 15 on AVD 2_3_3_x86
-                // 100 on Zopo ZP300+
-                final int remainingMs = OVERLAP_BEGIN_MS + nextPlayerPos - curposBefore  + 100;
+                final int curposBefore = waitPosChange(this, 1); // synchronize with current player
+                final long toSleep = whenToStartNextPlayer - curposBefore;
 
-                if (remainingMs > 0) {
-                    PreciseSleeper.sleep(remainingMs);
+                if (toSleep > 0) {
+                    PreciseSleeper.sleep(toSleep);
                 }
-                long realDelay = (System.nanoTime() - nanotimeBefore) / M;
 
-                curposAfter = getCurrentPosition();
-                newNextPlayerPos =  nextPlayerPos; // !!!
-
-                Log.i(Tag, funcname + ",before nextPlayer.start()" + ", pos: "
-                        + curposAfter + ", nextPlayerPos: " + newNextPlayerPos);
-
-                long magic1 = System.nanoTime();
-
-                int bagic1 = newNextPlayerPos;
+                final long nanosBeforeResumeNextPlayer = System.nanoTime();
 
                 nextPlayer.internalStart();
                 Thread.sleep(SLEEP_AFTER_SWITCH_MS);
 
-                newNextPlayerPos =  waitPosChange(nextPlayer, 1);
-                curposAfter = getCurrentPosition();
-                int bagic2 = newNextPlayerPos;
+                final int nextPlayerPosAfterResumeAndWait = waitPosChange(nextPlayer, 1); // synchronize with next player
+                final long nanosAfterResumeAndWait = System.nanoTime();
 
-                long magic2 = System.nanoTime();
-
-                long magic3 =  (bagic2 - bagic1) - ((magic2 - magic1) / M);
-
-                Log.i(Tag, funcname + ",after  nextPlayer.start()" + ", pos: "
-                        + curposAfter
-                        + ", nextPlayerPos: " + newNextPlayerPos
-                        + ", magic: " + magic3
-                        );
-                
                 this.setVolume(0f, 0f);
-                long delayMid = (System.nanoTime() - nanotimeBefore) / M - SLEEP_AFTER_SWITCH_MS;
                 nextPlayer.setVolume(1.0f, 1.0f);
-                long delayAfter = (System.nanoTime() - nanotimeBefore) / M - SLEEP_AFTER_SWITCH_MS;
 
-                Thread.sleep(SLEEP_AFTER_SWITCH_MS); // yield a lot
+                final long unpausedPlayerSkipped =  (nextPlayerPosAfterResumeAndWait - nextPlayerPosBeforeResume) - ((nanosAfterResumeAndWait - nanosBeforeResumeNextPlayer) / M);
+                unpausedPlayerSkipsMs.put(unpausedPlayerSkipped);
+                
+                //Thread.sleep(SLEEP_AFTER_SWITCH_MS); // yield a lot
 
-                curposAfter = getCurrentPosition();
-                newNextPlayerPos =  nextPlayer.getCurrentPosition();
+                //curposAfter = getCurrentPosition();
+                //nextPlayerPosAfterResumeAndWait =  nextPlayer.getCurrentPosition();
                 Log.
-                    i(Tag, funcname + ",after2 nextPlayer.start()"
-                        + ", pos: " + curposAfter
-                        + ", nextPlayerPos: " + newNextPlayerPos
+                    i(Tag, funcname + ",after switch"
+                            + ", unpausedPlayerSkipsAvg: " + unpausedPlayerSkipsAvg
+                            + ", unpausedPlayerSkipped: " + unpausedPlayerSkipped
+                            + ", pos: " + getCurrentPosition()
+                            + ", nextPlayerPos: " + nextPlayer.getCurrentPosition()
                         /*
                         + ", nextPlayerPos was: " + nextPlayerPos
                         + ", curposBefore was: " + curposBefore
@@ -325,19 +313,22 @@ class SmoothMediaPlayerImpl extends SmoothMediaPlayer implements OnCompletionLis
     }
 
     /**/
-    private static int waitPosChange(SmoothMediaPlayer pl, int count) throws InterruptedException {
+    private static int waitPosChange(SmoothMediaPlayer pl, int nTimes) throws InterruptedException {
         if ("".length() != 0)
             return pl.getCurrentPosition();
 
         int pos1 = pl.getCurrentPosition();
         int pos2 = pos1;
-        while(count > 0) {
+        long breakTime = System.nanoTime() + (500 * 1000000L);
+        while(nTimes > 0) {
             for (;;) {
+                if (System.nanoTime() - breakTime > 0)
+                    return pos2;
                 Thread.sleep(1);
                 pos2 = pl.getCurrentPosition();
                 if (pos1 != pos2) {
                     pos1 = pos2;
-                    count--;
+                    nTimes--;
                     break; // for
                 }
             }
