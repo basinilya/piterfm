@@ -87,7 +87,7 @@ public class SmoothPlayerTest extends InstrumentationTestCase implements MediaPl
                 }
             }
         });
-        Thread.sleep(1200000); // should be stopped by the stop button on device screen
+        Thread.sleep(12000); // should be stopped by the stop button on device screen
     }
 
     @Override
@@ -98,7 +98,7 @@ public class SmoothPlayerTest extends InstrumentationTestCase implements MediaPl
         } else {
             //player1.start();
             
-            player1.seekTo(50000);
+            player1.seekTo(55000);
         }
     }
 

@@ -1,8 +1,9 @@
 /**
- * 
+ *
  */
 package ru.piter.fm.player;
 
+import ru.piter.fm.util.PreciseSleeper;
 import android.annotation.SuppressLint;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
@@ -17,9 +18,9 @@ import android.util.Log;
  * <li/>it doesn't support calling {@link #seekTo(int)} multiple times
  * <li/>{@link #setNextMediaPlayer(MediaPlayer)} can only be called ar certain time
  * </ul>
- * 
+ *
  * @author Ilya Basin
- * 
+ *
  */
 public class SmoothMediaPlayer extends MediaPlayer {
     protected static final String Tag = "SmoothMediaPlayer";
@@ -51,6 +52,10 @@ public class SmoothMediaPlayer extends MediaPlayer {
         super.start();
     }
 
+    protected void internalPause() {
+        super.pause();
+    }
+
     private static boolean haveSetNextMediaPlayer() {
         try {
             MediaPlayer.class.getMethod("setNextMediaPlayer", MediaPlayer.class);
@@ -80,13 +85,7 @@ class SmoothMediaPlayerImpl extends SmoothMediaPlayer implements OnCompletionLis
      * Switch to next track approx this value before real {@link OnCompletionListener#onCompletion(MediaPlayer)
      * onCompletion()}
      */
-    private static final int EARLY_SWITCH_MS = 400;
-
-    /**
-     * For precise switch time, I sleep less than needed, then check current time in a loop. This value specifies the
-     * maximum duration of this loop
-     */
-    private static final int MAX_HASTE_MS = 50;
+    private static final int EARLY_SWITCH_MS = 500;
 
     /** Not sure it's needed */
     private static final int SLEEP_AFTER_SWITCH_MS = 50;
@@ -202,34 +201,21 @@ class SmoothMediaPlayerImpl extends SmoothMediaPlayer implements OnCompletionLis
             Thread t = Thread.currentThread();
             try {
                 int sleepInaccuracy = 0;
-                long nLoops = 0;
-                long realDelay = 0;
                 int nextPlayerPos = nextPlayer.getCurrentPosition();
+                int curposBefore = waitPosChange(this);
                 long nanotimeBefore = System.nanoTime();
-                int curposBefore = getCurrentPosition();
-                final int remainingMs = OVERLAP_BEGIN_MS + nextPlayerPos - curposBefore;
+                final int remainingMs = OVERLAP_BEGIN_MS + nextPlayerPos - curposBefore - 38;
 
                 if (remainingMs > 0) {
-                    int toSleep = remainingMs - maxSleepInaccuracy;
-                    if (toSleep > 0) {
-                        Thread.sleep(toSleep);
-                        sleepInaccuracy = (int)((System.nanoTime() - nanotimeBefore) / M) - toSleep;
-                        inaccuracyStats_put(sleepInaccuracy);
-                    }
-    
-                    long breakTime = nanotimeBefore + (remainingMs * M);
-                    long remainingNanos;
-                    for (;;nLoops++) {
-                        remainingNanos = breakTime - System.nanoTime();
-                        if (remainingNanos <= 0)
-                            break;
-                        //java.util.concurrent.locks.LockSupport.parkNanos(remainingNanos);
-                    }
-                    realDelay = (breakTime - remainingNanos - nanotimeBefore) / M;
+                    PreciseSleeper.sleep(remainingMs);
                 }
+                long realDelay = (System.nanoTime() - nanotimeBefore) / M;
 
                 nextPlayer.internalStart();
+                long delayMid = (System.nanoTime() - nanotimeBefore) / M;
                 super.pause();
+
+                long delayAfter = (System.nanoTime() - nanotimeBefore) / M;
 
                 if (SLEEP_AFTER_SWITCH_MS > 0)
                     Thread.sleep(SLEEP_AFTER_SWITCH_MS); // yield a lot
@@ -241,7 +227,8 @@ class SmoothMediaPlayerImpl extends SmoothMediaPlayer implements OnCompletionLis
                         + ", curposBefore was: " + curposBefore
                         + ", remainingMs was: " + remainingMs
                         + ", real delay was: " + realDelay
-                        + ", nLoops: " + nLoops
+                        + ", delayMid: " + delayMid
+                        + ", delayAfter: " + delayAfter
                         + ", sleepInaccuracy: " + sleepInaccuracy
                         );
             } catch (InterruptedException e) {
@@ -306,13 +293,27 @@ class SmoothMediaPlayerImpl extends SmoothMediaPlayer implements OnCompletionLis
             super.start();
             if (delay > 0)
                 Thread.sleep(delay);
+            waitPosChange(this);
             super.pause();
+            if (SLEEP_AFTER_SWITCH_MS > 0)
+                Thread.sleep(SLEEP_AFTER_SWITCH_MS); // yield a lot
         } catch (InterruptedException e) {
             //
         } finally {
             t.setPriority(oldPrio);
         }
         setVolume(1.0f, 1.0f);
+    }
+
+    // required, because position granularity is 93ms.
+    private static int waitPosChange(SmoothMediaPlayer pl) {
+        if ("".length() == 0)
+            return pl.getCurrentPosition();
+        int pos1 = pl.getCurrentPosition();
+        int pos2;
+        do {
+        } while((pos2 = pl.getCurrentPosition()) == pos1);
+        return pos2;
     }
 
     @Override
@@ -327,25 +328,6 @@ class SmoothMediaPlayerImpl extends SmoothMediaPlayer implements OnCompletionLis
         final String funcname = dbgId + ",setOnCompletionListener,";
         Log.d(Tag, funcname + ",listener = " + listener);
         onCompletionListener = listener;
-    }
-
-    /** contains maximum sleep inaccuracy seen lately */
-    private int maxSleepInaccuracy = MAX_HASTE_MS;
-
-    // ring buffer for stats values
-    private int[] inaccuracyStatsRbuf = new int[] { maxSleepInaccuracy ,0,0,0,0 };
-    private int inaccuracyStatsRbuf_index = 0;
-
-    private void inaccuracyStats_put(int newval) {
-        if (newval > MAX_HASTE_MS)
-            newval = MAX_HASTE_MS;
-        inaccuracyStatsRbuf_index = (inaccuracyStatsRbuf_index + 1) % inaccuracyStatsRbuf.length;
-        inaccuracyStatsRbuf[inaccuracyStatsRbuf_index] = newval;
-        maxSleepInaccuracy = 0;
-        for (int val : inaccuracyStatsRbuf) {
-            if (maxSleepInaccuracy < val)
-                maxSleepInaccuracy = val;
-        }
     }
 
     private static final long M = 1000000L; // prevents typos
