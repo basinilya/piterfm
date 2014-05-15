@@ -12,6 +12,7 @@ import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import ru.piter.fm.player.PlayerService;
+import ru.piter.fm.radio.Channel;
 import ru.piter.fm.util.DBAdapter;
 import ru.piter.fm.util.Utils;
 
@@ -76,6 +77,14 @@ public class App extends Application {
 
     public static DBAdapter getDb(){
         return db;
+    }
+
+    public static boolean isPlaying(Channel ch) {
+        return ch.equals(PlayerService.channel) && (PlayerService.state == PlayerService.State.Playing);
+    }
+
+    public static boolean isPlaying() {
+        return PlayerService.state == PlayerService.State.Playing;
     }
 
     public static Context getContext(){
