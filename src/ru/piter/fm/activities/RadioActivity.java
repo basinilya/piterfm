@@ -60,24 +60,6 @@ public class RadioActivity extends SherlockFragmentActivity implements ViewPager
         Settings.getPreferences().registerOnSharedPreferenceChangeListener(this);
     }
 
-
-
-    private PhoneStateListener phoneListener = new PhoneStateListener() {
-        @Override
-        public void onCallStateChanged(int state, String incomingNumber) {
-            switch (state) {
-                case TelephonyManager.CALL_STATE_IDLE:
-                    break;
-                case TelephonyManager.CALL_STATE_OFFHOOK:
-                    App.getPlayer().stop();
-                    break;
-                case TelephonyManager.CALL_STATE_RINGING:
-                    App.getPlayer().stop();
-                    break;
-            }
-        }
-    };
-
     private void initUI() {
         setContentView(R.layout.main);
 
@@ -103,10 +85,6 @@ public class RadioActivity extends SherlockFragmentActivity implements ViewPager
 
         mPager.setAdapter(mAdapter);
         mPager.setOnPageChangeListener(this);
-
-        TelephonyManager tm = (TelephonyManager)getSystemService(TELEPHONY_SERVICE);
-        tm.listen(phoneListener, PhoneStateListener.LISTEN_CALL_STATE);
-
     }
 
 
