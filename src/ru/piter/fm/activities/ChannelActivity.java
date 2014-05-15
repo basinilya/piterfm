@@ -136,12 +136,7 @@ public class ChannelActivity extends SherlockListActivity implements GetTracksTa
         playButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new PlayerTask(ChannelActivity.this) {
-                    @Override
-                    public void onResult(Void result) {
-                        inflatePlayStopButton();
-                    }
-                }.execute(channel);
+                newPlayerTask().execute(channel);
             }
         });
         // inflatePlayStopButton();
@@ -150,20 +145,23 @@ public class ChannelActivity extends SherlockListActivity implements GetTracksTa
 
     }
 
-    private void inflatePlayStopButton() {
-        boolean isPlaying = App.isPlaying(channel);
-        playButton.setImageResource(isPlaying ? R.drawable.ic_stop : R.drawable.ic_play);
-        if (isPlaying) {
-            Intent intent = new Intent(this, ChannelActivity.class);
-            intent.putExtra("channel", channel);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            Notifications.show(Notifications.PLAY_STOP, intent);
-        } else {
-            Notifications.killNotification(Notifications.PLAY_STOP);
-        }
-
+    private PlayerTask newPlayerTask() {
+        return new PlayerTask(this) {
+            @Override
+            public void onResult(Void result) {
+                boolean isPlaying = App.isPlaying(channel);
+                playButton.setImageResource(isPlaying ? R.drawable.ic_stop : R.drawable.ic_play);
+                if (isPlaying) {
+                    Intent intent = new Intent(ChannelActivity.this, ChannelActivity.class);
+                    intent.putExtra("channel", channel);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    Notifications.show(Notifications.PLAY_STOP, intent);
+                } else {
+                    Notifications.killNotification(Notifications.PLAY_STOP);
+                }
+            }
+        };
     }
-
 
     private TextWatcher filterTextWatcher = new TextWatcher() {
         public void afterTextChanged(Editable s) {
@@ -217,12 +215,7 @@ public class ChannelActivity extends SherlockListActivity implements GetTracksTa
             ti.setTime(day.asTrackTime());
 
             if (!new Date().before(trackTime)) {
-                new PlayerTask(ChannelActivity.this) {
-                    @Override
-                    public void onResult(Void result) {
-                        inflatePlayStopButton();
-                    }
-                }.execute(channel, ti);
+                newPlayerTask().execute(channel, ti);
             } else {
                 Toast.makeText(ChannelActivity.this, R.string.incorrect_time, Toast.LENGTH_SHORT).show();
             }
@@ -292,12 +285,7 @@ public class ChannelActivity extends SherlockListActivity implements GetTracksTa
                 @Override
                 public void onClick(View view) {
                     currentTrack = (Track) getListAdapter().getItem(pos);
-                    new PlayerTask(ChannelActivity.this) {
-                        @Override
-                        public void onResult(Void result) {
-                            inflatePlayStopButton();
-                        }
-                    }.execute(channel, currentTrack);
+                    newPlayerTask().execute(channel, currentTrack);
                 }
 
             });
