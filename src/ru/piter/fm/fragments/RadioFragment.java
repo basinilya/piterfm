@@ -40,7 +40,6 @@ public class RadioFragment extends ListFragment implements GetChannelsTask.Chann
     private ChannelAdapter adapter;
     private Typeface font;
     private ImageLoader imageLoader = ImageLoader.getInstance();
-    private PlayerService player = App.getPlayer();
 
     public RadioFragment() {
     }
@@ -129,7 +128,7 @@ public class RadioFragment extends ListFragment implements GetChannelsTask.Chann
             final Channel ch = channels.get(position);
 
             if (ch != null) {
-                boolean isPlaying = ch.equals(player.channel) && (App.getPlayer().state == PlayerService.State.Playing);
+                boolean isPlaying = App.isPlaying(ch);
                 holder.channelInfo.setTypeface(font);
                 holder.channelInfo.setText(ch.getName() + " " + ch.getRange());
                 imageLoader.displayImage(ch.getLogoUrl(), holder.image);
@@ -140,7 +139,7 @@ public class RadioFragment extends ListFragment implements GetChannelsTask.Chann
                         new PlayerTask(getActivity()) {
                             @Override
                             public void onResult(Void result) {
-                                boolean isPlaying = ch.equals(player.channel) && (App.getPlayer().state == PlayerService.State.Playing);
+                                boolean isPlaying = App.isPlaying(ch);
                                 holder.button.setImageResource(isPlaying ? R.drawable.play_on : R.drawable.play);
                                 if (isPlaying) {
                                     Intent intent = new Intent(getActivity(), RadioActivity.class);
