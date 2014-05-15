@@ -148,13 +148,13 @@ public class ChannelActivity extends SherlockListActivity implements GetTracksTa
             }
         });
         // inflatePlayStopButton();
-        boolean isPlaying = channel.equals(App.getPlayer().channel) && (App.getPlayer().state == PlayerService.State.Playing);
+        boolean isPlaying = App.isPlaying(channel);
         playButton.setImageResource(isPlaying ? R.drawable.ic_stop : R.drawable.ic_play);
 
     }
 
     private void inflatePlayStopButton() {
-        boolean isPlaying = channel.equals(App.getPlayer().channel) && (App.getPlayer().state == PlayerService.State.Playing);
+        boolean isPlaying = App.isPlaying(channel);
         playButton.setImageResource(isPlaying ? R.drawable.ic_stop : R.drawable.ic_play);
         if (isPlaying) {
             Intent intent = new Intent(this, ChannelActivity.class);
