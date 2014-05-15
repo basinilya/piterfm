@@ -6,7 +6,10 @@ import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.IBinder;
+import android.telephony.PhoneStateListener;
+import android.telephony.TelephonyManager;
 import android.util.Log;
+import ru.piter.fm.App;
 import ru.piter.fm.radio.Channel;
 import ru.piter.fm.radio.Track;
 import ru.piter.fm.util.Notifications;
@@ -40,6 +43,22 @@ public class PlayerService extends Service implements MediaPlayer.OnCompletionLi
     public static State state = State.Stopped;
     public static int reconnectCount = 0;
 
+    private PhoneStateListener phoneListener = new PhoneStateListener() {
+        @Override
+        public void onCallStateChanged(int state, String incomingNumber) {
+            switch (state) {
+                case TelephonyManager.CALL_STATE_IDLE:
+                    break;
+                case TelephonyManager.CALL_STATE_OFFHOOK:
+                    App.getPlayer().stop();
+                    break;
+                case TelephonyManager.CALL_STATE_RINGING:
+                    App.getPlayer().stop();
+                    break;
+            }
+        }
+    };
+
     @Override
     public void onCreate() {
         Utils.clearDirectory(Utils.CHUNKS_DIR);
@@ -52,6 +71,8 @@ public class PlayerService extends Service implements MediaPlayer.OnCompletionLi
         player2.setOnErrorListener(this);
         player2.setOnPreparedListener(this);
 
+        TelephonyManager tm = (TelephonyManager)getSystemService(TELEPHONY_SERVICE);
+        tm.listen(phoneListener, PhoneStateListener.LISTEN_CALL_STATE);
     }
 
 
