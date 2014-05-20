@@ -198,6 +198,7 @@ class SmoothMediaPlayerImpl extends SmoothMediaPlayer implements OnCompletionLis
         onCompletionCalled = true;
 
         if (nextPlayer != null) {
+            nextPlayer.setVolume(0, 0);
             try {
                 final int nextPlayerPosBeforeResume = nextPlayer.getCurrentPosition();
                 final long unpausedPlayerSkipsAvg = unpausedPlayerSkipsMs.getAvg();
@@ -288,6 +289,7 @@ class SmoothMediaPlayerImpl extends SmoothMediaPlayer implements OnCompletionLis
         } catch (InterruptedException e) {
             //
         }
+        setVolume(1.0f, 1.0f);
     }
 
     /**/
