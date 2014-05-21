@@ -8,7 +8,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 import android.util.Log;
@@ -308,13 +311,14 @@ public class PiterFMCachingDownloader {
             }.start();
         }
 
-        private void downloadTrack(OutputStream fos) throws InterruptedException, IOException {
+        private void downloadTrack(OutputStream fos) throws InterruptedException, IOException, NoSuchAlgorithmException {
             final String funcname = "downloadTrack";
             Log.d(Tag, funcname + ",");
             byte[] buffer = new byte[512];
             int oldpos = 0;
             boolean rethrowIO = false;
             String url = m_url; // m_url may change, if cancelled between synchronized and openConnection()
+            MessageDigest dbg_md5_writes = MessageDigest.getInstance("MD5");
             for (;;) {
                 int tryNo;
                 Log.v(Tag, funcname + ",synchronized before, dummyNo:324"); try {
@@ -335,6 +339,7 @@ public class PiterFMCachingDownloader {
 
                 int pos = 0;
                 InputStream in = null;
+                MessageDigest dbg_md5_reads = MessageDigest.getInstance("MD5");
                 try {
                     Log.d(Tag, funcname + ",before openConnection(), tryNo = " + tryNo + ", url: " + url);
                     in = Utils.openConnection(url);
@@ -351,6 +356,7 @@ public class PiterFMCachingDownloader {
                             Log.d(Tag, funcname + ",download complete");
                             break;
                         }
+                        dbg_md5_reads.update(buffer, 0, len);
                         int ofs = oldpos - pos;
                         pos += len;
                         synchronized (lock) {
@@ -362,10 +368,12 @@ public class PiterFMCachingDownloader {
                                     len -= ofs;
                                 rethrowIO = true;
                                 fos.write(buffer, ofs, len);
+                                dbg_md5_writes.update(buffer, ofs, len);
                                 rethrowIO = false;
                             }
                         }
                     }
+                    assertTrue(Arrays.equals(dbg_md5_reads.digest(), dbg_md5_writes.digest()));
                     rethrowIO = true;
                     Log.v(Tag, funcname + ",synchronized before, dummyNo:380"); try {
                     synchronized (lock) {
