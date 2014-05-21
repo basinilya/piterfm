@@ -33,6 +33,11 @@ class PiterFMPlayer {
     private AsyncTask<?,?,?> getFileTask;
     private final PlayerWrap player1 = new PlayerWrap();
     private final PlayerWrap player2 = new PlayerWrap();
+    {
+        player1.otherPlayerWrap = player2;
+        player2.otherPlayerWrap = player1;
+    }
+
     private SmoothMediaPlayer currentPlayer;
 
     private boolean isPaused = true;
@@ -89,6 +94,7 @@ class PiterFMPlayer {
     {
         private final int dbgId = player1 == null ? 1 : 2;
         public final SmoothMediaPlayer player = SmoothMediaPlayer.newInstance(dbgId);
+        public PlayerWrap otherPlayerWrap;
         public String path;
 
         @Override
@@ -191,7 +197,8 @@ class PiterFMPlayer {
             Log.d(Tag, funcname + ",");
             // not resetting player now, because it won't be used until reopen()
             getFileTask = null;
-            if (currentPlayer == null) {
+            if (currentPlayer != otherPlayerWrap.player) {
+                // this check is for when error occurs in next player, while currentPlayer is playing
                 Log.d(Tag, funcname + ",currentPlayer == null, calling giveUp()");
                 giveUp();
             }
@@ -225,7 +232,7 @@ class PiterFMPlayer {
             Log.d(Tag, funcname + ",");
             onSeekCompleteCalled = true;
             getFileTask = null;
-            PlayerWrap other = getOtherPlayer();
+            PlayerWrap other = otherPlayerWrap;
             // The other player is either playing now or has finished playing
             if (currentPlayer == null) {
                 Log.d(Tag, funcname + ",currentPlayer == null, not trying to setNextMediaPlayer");
@@ -251,7 +258,7 @@ class PiterFMPlayer {
             //Log.d(Tag, funcname + ",");
             if (isNextPlayerSet) {
                 //Log.d(Tag, funcname + ",isNextPlayerSet == true, trying to start next mediaplayer");
-                currentPlayer = getOtherPlayer().player;
+                currentPlayer = otherPlayerWrap.player;
             }
             Log.d(Tag, funcname + ",");
             reset();
@@ -269,12 +276,6 @@ class PiterFMPlayer {
                 currentPlayer = null;
                 callEvent(EventType.Buffering);
             }
-        }
-
-        private PlayerWrap getOtherPlayer() {
-            //final String funcname = "PlayerWrap," + dbgId + ",getOtherPlayer";
-            //Log.d(Tag, funcname + ",");
-            return (this == player1 ? player2 : player1);
         }
     }
 
