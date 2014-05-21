@@ -93,7 +93,7 @@ class PiterFMPlayer {
 
         @Override
         public String toString() {
-            return "PlayerWrap-" + dbgId;
+            return "PlayerWrap_" + dbgId;
         }
 
         /** Gingerbread has a bug that onSeekComplete() is called twice: 1st after seekTo() and 2nd after start() */
