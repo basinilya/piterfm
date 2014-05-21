@@ -57,10 +57,6 @@ public class SmoothMediaPlayer extends MediaPlayer {
         super.start();
     }
 
-    protected void internalPause() {
-        super.pause();
-    }
-
     private static boolean haveSetNextMediaPlayer() {
         try {
             MediaPlayer.class.getMethod("setNextMediaPlayer", MediaPlayer.class);
