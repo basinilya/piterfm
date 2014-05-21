@@ -32,7 +32,7 @@ public class SmoothMediaPlayer extends MediaPlayer {
 
     @Override
     public String toString() {
-        return "SmoothMediaPlayer," + dbgId;
+        return "SmoothMediaPlayer-" + dbgId;
     }
 
     public static SmoothMediaPlayer newInstance(int dbgId) {
