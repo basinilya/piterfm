@@ -23,6 +23,145 @@ import android.util.Log;
  *
  */
 public class SmoothMediaPlayer extends MediaPlayer {
+
+    public static final String LowerApiTag = "MediaPlayerLower";
+
+    /** just call super */
+    @SuppressLint("NewApi")
+    public void setNextSmoothMediaPlayer(SmoothMediaPlayer next) {
+        Log.v(LowerApiTag, dbgId + ",setNextMediaPlayer," + "next = " + next);
+        super.setNextMediaPlayer(next);
+    }
+
+    public int getCurrentPositionNoLog() {
+        return super.getCurrentPosition();
+    }
+
+    // BEGIN JUST LOGGERS
+    public int getCurrentPosition() {
+        int rslt = super.getCurrentPosition();
+        Log.v(LowerApiTag, dbgId + ",getCurrentPosition," + "rslt = " + rslt);
+        return rslt;
+    }
+
+    public boolean isPlaying() {
+        boolean rslt = super.isPlaying();
+        Log.v(LowerApiTag, dbgId + ",isPlaying," + "rslt = " + rslt);
+        return rslt;
+    }
+
+    public void pause() throws IllegalStateException {
+        Log.v(LowerApiTag, dbgId + ",pause,");
+        super.pause();
+    }
+
+    public void prepare() throws java.io.IOException, IllegalStateException {
+        Log.v(LowerApiTag, dbgId + ",prepare,");
+        super.prepare();
+    }
+
+    public void release() {
+        Log.v(LowerApiTag, dbgId + ",release,");
+        super.release();
+    }
+
+    public void reset() {
+        Log.v(LowerApiTag, dbgId + ",reset,");
+        super.reset();
+    }
+
+    public void seekTo(int msec) throws IllegalStateException {
+        Log.v(LowerApiTag, dbgId + ",seekTo," + "msec = " + msec);
+        super.seekTo(msec);
+    }
+
+    public void setDataSource(String path) throws java.io.IOException, IllegalArgumentException, SecurityException,
+            IllegalStateException {
+        Log.v(LowerApiTag, dbgId + ",setDataSource," + "path = " + path);
+        super.setDataSource(path);
+    }
+
+    private class DbgListener implements MediaPlayer.OnErrorListener, MediaPlayer.OnPreparedListener,
+            MediaPlayer.OnSeekCompleteListener, MediaPlayer.OnCompletionListener {
+
+        public void onCompletion(MediaPlayer mp) {
+            Log.v(LowerApiTag, "onCompletion," + "mp = " + mp);
+            if (onCompletionListener != null)
+                onCompletionListener.onCompletion(mp);
+        }
+
+        public void onSeekComplete(MediaPlayer mp) {
+            Log.v(LowerApiTag, "onSeekComplete," + "mp = " + mp);
+            if (onSeekCompleteListener != null)
+                onSeekCompleteListener.onSeekComplete(mp);
+        }
+
+        @Override
+        public void onPrepared(MediaPlayer mp) {
+            Log.v(LowerApiTag, "onPrepared," + "mp = " + mp);
+            if (onPreparedListener != null)
+                onPreparedListener.onPrepared(mp);
+        }
+
+        @Override
+        public boolean onError(MediaPlayer mp, int what, int extra) {
+            Log.v(LowerApiTag, "onError," + "mp = " + mp + ", what = " + what + ", extra = " + extra);
+            if (onErrorListener != null)
+                return onErrorListener.onError(mp, what, extra);
+            else
+                return false;
+        }
+    }
+
+    private OnCompletionListener onCompletionListener;
+    private OnSeekCompleteListener onSeekCompleteListener;
+    private OnErrorListener onErrorListener;
+    private OnPreparedListener onPreparedListener;
+
+    {
+        DbgListener listener = new DbgListener();
+        super.setOnErrorListener(listener);
+        super.setOnPreparedListener(listener);
+        super.setOnSeekCompleteListener(listener);
+        super.setOnCompletionListener(listener);
+    }
+
+    public void setOnCompletionListener(OnCompletionListener listener) {
+        Log.v(LowerApiTag, dbgId + ",setOnCompletionListener," + "listener = " + listener);
+        onCompletionListener = listener;
+    }
+
+    public void setOnErrorListener(OnErrorListener listener) {
+        Log.v(LowerApiTag, dbgId + ",setOnErrorListener," + "listener = " + listener);
+        onErrorListener = listener;
+    }
+
+    public void setOnPreparedListener(OnPreparedListener listener) {
+        Log.v(LowerApiTag, dbgId + ",setOnPreparedListener," + "listener = " + listener);
+        onPreparedListener = listener;
+    }
+
+    public void setOnSeekCompleteListener(OnSeekCompleteListener listener) {
+        Log.v(LowerApiTag, dbgId + ",setOnSeekCompleteListener," + "listener = " + listener);
+        onSeekCompleteListener = listener;
+    }
+
+    public void setVolume(float leftVolume, float rightVolume) {
+        Log.v(LowerApiTag, dbgId + ",setVolume," + "leftVolume = " + leftVolume + ", rightVolume = " + rightVolume);
+        super.setVolume(leftVolume, rightVolume);
+    }
+
+    public void start() throws IllegalStateException {
+        internalStart();
+    }
+    // END JUST LOGGERS
+
+    protected void internalStart() {
+        Log.v(LowerApiTag, dbgId + ",start,");
+        super.start();
+    }
+
+
     protected static final String Tag = "SmoothMediaPlayer";
 
     /** Feature check */
@@ -32,7 +171,7 @@ public class SmoothMediaPlayer extends MediaPlayer {
 
     @Override
     public String toString() {
-        return "SmoothMediaPlayer-" + dbgId;
+        return "SmoothMediaPlayer_" + dbgId;
     }
 
     public static SmoothMediaPlayer newInstance(int dbgId) {
@@ -43,18 +182,8 @@ public class SmoothMediaPlayer extends MediaPlayer {
         }
     }
 
-    /** just call super */
-    @SuppressLint("NewApi")
-    public void setNextSmoothMediaPlayer(SmoothMediaPlayer next) {
-        super.setNextMediaPlayer(next);
-    }
-
     protected SmoothMediaPlayer(int dbgId) {
         this.dbgId = dbgId;
-    }
-
-    protected void internalStart() {
-        super.start();
     }
 
     private static boolean haveSetNextMediaPlayer() {
@@ -295,7 +424,7 @@ class SmoothMediaPlayerImpl extends SmoothMediaPlayer implements OnCompletionLis
 
     /**/
     private static int waitPosChange(SmoothMediaPlayer pl, int nTimes) throws InterruptedException {
-        int pos1 = pl.getCurrentPosition();
+        int pos1 = pl.getCurrentPositionNoLog();
         int pos2 = pos1;
         long breakTime = System.nanoTime() + (500 * M);
         while(nTimes > 0) {
@@ -303,7 +432,7 @@ class SmoothMediaPlayerImpl extends SmoothMediaPlayer implements OnCompletionLis
                 if (System.nanoTime() - breakTime > 0)
                     return pos2;
                 Thread.sleep(1);
-                pos2 = pl.getCurrentPosition();
+                pos2 = pl.getCurrentPositionNoLog();
                 if (pos1 != pos2) {
                     pos1 = pos2;
                     nTimes--;
