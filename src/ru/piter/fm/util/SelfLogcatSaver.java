@@ -89,6 +89,7 @@ public final class SelfLogcatSaver {
 
     public void forkAndPump() {
         int myPid = android.os.Process.myPid();
+        int myTid = android.os.Process.myTid();
         String s = String.format(Locale.US, "^..-.. ..:..:...... %5d .*", myPid);
         Pattern pattern = Pattern.compile(s);
         FileHandler logHandler = null;
@@ -101,7 +102,7 @@ public final class SelfLogcatSaver {
         int logssz = (int)Math.min(totalsz, getAvailableBytes(logDir) / 2);
         int numfiles = 4;
         if (logssz < 3000000) {
-            Log.d(Tag, "too little free space");
+            Log.i(Tag, "too little free space");
             return;
         }
         logssz -= deathlogsz;
@@ -144,8 +145,9 @@ public final class SelfLogcatSaver {
             }
 
             s = new SimpleDateFormat("MM-dd HH:mm:ss.SSS", Locale.US).format(new Date())
-                    + String.format(" %5d Logging started", myPid);
+                    + String.format(" %5d %5d I Logging started", myPid, myTid);
             logHandler.publish(new LogRecord(Level.INFO, s));
+            Log.i(Tag, "END PREVIOUS MESSAGES");
 
             try {
                 while((s = reader.readLine()) != null) {
