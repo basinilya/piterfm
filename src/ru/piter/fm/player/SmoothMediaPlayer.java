@@ -30,6 +30,11 @@ public class SmoothMediaPlayer extends MediaPlayer {
 
     protected final int dbgId;
 
+    @Override
+    public String toString() {
+        return "SmoothMediaPlayer," + dbgId;
+    }
+
     public static SmoothMediaPlayer newInstance(int dbgId) {
         if (HAVE_SETNEXTMEDIAPLAYER) {
             return new SmoothMediaPlayer(dbgId);
