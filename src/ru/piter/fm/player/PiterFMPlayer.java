@@ -199,7 +199,7 @@ class PiterFMPlayer {
             getFileTask = null;
             if (currentPlayer != otherPlayerWrap.player) {
                 // this check is for when error occurs in next player, while currentPlayer is playing
-                Log.d(Tag, funcname + ",currentPlayer == null, calling giveUp()");
+                Log.d(Tag, funcname + ",currentPlayer != otherPlayerWrap.player, calling giveUp()");
                 giveUp();
             }
         }
@@ -269,7 +269,6 @@ class PiterFMPlayer {
                 scheduleGetFile();
             } else if (getFileTask == null) {
                 Log.w(Tag, funcname + ",isNextPlayerSet == false && getFileTask == null, calling giveUp()");
-                currentPlayer = null;
                 giveUp();
             } else {
                 Log.d(Tag, funcname + "isNextPlayerSet == false && getFileTask != null, next file not downloaded yet");
@@ -332,6 +331,7 @@ class PiterFMPlayer {
         final String funcname = "giveUp";
         Log.d(Tag, funcname + ",");
         assertFalse(isPaused);
+        currentPlayer = null; // it may be already null, if failed before seek success
         setPausedTrue();
         callEvent(EventType.Error);
     }
