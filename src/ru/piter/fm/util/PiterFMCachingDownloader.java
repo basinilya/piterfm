@@ -358,6 +358,7 @@ public class PiterFMCachingDownloader {
                         }
                         dbg_md5_reads.update(buffer, 0, len);
                         int ofs = oldpos - pos;
+                        Log.v(Tag, funcname + "," + "oldpos = " + oldpos + ", pos = " + pos + ", len = " + len + ", ofs = " + ofs);
                         pos += len;
                         synchronized (lock) {
                             checkpointNoLock(fos);
