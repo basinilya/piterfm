@@ -91,6 +91,11 @@ class PiterFMPlayer {
         public final SmoothMediaPlayer player = SmoothMediaPlayer.newInstance(dbgId);
         public String path;
 
+        @Override
+        public String toString() {
+            return "PlayerWrap-" + dbgId;
+        }
+
         /** Gingerbread has a bug that onSeekComplete() is called twice: 1st after seekTo() and 2nd after start() */
         private boolean onSeekCompleteCalled;
 
