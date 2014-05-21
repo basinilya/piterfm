@@ -301,7 +301,7 @@ class SmoothMediaPlayerImpl extends SmoothMediaPlayer implements OnCompletionLis
     private static int waitPosChange(SmoothMediaPlayer pl, int nTimes) throws InterruptedException {
         int pos1 = pl.getCurrentPosition();
         int pos2 = pos1;
-        long breakTime = System.nanoTime() + (500 * 1000000L);
+        long breakTime = System.nanoTime() + (500 * M);
         while(nTimes > 0) {
             for (;;) {
                 if (System.nanoTime() - breakTime > 0)
