@@ -16,7 +16,7 @@ import android.util.Log;
  * <ul>
  * <li/>it's not thread-safe
  * <li/>it doesn't support calling {@link #seekTo(int)} multiple times
- * <li/>{@link #setNextMediaPlayer(MediaPlayer)} can only be called ar certain time
+ * <li/>{@link #setNextMediaPlayer(MediaPlayer)} can only be called at certain time
  * </ul>
  *
  * @author Ilya Basin
