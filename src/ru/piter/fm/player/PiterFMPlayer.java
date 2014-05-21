@@ -133,7 +133,7 @@ class PiterFMPlayer {
                     try {
                         path = cache.getFile(channelId, trackCal);
                     } catch (Exception e) {
-                        Log.d(Tag, funcname + ",Exception caught", e);
+                        Log.e(Tag, funcname + ",Exception caught", e);
                     }
                     return null;
                 }
@@ -163,7 +163,7 @@ class PiterFMPlayer {
                             player.setDataSource(path);
                             player.prepare();
                         } catch (IOException e) {
-                            Log.d(Tag, funcname + ",Exception caught", e);
+                            Log.e(Tag, funcname + ",Exception caught", e);
                             onError(null, 0, 0);
                         }
                     }
