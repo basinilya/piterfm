@@ -7,6 +7,7 @@ import ru.piter.fm.util.StatsCalc;
 import android.annotation.SuppressLint;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
+import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnSeekCompleteListener;
 import android.os.Handler;
 import android.util.Log;
@@ -81,8 +82,8 @@ public class SmoothMediaPlayer extends MediaPlayer {
         super.setDataSource(path);
     }
 
-    private class DbgListener implements MediaPlayer.OnErrorListener, MediaPlayer.OnPreparedListener,
-            MediaPlayer.OnSeekCompleteListener, MediaPlayer.OnCompletionListener {
+    private class DbgListener implements OnErrorListener, OnPreparedListener, OnSeekCompleteListener,
+            OnCompletionListener {
 
         public void onCompletion(MediaPlayer mp) {
             Log.v(LowerApiTag, "onCompletion," + "mp = " + mp);
@@ -196,7 +197,7 @@ public class SmoothMediaPlayer extends MediaPlayer {
     }
 }
 
-class SmoothMediaPlayerImpl extends SmoothMediaPlayer implements OnCompletionListener, OnSeekCompleteListener
+class SmoothMediaPlayerImpl extends SmoothMediaPlayer implements OnCompletionListener, OnSeekCompleteListener, OnErrorListener
 {
 
     /** track position, where next track begins */
@@ -221,6 +222,7 @@ class SmoothMediaPlayerImpl extends SmoothMediaPlayer implements OnCompletionLis
 
     private OnCompletionListener onCompletionListener;
     private OnSeekCompleteListener onSeekCompleteListener;
+    private OnErrorListener onErrorListener;
     private Handler handler = new Handler();
 
     private SmoothMediaPlayer nextPlayer;
@@ -235,6 +237,7 @@ class SmoothMediaPlayerImpl extends SmoothMediaPlayer implements OnCompletionLis
         super(dbgId);
         super.setOnCompletionListener(this);
         super.setOnSeekCompleteListener(this);
+        super.setOnErrorListener(this);
     }
 
     private void resetCommon() {
@@ -268,6 +271,16 @@ class SmoothMediaPlayerImpl extends SmoothMediaPlayer implements OnCompletionLis
         Log.d(Tag, funcname + ",");
         activeEarlySwitchTimer = null;
         super.pause();
+    }
+
+    @Override
+    public boolean onError(MediaPlayer mp, int what, int extra) {
+        activeEarlySwitchTimer = null;
+        activeOnSeekCompleteEvent = null; // for when error was posted during warmup
+        if (onErrorListener != null)
+            return onErrorListener.onError(mp, what, extra);
+        else
+            return false;
     }
 
     @Override
@@ -315,8 +328,6 @@ class SmoothMediaPlayerImpl extends SmoothMediaPlayer implements OnCompletionLis
 
     @Override
     public void onCompletion(MediaPlayer mp) {
-        final String funcname = dbgId + ",onCompletion,";
-        Log.d(Tag, funcname + ",");
         internalOnCompletion();
     }
 
@@ -379,9 +390,8 @@ class SmoothMediaPlayerImpl extends SmoothMediaPlayer implements OnCompletionLis
         if (msec == 2000) {
             /* Next track detected */
             onSeekCompleteCalled = true;
-            warmUp();
 
-            activeOnSeekCompleteEvent = new Runnable() {
+            Runnable successEv = activeOnSeekCompleteEvent = new Runnable() {
                 public void run() {
                     if (this == activeOnSeekCompleteEvent) {
                         if (onSeekCompleteListener != null) {
@@ -390,7 +400,11 @@ class SmoothMediaPlayerImpl extends SmoothMediaPlayer implements OnCompletionLis
                     }
                 }
             };
-            handler.post(activeOnSeekCompleteEvent);
+
+            warmUp();
+
+            // maybe warmUp() failed and error posted; if true, this success event will be cancelled by our onError()
+            handler.post(successEv);
         } else {
             super.seekTo(msec);
         }
@@ -398,8 +412,6 @@ class SmoothMediaPlayerImpl extends SmoothMediaPlayer implements OnCompletionLis
 
     @Override
     public void onSeekComplete(MediaPlayer mp) {
-        final String funcname = dbgId + ",onSeekComplete,";
-        Log.d(Tag, funcname + ",");
         if (onSeekCompleteCalled)
             return;
         onSeekCompleteCalled = true;
@@ -444,16 +456,17 @@ class SmoothMediaPlayerImpl extends SmoothMediaPlayer implements OnCompletionLis
     }
 
     @Override
+    public void setOnErrorListener(OnErrorListener listener) {
+        onErrorListener = listener;
+    }
+
+    @Override
     public void setOnSeekCompleteListener(OnSeekCompleteListener listener) {
-        final String funcname = dbgId + ",setOnSeekCompleteListener,";
-        Log.d(Tag, funcname + ",listener = " + listener);
         onSeekCompleteListener = listener;
     }
 
     @Override
     public void setOnCompletionListener(OnCompletionListener listener) {
-        final String funcname = dbgId + ",setOnCompletionListener,";
-        Log.d(Tag, funcname + ",listener = " + listener);
         onCompletionListener = listener;
     }
 
