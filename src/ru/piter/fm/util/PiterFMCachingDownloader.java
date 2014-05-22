@@ -395,7 +395,8 @@ public class PiterFMCachingDownloader {
                 } finally {
                     if (in != null) try { in.close(); } catch (IOException e) {}
                 }
-                oldpos = pos;
+                if (oldpos < pos)
+                    oldpos = pos;
                 int attemptDelay = Settings.getReconnectTimeout() * 1000;
                 Log.d(Tag, funcname + ",sleeping " + attemptDelay + "ms");
                 Thread.sleep(attemptDelay);
