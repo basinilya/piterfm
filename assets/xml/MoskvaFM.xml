@@ -288,11 +288,11 @@
         <translation>http://www.moskva.fm/play/4003/translation</translation>
     </channel>
     <channel>
-        <id>2019</id>
-        <name>Финам FM</name>
+        <id>2026</id>
+        <name>Столица FM</name>
         <range>99.6 FM</range>
-        <logo>http://t2.moskva.fm/uimg/stations/165x165/b8/b83e42c5616a19c1ddaac6055181a4db.png</logo>
-        <translation>http://www.moskva.fm/play/2019/translation</translation>
+        <logo>http://t2.moskva.fm/uimg/stations/165x165/e7/e70d88effda0e3669c4cea7bd2a5b982.png</logo>
+        <translation>http://www.moskva.fm/play/2026/translation</translation>
     </channel>
     <channel>
         <id>2000</id>
