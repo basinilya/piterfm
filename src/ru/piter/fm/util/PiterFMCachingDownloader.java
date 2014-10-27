@@ -99,7 +99,7 @@ public class PiterFMCachingDownloader {
     public static final PiterFMCachingDownloader INSTANCE = new PiterFMCachingDownloader();
 
     /** cache size */
-    private static final int READ_AHEAD_NUM = 5;
+    private static final int READ_AHEAD_NUM = 10;
 
     /**
      * a dummy non-null value for {@link CacheEntry#m_url} to ensure the entry
