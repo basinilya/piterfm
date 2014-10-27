@@ -64,7 +64,7 @@ public class ChannelActivity extends SherlockListActivity implements GetTracksTa
 
 
         channel = (Channel) getIntent().getExtras().get("channel");
-        TimeZone tz = TimeZone.getTimeZone("GMT+4");
+        TimeZone tz = TimeZone.getTimeZone("GMT+3");
         FMT_DATE_BUTTON.setTimeZone(tz);
         font = Typeface.createFromAsset(getAssets(), "fonts/Roboto-Light.ttf");
 

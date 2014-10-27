@@ -16,7 +16,7 @@ public class TrackCalendar extends GregorianCalendar {
     private static final long serialVersionUID = -5323025958149225720L;
 
     public TrackCalendar() {
-        super(TimeZone.getTimeZone("GMT+4"));
+        super(TimeZone.getTimeZone("GMT+3"));
     }
 
     private transient String trackTime;
