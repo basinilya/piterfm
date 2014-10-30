@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <channels>
     <channel>
         <id>7822</id>
@@ -46,7 +46,7 @@
         <id>7811</id>
         <name>ПИТЕР FM 100.9</name>
         <range>100.9 FM</range>
-        <logo>http://t2.moskva.fm/uimg/stations/165x165/b7/b72c13748bcc794a13800fd0938a96ff.png</logo>
+        <logo>http://t2.moskva.fm/uimg/stations/165x165/52/528bba6ec09b84b304775363e620ae3a.png</logo>
         <translation>http://www.piter.fm/play/7811/translation</translation>
     </channel>
     <channel>
@@ -60,7 +60,7 @@
         <id>7841</id>
         <name>Наше Радио</name>
         <range>104.0 FM</range>
-        <logo>http://t2.moskva.fm/uimg/stations/165x165/ea/ea33c78e9fc0ec9716bbb634ba45b5c2.png</logo>
+        <logo>http://t2.moskva.fm/uimg/stations/165x165/36/369b268c60efa9d9fc02454700e5fdec.png</logo>
         <translation>http://www.piter.fm/play/7841/translation</translation>
     </channel>
     <channel>
@@ -81,14 +81,14 @@
         <id>7831</id>
         <name>Love Radio</name>
         <range>105.3 FM</range>
-        <logo>http://t2.moskva.fm/uimg/stations/165x165/a2/a2bfe39110e7f98ec9b1cc19d98c0671.png</logo>
+        <logo>http://t2.moskva.fm/uimg/stations/165x165/a4/a426811e91b83ee69651644b7a48d2c8.png</logo>
         <translation>http://www.piter.fm/play/7831/translation</translation>
     </channel>
     <channel>
         <id>7844</id>
         <name>DFM</name>
         <range>103.4 FM</range>
-        <logo>http://t2.moskva.fm/uimg/stations/165x165/69/6917c2d050821332660f7ca5b87da997.png</logo>
+        <logo>http://t2.moskva.fm/uimg/stations/165x165/82/824d0972fe7b1c1a3fb6b7ae72258588.png</logo>
         <translation>http://www.piter.fm/play/7844/translation</translation>
     </channel>
     <channel>
@@ -179,7 +179,7 @@
         <id>7872</id>
         <name>Маяк</name>
         <range>107.0 FM</range>
-        <logo>http://t2.moskva.fm/uimg/stations/165x165/78/783141818959a2bc6ddf5946c870f863.png</logo>
+        <logo>http://t2.moskva.fm/uimg/stations/165x165/f8/f84177d19ab1f8b1fb90762ff67c9ba2.png</logo>
         <translation>http://www.piter.fm/play/7872/translation</translation>
     </channel>
     <channel>
@@ -217,4 +217,39 @@
         <logo>http://t2.moskva.fm/uimg/stations/165x165/71/7104ffc9b8ee857b37eeb4d152f93faa.png</logo>
         <translation>http://www.piter.fm/play/7842/translation</translation>
     </channel>
-</channels>
+<channel>
+        <id>7802</id>
+        <name>Русская Служба Новостей</name>
+        <range>92.9 FM</range>
+        <logo>http://t2.moskva.fm/uimg/stations/165x165/db/db5557595c6c2b85e494e495fd646b11.png</logo>
+        <translation>http://www.piter.fm/play/7802/translation</translation>
+    </channel>
+    <channel>
+        <id>7876</id>
+        <name>NRJ</name>
+        <range>95.0 FM</range>
+        <logo>http://t2.moskva.fm/uimg/stations/165x165/ca/caf76c4b267f1e9f0ced0e7c2a5ab87a.png</logo>
+        <translation>http://www.piter.fm/play/7876/translation</translation>
+    </channel>
+    <channel>
+        <id>7877</id>
+        <name>Радио Дача</name>
+        <range>97.0 FM</range>
+        <logo>http://t2.moskva.fm/uimg/stations/165x165/96/96aca29f261d885423edc9d5c0923ffc.png</logo>
+        <translation>http://www.piter.fm/play/7877/translation</translation>
+    </channel>
+    <channel>
+        <id>7885</id>
+        <name>Nostalgia FM</name>
+        <range>98.6 FM</range>
+        <logo>http://t2.moskva.fm/uimg/stations/165x165/8c/8cd76e144f28f7399ab682f1fa9b22da.png</logo>
+        <translation>http://www.piter.fm/play/7885/translation</translation>
+    </channel>
+    <channel>
+        <id>7886</id>
+        <name>Радио России FM</name>
+        <range>99.0 FM</range>
+        <logo>http://t2.moskva.fm/uimg/stations/165x165/eb/eb4579c64302d74d94db8c6bd3e7ada8.png</logo>
+        <translation>http://www.piter.fm/play/7886/translation</translation>
+    </channel>
+    </channels>

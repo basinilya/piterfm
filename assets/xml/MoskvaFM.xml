@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <channels>
     <channel>
         <id>4000</id>
@@ -25,14 +25,14 @@
         <id>2002</id>
         <name>DFM</name>
         <range>101.2 FM</range>
-        <logo>http://t2.moskva.fm/uimg/stations/165x165/9b/9b5db632f9fbe77d14334961d2778b63.png</logo>
+        <logo>http://t2.moskva.fm/uimg/stations/165x165/10/1054d9b274c050b15f205ff1d71add92.png</logo>
         <translation>http://www.moskva.fm/play/2002/translation</translation>
     </channel>
     <channel>
         <id>2003</id>
         <name>Наше Радио</name>
         <range>101.7 FM</range>
-        <logo>http://t2.moskva.fm/uimg/stations/165x165/df/df0f318ffaaccddaafe9b0a1ebc9f30d.png</logo>
+        <logo>http://t2.moskva.fm/uimg/stations/165x165/b5/b507048579938a1782df4b8cec5842c8.png</logo>
         <translation>http://www.moskva.fm/play/2003/translation</translation>
     </channel>
     <channel>
@@ -46,7 +46,7 @@
         <id>4017</id>
         <name>Радио Дача</name>
         <range>92.4 FM</range>
-        <logo>http://t2.moskva.fm/uimg/stations/165x165/91/916bae1e7c4d67c5b81119405fb4121f.png</logo>
+        <logo>http://t2.moskva.fm/uimg/stations/165x165/b7/b71dc82f06ad52050195592b0c02aba2.png</logo>
         <translation>http://www.moskva.fm/play/4017/translation</translation>
     </channel>
     <channel>
@@ -93,9 +93,9 @@
     </channel>
     <channel>
         <id>2009</id>
-        <name>Радио 7</name>
+        <name>Радио 7 на семи холмах</name>
         <range>104.7 FM</range>
-        <logo>http://t2.moskva.fm/uimg/stations/165x165/8e/8e706fcd39635a6ba0764a2f2355da88.png</logo>
+        <logo>http://t2.moskva.fm/uimg/stations/165x165/c7/c71b849f0e255b635eb5d23a6aec443b.png</logo>
         <translation>http://www.moskva.fm/play/2009/translation</translation>
     </channel>
     <channel>
@@ -109,7 +109,7 @@
         <id>2011</id>
         <name>ROCK FM</name>
         <range>95.2 FM</range>
-        <logo>http://t2.moskva.fm/uimg/stations/165x165/bc/bc93d7f927f58555702bc7f47fb7a6cb.png</logo>
+        <logo>http://t2.moskva.fm/uimg/stations/165x165/85/85f7f09a6bb21eaec8e6c2c3d0253770.png</logo>
         <translation>http://www.moskva.fm/play/2011/translation</translation>
     </channel>
     <channel>
@@ -137,7 +137,7 @@
         <id>4027</id>
         <name>Такси FM</name>
         <range>96.4 FM</range>
-        <logo>http://t2.moskva.fm/uimg/stations/165x165/ac/ac92fdd8610058861004d0d76ad06b1b.png</logo>
+        <logo>http://t2.moskva.fm/uimg/stations/165x165/99/992856017e78e4ced513bf62a44e6de3.png</logo>
         <translation>http://www.moskva.fm/play/4027/translation</translation>
     </channel>
     <channel>
@@ -193,22 +193,22 @@
         <id>4012</id>
         <name>Юмор FM</name>
         <range>88.7 FM</range>
-        <logo>http://t2.moskva.fm/uimg/stations/165x165/4a/4a9fb9cb5be899af2c12db5a83d8e2fe.png</logo>
+        <logo>http://t2.moskva.fm/uimg/stations/165x165/8b/8befc6bdc976bbdad2162c05e11af868.png</logo>
         <translation>http://www.moskva.fm/play/4012/translation</translation>
     </channel>
     <channel>
         <id>4030</id>
-        <name>govoritmoskva</name>
+        <name>Говорит Москва</name>
         <range>94.8 FM</range>
         <logo>http://t2.moskva.fm/uimg/stations/165x165/a9/a97260aa9cb806855eaade3c0b27defb.png</logo>
         <translation>http://www.moskva.fm/play/4030/translation</translation>
     </channel>
     <channel>
-        <id>4010</id>
-        <name>Радио Classic</name>
+        <id>4032</id>
+        <name>Радио Вера</name>
         <range>100.9 FM</range>
-        <logo>http://t2.moskva.fm/uimg/stations/165x165/91/91a8d9584895ffcf1be77544c2d105b8.png</logo>
-        <translation>http://www.moskva.fm/play/4010/translation</translation>
+        <logo>http://t2.moskva.fm/uimg/stations/165x165/6f/6ff07673568b6d1acfa3f468678591ef.png</logo>
+        <translation>http://www.moskva.fm/play/4032/translation</translation>
     </channel>
     <channel>
         <id>2117</id>
@@ -219,9 +219,9 @@
     </channel>
     <channel>
         <id>2108</id>
-        <name>Комсомольская правда</name>
+        <name>Комсомольская Правда</name>
         <range>97.2 FM</range>
-        <logo>http://t2.moskva.fm/uimg/stations/165x165/71/719f1c90c4f295bfe1e3a5294c451793.jpeg</logo>
+        <logo>http://t2.moskva.fm/uimg/stations/165x165/98/98435f7b34764d21cdf7b35d17d0ec3b.png</logo>
         <translation>http://www.moskva.fm/play/2108/translation</translation>
     </channel>
     <channel>
@@ -242,7 +242,7 @@
         <id>2106</id>
         <name>Радио России</name>
         <range>66.44 FM</range>
-        <logo>http://t2.moskva.fm/uimg/stations/165x165/dc/dc20094411ca4f704af882b9e9dc50a7.png</logo>
+        <logo>http://t2.moskva.fm/uimg/stations/165x165/ca/caa68a6f277b95579c1a726ea3abbf0c.png</logo>
         <translation>http://www.moskva.fm/play/2106/translation</translation>
     </channel>
     <channel>
@@ -256,7 +256,7 @@
         <id>4009</id>
         <name>Радио Маяк</name>
         <range>103.4 FM</range>
-        <logo>http://t2.moskva.fm/uimg/stations/165x165/89/8984707b2f1bbe32c0deb4c09a1370c9.png</logo>
+        <logo>http://t2.moskva.fm/uimg/stations/165x165/cb/cb99c9b3961309d69d23b600e8c58a10.png</logo>
         <translation>http://www.moskva.fm/play/4009/translation</translation>
     </channel>
     <channel>
@@ -267,17 +267,17 @@
         <translation>http://www.moskva.fm/play/2017/translation</translation>
     </channel>
     <channel>
-        <id>2103</id>
-        <name>ЮFM</name>
+        <id>4031</id>
+        <name>Наше Подмосковье</name>
         <range>68.84 FM</range>
-        <logo>http://t2.moskva.fm/uimg/stations/165x165/3f/3f3768681a0549298a8aa2310581da3b.png</logo>
-        <translation>http://www.moskva.fm/play/2103/translation</translation>
+        <logo>http://t2.moskva.fm/uimg/stations/165x165/a0/a0a5d73e637411cc090e0d428e1eec91.png</logo>
+        <translation>http://www.moskva.fm/play/4031/translation</translation>
     </channel>
     <channel>
         <id>2015</id>
         <name>Радио Культура</name>
         <range>91.6 FM</range>
-        <logo>http://t2.moskva.fm/uimg/stations/165x165/cf/cf87d80969d1e06dfe16f36eba30654d.png</logo>
+        <logo>http://t2.moskva.fm/uimg/stations/165x165/fd/fd6440e0b8ca13e95b7a7ab1acffef85.png</logo>
         <translation>http://www.moskva.fm/play/2015/translation</translation>
     </channel>
     <channel>
@@ -296,7 +296,7 @@
     </channel>
     <channel>
         <id>2000</id>
-        <name>Серебряный Дождь</name>
+        <name>Серебряный дождь</name>
         <range>100.1 FM</range>
         <logo>http://t2.moskva.fm/uimg/stations/165x165/84/84d4e9f12511cf160d38a7a23f6352d4.png</logo>
         <translation>http://www.moskva.fm/play/2000/translation</translation>
@@ -305,14 +305,14 @@
         <id>4029</id>
         <name>Москва FM</name>
         <range>92.0 FM</range>
-        <logo>http://t2.moskva.fm/uimg/stations/165x165/d4/d468fff1665dbb7a3bfec7b8ccc21b03.png</logo>
+        <logo>http://t2.moskva.fm/uimg/stations/165x165/29/290b992f9710cc43b8fc7f2a70c7fcec.png</logo>
         <translation>http://www.moskva.fm/play/4029/translation</translation>
     </channel>
     <channel>
         <id>4019</id>
-        <name>Радио Спорт</name>
+        <name>Спорт FM</name>
         <range>93.2 FM</range>
-        <logo>http://t2.moskva.fm/uimg/stations/165x165/cb/cb4029a534444727c586021c988717a6.png</logo>
+        <logo>http://t2.moskva.fm/uimg/stations/165x165/c8/c8feba328b752a88f796656d8ec21a86.png</logo>
         <translation>http://www.moskva.fm/play/4019/translation</translation>
     </channel>
     <channel>
@@ -324,7 +324,7 @@
     </channel>
     <channel>
         <id>2118</id>
-        <name>Moskow FM</name>
+        <name>Moscow FM</name>
         <range>105.2 FM</range>
         <logo>http://t2.moskva.fm/uimg/stations/165x165/34/344559c7ba92fc7d7342ec0f852b0bf6.png</logo>
         <translation>http://www.moskva.fm/play/2118/translation</translation>
