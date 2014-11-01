@@ -30,6 +30,8 @@ public class Utils {
     public static final File APP_DIR = new File(SD_DIR + "/piterfm");
     public static final File CACHE_DIR = new File(APP_DIR + "/cache");
     public static final File CHUNKS_DIR = new File(APP_DIR + "/chunks");
+    public static final File OVERRIDE_DIR = new File(APP_DIR + "/override");
+    public static final File XML_DIR = new File(OVERRIDE_DIR + "/xml");
     public static final File LOG_DIR = new File(APP_DIR + "/log");
 
 
@@ -37,6 +39,8 @@ public class Utils {
         if (!APP_DIR.exists()) APP_DIR.mkdir();
         if (!CACHE_DIR.exists()) CACHE_DIR.mkdir();
         if (!CHUNKS_DIR.exists()) CHUNKS_DIR.mkdir();
+        if (!OVERRIDE_DIR.exists()) OVERRIDE_DIR.mkdir();
+        if (!XML_DIR.exists()) XML_DIR.mkdir();
         if (!LOG_DIR.exists()) LOG_DIR.mkdir();
     }
 

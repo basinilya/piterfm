@@ -36,8 +36,10 @@ public class GetChannelsTask extends BaseTask<List<Channel>> {
 
         if (radio.getName().equals(RadioFactory.FAVOURITE))
             channels = db.selectAllChannels(radio);
-        else
-            channels = RadioUtils.getRadioChannels(radio, context);
+        else {
+            boolean redownload = objects.length > 2 && (Boolean)objects[2];
+            channels = RadioUtils.getRadioChannels(radio, context, redownload);
+        }
 
 //        // force update
 //        if (!radio.getName().equals(RadioFactory.FAVOURITE) && (channels == null || objects.length > 1)) {

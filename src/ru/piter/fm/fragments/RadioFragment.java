@@ -48,11 +48,10 @@ public class RadioFragment extends ListFragment implements GetChannelsTask.Chann
         this.radio = radio;
     }
 
-
-    public void updateChannels() {
+    public void updateChannels(boolean redownload) {
         GetChannelsTask task = new GetChannelsTask(getActivity());
         task.setChannelsLoadingListener(this);
-        task.execute(radio, true);
+        task.execute(radio, true, redownload);
     }
 
     @Override
