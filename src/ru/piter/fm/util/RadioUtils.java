@@ -1,11 +1,13 @@
 package ru.piter.fm.util;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.Log;
 import ru.piter.fm.radio.Channel;
 import ru.piter.fm.radio.Radio;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import ru.piter.fm.radio.Track;
@@ -111,9 +113,40 @@ public class RadioUtils {
         return minutes + ":" + seconds;
     }
 
+    private static boolean haveGetTextContent() {
+        try {
+            Node.class.getMethod("getTextContent");
+            return true;
+        } catch (NoSuchMethodException e1) {
+            return false;
+        }
+    }
+
+    /** Feature check */
+    private static final boolean HAVE_GETTEXTCONTENT = haveGetTextContent();
 
     private static String getNodeValue(NodeList list) {
-        return list.item(0).getTextContent();
+        return myGetTextContent(list.item(0));
+    }
+
+    @SuppressLint("NewApi")
+    private static String myGetTextContent(Node n) {
+        String s;
+        if (HAVE_GETTEXTCONTENT) {
+            s = n.getTextContent();
+        } else {
+            s = getFirstTextNode(n);
+        }
+        return s;
+    }
+
+    private static String getFirstTextNode(Node baseNode) {
+        for (Node child = baseNode.getFirstChild(); child != null; child = child.getNextSibling()) {
+            if (child.getNodeType() == Node.TEXT_NODE) {
+                return child.getNodeValue();
+            }
+        }
+        return "";
     }
 
     public static List<Channel> getRadioChannels(Radio radio, Context context) throws Exception {
