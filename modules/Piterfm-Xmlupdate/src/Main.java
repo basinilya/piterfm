@@ -1,42 +1,22 @@
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.io.Writer;
 import java.net.URL;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.swing.text.MutableAttributeSet;
-import javax.swing.text.html.HTML;
-import javax.swing.text.html.HTMLEditorKit;
-import javax.swing.text.html.HTML.Attribute;
-import javax.swing.text.html.HTML.Tag;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamWriter;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMResult;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
 
+import org.htmlcleaner.CleanerProperties;
+import org.htmlcleaner.DomSerializer;
+import org.htmlcleaner.HtmlCleaner;
+import org.htmlcleaner.TagNode;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -58,8 +38,6 @@ public class Main {
     public Main() throws Exception {
         //
     }
-
-    private String ENCODING = "UTF-8";
 
     private static final String ST_ID = "id";
     private static final String ST_NAME = "name";
@@ -189,130 +167,19 @@ public class Main {
         return x.evaluate(node).replaceAll("\u00a0", " ");
     }
 
-    private Document parse(URL u) throws Exception {
-        InputStream in = u.openStream();
-        try {
-            return parse(new InputStreamReader(in, ENCODING));
-        } finally {
-            try { in.close(); } catch (IOException e ) {}
-        }
-    }
+    public Document parse(URL u) throws Exception {
+        CleanerProperties props = new CleanerProperties();
 
-    private Document parse(InputStreamReader r) throws Exception {        
-        ParserGetter kit = new ParserGetter();
-        HTMLEditorKit.Parser parser = kit.getParser();
-        HtmlToXml callback = new HtmlToXml();
-        DOMResult domres = new DOMResult();
-        Document doc = domBuilder.newDocument();
-        domres.setNode(doc);
-        callback.out = xmlOutputFactory.createXMLStreamWriter(domres);
-        parser.parse(r, callback, true);
-        r.close();
+        props.setTranslateSpecialEntities(true);
+        props.setTransResCharsToNCR(true);
+        props.setOmitComments(false);
+
+        TagNode tagNode = new HtmlCleaner(props).clean(u);
+
+        Document doc = new DomSerializer(props).createDOM(tagNode);
         return doc;
     }
 
     private DocumentBuilder domBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-    private XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newInstance();
-    private StreamResult xmlOutput = new StreamResult(new PrintWriter(System.out));
-    private Transformer transformer = TransformerFactory.newInstance().newTransformer();
-    {
-        transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-        transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-    }
 
-    private void printNodeList(NodeList nl) throws Exception {
-        for (int i = 0, len = nl.getLength(); i < len; i++) {
-            printNode(nl.item(i));
-        }
-    }
-
-    private void printNode(Node node) throws Exception {
-        transformer.transform(new DOMSource(node), xmlOutput);
-    }
-    
-    private static class ParserGetter extends HTMLEditorKit {
-        public HTMLEditorKit.Parser getParser() {
-            return super.getParser();
-        }
-    }
-}
-class HtmlToXml extends HTMLEditorKit.ParserCallback {
-
-    public XMLStreamWriter out;
-
-    private void writeAttrs(MutableAttributeSet attributes) throws Exception {
-        Enumeration<?> en = attributes.getAttributeNames();
-        while (en.hasMoreElements()) {
-            String attrName = en.nextElement().toString();
-            Object attrKey = HTML.getAttributeKey(attrName);
-            if (attrKey == null) {
-                attrKey = attrName;
-            }
-            String attrVal = attributes.getAttribute(attrKey).toString();
-            out.writeAttribute(attrName, attrVal);
-            try {
-            } catch (NullPointerException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-    private void writeElement(Tag tag, MutableAttributeSet attributes) throws Exception {
-        out.writeStartElement(tag.toString());
-        writeAttrs(attributes);
-    }
-
-    @Override
-    public void handleSimpleTag(Tag tag, MutableAttributeSet attributes, int position) {
-        try {
-            writeElement(tag, attributes);
-            out.writeEndElement();
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
-    public void handleStartTag(Tag tag, MutableAttributeSet attributes, int position) {
-        try {
-            writeElement(tag, attributes);
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
-    public void handleEndTag(HTML.Tag tag, int position) {
-        try {
-            out.writeEndElement();
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-    @Override
-    public void handleText(char[] data, int pos) {
-        try {
-            out.writeCharacters(data, 0, data.length);
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-    @Override
-    public void handleComment(char[] data, int pos) {
-        try {
-            out.writeComment(new String(data));
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
 }
