@@ -12,6 +12,7 @@
 
     <string name="ac_settings">Настройки</string>
     <string name="ac_refresh">Обновить</string>
+    <string name="ac_redownload">Скачать список станций</string>
     <string name="ac_search">Поиск</string>
     <string name="ac_exit">Выход</string>
     <string name="ac_favourite">Избранное</string>
