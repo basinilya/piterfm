@@ -109,13 +109,7 @@ public class Main {
             }
             //filedoc.getFirstChild().getFirstChild();
             xmlChanged = false;
-            Document htmldoc;
-            InputStream in = new URL(URLS[iURL]).openStream();
-            try {
-                htmldoc = parse(new InputStreamReader(in, ENCODING));
-            } finally {
-                try { in.close(); } catch (IOException e ) {} 
-            }
+            Document htmldoc = parse(new URL(URLS[iURL]));
 
             HashSet<String> seenRanges = new HashSet<String>();
 
@@ -193,6 +187,15 @@ public class Main {
 
     private String evaluate(XPathExpression x, Node node) throws Exception {
         return x.evaluate(node).replaceAll("\u00a0", " ");
+    }
+
+    private Document parse(URL u) throws Exception {
+        InputStream in = u.openStream();
+        try {
+            return parse(new InputStreamReader(in, ENCODING));
+        } finally {
+            try { in.close(); } catch (IOException e ) {}
+        }
     }
 
     private Document parse(InputStreamReader r) throws Exception {        
