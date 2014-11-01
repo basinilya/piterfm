@@ -48,11 +48,10 @@ public class RadioFragment extends ListFragment implements GetChannelsTask.Chann
         this.radio = radio;
     }
 
-
-    public void updateChannels() {
+    public void updateChannels(boolean redownload) {
         GetChannelsTask task = new GetChannelsTask(getActivity());
         task.setChannelsLoadingListener(this);
-        task.execute(radio, true);
+        task.execute(radio, redownload);
     }
 
     @Override
@@ -62,9 +61,7 @@ public class RadioFragment extends ListFragment implements GetChannelsTask.Chann
             radio = (Radio) savedInstanceState.getSerializable("radio");
         }
         font = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Light.ttf");
-        GetChannelsTask task = new GetChannelsTask(getActivity());
-        task.setChannelsLoadingListener(this);
-        task.execute(radio);
+        updateChannels(false);
     }
 
 
@@ -190,9 +187,7 @@ public class RadioFragment extends ListFragment implements GetChannelsTask.Chann
     public void onResume() {
         super.onResume();
         if (radio != null && radio.getName().equals(RadioFactory.FAVOURITE)) {
-            GetChannelsTask task = new GetChannelsTask(getActivity());
-            task.setChannelsLoadingListener(this);
-            task.execute(radio);
+            updateChannels(false);
         }else{
         }
         if (adapter != null)
