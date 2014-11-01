@@ -96,6 +96,7 @@ public class RadioActivity extends SherlockFragmentActivity implements ViewPager
         menu.add(0, 200, 200, R.string.ac_settings).setIcon(R.drawable.ic_action_settings).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
         menu.add(0, 300, 300, R.string.ac_search).setIcon(R.drawable.ic_action_search).setActionView(R.layout.action_search)
                                     .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
+        menu.add(0, 350, 350, R.string.ac_redownload).setIcon(R.drawable.ic_navigation_refresh).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
         menu.add(0, 400, 400, R.string.ac_exit    ).setIcon(R.drawable.ic_cancel).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
 
         return super.onCreateOptionsMenu(menu);
@@ -121,7 +122,7 @@ public class RadioActivity extends SherlockFragmentActivity implements ViewPager
     public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
         switch (item.getItemId()){
             case 100:
-                ((RadioFragment) mAdapter.getItem(mPager.getCurrentItem())).updateChannels();
+                ((RadioFragment) mAdapter.getItem(mPager.getCurrentItem())).updateChannels(false);
                 break;
             case 200:
                 startActivity(new Intent(this, SettingsActivity.class));
@@ -129,6 +130,9 @@ public class RadioActivity extends SherlockFragmentActivity implements ViewPager
             case 300:
                 search = (EditText) item.getActionView();
                 search.addTextChangedListener(filterTextWatcher);
+                break;
+            case 350:
+                ((RadioFragment) mAdapter.getItem(mPager.getCurrentItem())).updateChannels(true);
                 break;
             case 400:
 

@@ -13,6 +13,10 @@ import org.xml.sax.SAXException;
 import ru.piter.fm.radio.Track;
 
 import javax.xml.parsers.*;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -149,16 +153,68 @@ public class RadioUtils {
         return "";
     }
 
-    public static List<Channel> getRadioChannels(Radio radio, Context context) throws Exception {
-        List<Channel> channels = new ArrayList<Channel>();
-
-        //InputStream stream = Utils.openConnection(radio.getStationsUrl());
-        InputStream stream = context.getAssets().open("xml/" + radio.getName() + ".xml");
+    public static List<Channel> getRadioChannels(Radio radio, Context context, boolean redownload) throws Exception {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = null;
 
         builder = factory.newDocumentBuilder();
-        Document dom = builder.parse(stream);
+
+        String assetName = "xml/" + radio.getName() + ".xml";
+        File overrideFile = new File(Utils.OVERRIDE_DIR, assetName);
+
+        List<Channel> channels = null;
+        Document dom = null;
+        if (overrideFile.exists()) {
+            InputStream is = new FileInputStream(overrideFile);
+            try {
+                dom = builder.parse(is);
+                channels = parseDom(radio, dom);
+            } catch (Exception e) {
+                e.printStackTrace();
+                Log.d("PiterFM: ", e.getMessage());
+            } finally {
+                try { is.close(); } catch (IOException e) {}
+            }
+        } else {
+            byte[] buf = new byte[1024];
+            InputStream is = null;
+            FileOutputStream os = null;
+            try {
+                is = context.getAssets().open(assetName);
+                os = new FileOutputStream(overrideFile);
+                int len;
+                while ((len = is.read(buf)) > 0) {
+                    os.write(buf, 0, len);
+                }
+            } finally {
+                if (is != null) try { is.close(); } catch (IOException e) {}
+                if (os != null) try { os.close(); } catch (IOException e) {}
+            }
+        }
+        if (channels == null) {
+            InputStream is = context.getAssets().open(assetName);
+            try {
+                dom = builder.parse(is);
+            } finally {
+                try { is.close(); } catch (IOException e) {}
+            }
+        }
+
+        if (redownload) {
+            new ChannelsDownloader().doStuff(dom, overrideFile);
+            channels = null;
+        }
+
+        if (channels == null) {
+            channels = parseDom(radio, dom);
+        }
+
+        return channels;
+    }
+
+    private static List<Channel> parseDom(Radio radio, Document dom) throws Exception {
+        List<Channel> channels = new ArrayList<Channel>();
+        
         Element root = dom.getDocumentElement();
         NodeList tracks = root.getElementsByTagName("channel");
 
@@ -180,8 +236,6 @@ public class RadioUtils {
                 continue;
             }
         }
-
-
 
         return channels;
     }
