@@ -92,11 +92,11 @@ public class RadioActivity extends SherlockFragmentActivity implements ViewPager
     @Override
     public boolean onCreateOptionsMenu(com.actionbarsherlock.view.Menu menu) {
 
-        menu.add(0, 1, 1, R.string.ac_refresh).setIcon(R.drawable.ic_navigation_refresh).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-        menu.add(0, 2, 2, R.string.ac_settings).setIcon(R.drawable.ic_action_settings).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-        menu.add(0, 3, 3, R.string.ac_search).setIcon(R.drawable.ic_action_search).setActionView(R.layout.action_search)
+        menu.add(0, 100, 100, R.string.ac_refresh).setIcon(R.drawable.ic_navigation_refresh).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+        menu.add(0, 200, 200, R.string.ac_settings).setIcon(R.drawable.ic_action_settings).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+        menu.add(0, 300, 300, R.string.ac_search).setIcon(R.drawable.ic_action_search).setActionView(R.layout.action_search)
                                     .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
-        menu.add(0, 4, 4, R.string.ac_exit    ).setIcon(R.drawable.ic_cancel).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+        menu.add(0, 400, 400, R.string.ac_exit    ).setIcon(R.drawable.ic_cancel).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
 
         return super.onCreateOptionsMenu(menu);
     }
@@ -120,17 +120,17 @@ public class RadioActivity extends SherlockFragmentActivity implements ViewPager
     @Override
     public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
         switch (item.getItemId()){
-            case 1:
+            case 100:
                 ((RadioFragment) mAdapter.getItem(mPager.getCurrentItem())).updateChannels();
                 break;
-            case 2:
+            case 200:
                 startActivity(new Intent(this, SettingsActivity.class));
                 break;
-            case 3:
+            case 300:
                 search = (EditText) item.getActionView();
                 search.addTextChangedListener(filterTextWatcher);
                 break;
-            case 4:
+            case 400:
 
                 final AlertDialog alert;
                 AlertDialog.Builder builder = new AlertDialog.Builder(RadioActivity.this)
