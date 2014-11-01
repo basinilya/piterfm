@@ -77,11 +77,11 @@ public class Main {
         String spattern = "(?s).*a href=\"(http://[^/]*/play/([^/]*)/[^\"]*)\".*";
         Pattern p = Pattern.compile(spattern);
         XPath xpath = XPathFactory.newInstance().newXPath();
-        XPathExpression xpathNodes = xpath.compile("//div[div[2]/_comment_ and div/a/img[contains(@src, '/165x165/')]]");
+        XPathExpression xpathNodes = xpath.compile("//div[div[2]/comment() and div/a/img[contains(@src, '/165x165/')]]");
         XPathExpression xpathLogo = xpath.compile("./div[1]/a/img/@src");
         XPathExpression xpathRange = xpath.compile("./div[2]/h4/small");
         XPathExpression xpathName = xpath.compile("./div[2]/h4/a/b");
-        XPathExpression xpathComment = xpath.compile("./div[2]/_comment_");
+        XPathExpression xpathComment = xpath.compile("./div[2]/comment()");
         XPathExpression xpathExistingRangeList = xpath.compile("./channel/range");
         XPathExpression xpathFirstChannel = xpath.compile("./channel[1]");
         XPathExpression xpathChannelsNode = xpath.compile("/channels");
@@ -285,9 +285,6 @@ class HtmlToXml extends HTMLEditorKit.ParserCallback {
     @Override
     public void handleEndTag(HTML.Tag tag, int position) {
         try {
-            if (tag.toString().equals("h4")) {
-                int i = 0;
-            }
             out.writeEndElement();
         } catch (RuntimeException e) {
             throw e;
@@ -308,9 +305,7 @@ class HtmlToXml extends HTMLEditorKit.ParserCallback {
     @Override
     public void handleComment(char[] data, int pos) {
         try {
-            out.writeStartElement("_comment_");
-            out.writeCharacters(data, 0, data.length);
-            out.writeEndElement();
+            out.writeComment(new String(data));
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
