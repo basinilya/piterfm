@@ -3,7 +3,11 @@
  */
 package ru.piter.fm.player;
 
+import java.util.ArrayList;
+
+import ru.piter.fm.aac.PiterFMPlayer;
 import ru.piter.fm.util.Notifications;
+import ru.piter.fm.util.TrackCalendar;
 import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.Service;
@@ -76,9 +80,33 @@ public class PlayerPinner extends PiterFMPlayer implements PlayerInterface {
         }
     };
 
+    private final ArrayList<EventHandler> eventHandlers = new ArrayList<EventHandler>();
+
+    public void addEventHandler(EventHandler handler) {
+        assertUIThread();
+        eventHandlers.add(handler);
+    }
+
+    @Override
+    public void removeEventHandler(EventHandler handler) {
+        assertUIThread();
+        eventHandlers.remove(handler);
+    }
+
+    @Override
+    protected void callEvent2(EventType ev) {
+        if (ev == EventType.Error) {
+            Notifications.show(Notifications.CANT_LOAD_TRACK, new Intent());
+        }
+        @SuppressWarnings("unchecked")
+        ArrayList<EventHandler> eventHandlers = (ArrayList<EventHandler>)this.eventHandlers.clone();
+        for (EventHandler handler : eventHandlers) {
+            handler.onEvent(ev);
+        }
+    }
+
     @Override
     protected void locksAcquire() {
-        super.locksAcquire();
         cpuWakeLock.acquire();
         if (svc != null) {
             startForeground();
@@ -87,21 +115,28 @@ public class PlayerPinner extends PiterFMPlayer implements PlayerInterface {
         }
     }
 
+    @Override
+    protected void locksRelease() {
+        if (svc != null) {
+            stopForeground();
+        } else {
+            delayStartForeground = false;
+        }
+        cpuWakeLock.release();
+    }
+
     @SuppressLint("NewApi")
     private void startForeground() {
         svc.startForeground(Notifications.PLAY_STOP, currentNotif);
     }
 
     @SuppressLint("NewApi")
-    @Override
-    protected void locksRelease() {
+    private void stopForeground() {
         svc.stopForeground(true);
-        cpuWakeLock.release();
-        super.locksRelease();
     }
 
     @Override
-    public void open(Intent notificationIntent, String channelId, String trackTime) {
+    public void open(Intent notificationIntent, String channelId, TrackCalendar trackTime) {
         beforeOpenOrResume(notificationIntent);
         super.open(channelId, trackTime);
     }

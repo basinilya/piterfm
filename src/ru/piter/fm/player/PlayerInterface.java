@@ -1,11 +1,14 @@
 package ru.piter.fm.player;
 
+import ru.piter.fm.util.TrackCalendar;
 import android.content.Intent;
 
 public interface PlayerInterface {
 
     /** try to start playback */
-    void open(Intent notificationIntent, String channelId, String trackTime);
+    void open(Intent notificationIntent, String channelId, TrackCalendar trackTime);
+
+    TrackCalendar getPosition();
 
     /** pause */
     void pause();
@@ -18,7 +21,8 @@ public interface PlayerInterface {
     /** @return <i>desired</i> paused state */
     boolean isPaused();
 
-    void setEventHandler(EventHandler handler);
+    void addEventHandler(EventHandler handler);
+    void removeEventHandler(EventHandler handler);
 
     public interface EventHandler {
         void onEvent(EventType ev);
