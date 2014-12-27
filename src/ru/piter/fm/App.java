@@ -16,6 +16,7 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
 import ru.piter.fm.player.PlayerInterface;
 import ru.piter.fm.player.PlayerService;
+import ru.piter.fm.player.PlayerPinner;
 import ru.piter.fm.radio.Channel;
 import ru.piter.fm.prototype.BuildConfig;
 import ru.piter.fm.prototype.R;
@@ -81,8 +82,7 @@ public class App extends Application implements OnSharedPreferenceChangeListener
         ImageLoader.getInstance().init(config);
 
         // bind player service
-        if (player == null)
-            bindService(new Intent(App.this, PlayerService.class), connection, Context.BIND_AUTO_CREATE);
+        player = new PlayerPinner(this);
 
         db = new DBAdapter(context);
     }
@@ -96,28 +96,16 @@ public class App extends Application implements OnSharedPreferenceChangeListener
     }
 
     public static boolean isPlaying(Channel ch) {
-        if (player == null) return false; // svc not connected yet
         return ch.getChannelId().equals(player.getChannelId()) && (!player.isPaused());
     }
 
     public static boolean isPlaying() {
-        if (player == null) return false; // svc not connected yet
         return !player.isPaused();
     }
 
     public static Context getContext(){
         return context;
     }
-
-    private ServiceConnection connection = new ServiceConnection() {
-        public void onServiceConnected(ComponentName className, IBinder service) {
-            player = ((PlayerService.PlayerServiceListener) service).getService();
-        }
-
-        public void onServiceDisconnected(ComponentName className) {
-            player = null;
-        }
-    };
 
     private void switchSelfLogcatSaver(SharedPreferences sp) {
         if (sp.getBoolean(Settings.DEBUG_LOG_ENABLED, false)) {
