@@ -9,6 +9,7 @@ import android.graphics.Shader;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -43,7 +44,10 @@ import java.util.*;
 public class ChannelActivity extends SherlockListActivity implements 
     GetTracksTask.TracksLoadingListener,
     PlayerInterface.EventHandler,
-    SharedPreferences.OnSharedPreferenceChangeListener {
+    SharedPreferences.OnSharedPreferenceChangeListener
+{
+
+    private static final String Tag = "ChannelActivity";
 
     private TrackAdapter adapter;
     private boolean needLoadTracks;
@@ -162,6 +166,19 @@ public class ChannelActivity extends SherlockListActivity implements
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 return intent;
             }
+
+            @Override
+            public void execute(Channel ch, Track tr) {
+                final String funcname = "newPlayerTask.execute";
+                Log.d(Tag, funcname + ",tr.getTime() = " + tr.getTime());
+                super.execute(ch, tr);
+            }
+            @Override
+            public void execute(Channel ch) {
+                final String funcname = "newPlayerTask.execute";
+                Log.d(Tag, funcname + ",");
+                super.execute(ch);
+            }
         };
     }
 
@@ -267,7 +284,7 @@ public class ChannelActivity extends SherlockListActivity implements
                 holder.trackInfo.setText(composeItemText(track));
 
                 holder.trackTime.setTypeface(font);
-                holder.trackTime.setText("xxx" /*track.getTime().substring(11)*/);
+                holder.trackTime.setText(track.getTime().asHMM());
                 //holder.trackTime.setText("" + calculateRatingStars(maxRate, Integer.parseInt(track.getPlayCount())));
 //                if (track.getType() == Track.TYPE_SHOW) {
 //                     holder.image.setImageResource(R.drawable.ic_mic);
@@ -348,6 +365,7 @@ public class ChannelActivity extends SherlockListActivity implements
             ChannelActivity.this.setListAdapter(adapter);
             ChannelActivity.this.setSelection((tracks.size()));
         }
+        // TODO: scroll to
     }
 
     @Override
@@ -447,7 +465,21 @@ public class ChannelActivity extends SherlockListActivity implements
     }
 
     @Override
+    protected void onPause() {
+        final String funcname = "onPause";
+        Log.d(Tag, funcname + ",");
+
+        handler.removeCallbacks(autoUpdateTask);
+        player.removeEventHandler(this);
+
+        super.onPause();
+    }
+
+    @Override
     protected void onResume() {
+        final String funcname = "onResume";
+        Log.d(Tag, funcname + ",");
+
         super.onResume();
 
         player.addEventHandler(this);
@@ -461,10 +493,8 @@ public class ChannelActivity extends SherlockListActivity implements
             return;
         }
 
-        day = player.getPosition();
-        if (day == null) {
-            day = RadioUtils.getCurrentTrackTime(channel.getChannelId());
-        }
+        maybeSchedule();
+
         updateDateButton();
         updateTimeButton();
 
@@ -474,37 +504,50 @@ public class ChannelActivity extends SherlockListActivity implements
             task.setTracksLoadingListener(this);
             task.execute(day.getTime(), channel);
         }
-        maybeSchedule();
     }
 
+    private final Runnable autoUpdateTask = new TimerTask() {
+        @Override
+        public void run() {
+            final String funcname = "autoUpdateTask.run";
+            day = player.getPosition();
+
+            Log.d(Tag, funcname + ",day = " + day);
+
+            updateDateButton();
+            updateTimeButton();
+
+            maybeSchedule();
+        }
+    };
+
     private void maybeSchedule() {
+        final String funcname = "maybeSchedule";
+        handler.removeCallbacks(autoUpdateTask);
+
+        day = player.getPosition();
+        if (day == null) {
+            day = RadioUtils.getCurrentTrackTime(channel.getChannelId());
+        }
+
+        Log.d(Tag, funcname + ",day = " + day);
+
         if (App.isPlaying(channel)) {
             long remain = RadioUtils.TIME_MINUTE - (day.get(Calendar.SECOND) * 1000 + day.get(Calendar.MILLISECOND));
-            autoUpdate.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    TrackCalendar cal = player.getPosition();
+            //remain = 10000;
+            Log.d(Tag, funcname + ",scheduling with remain = " + remain);
 
-                    updateDateButton();
-                    updateTimeButton();
-                }
-            }, remain);
+            handler.postDelayed(autoUpdateTask, remain);
         }
     }
 
-    @Override
-    protected void onPause() {
-        autoUpdate.cancel();
-        player.removeEventHandler(this);
-
-        super.onPause();
-    }
-
-    private Timer autoUpdate = new Timer();
+    private final Handler handler = new Handler();
 
     @Override
     public void onEvent(EventType ev) {
-        maybeSchedule();
+        if (ev == EventType.NotBuffering) {
+            maybeSchedule();
+        }
     }
     
     private void updateDateButton() {
@@ -512,6 +555,6 @@ public class ChannelActivity extends SherlockListActivity implements
     }
 
     private void updateTimeButton() {
-        String.format(Locale.US, "%d:%02d", day.get(Calendar.HOUR_OF_DAY), day.get(Calendar.MINUTE));
+        timeButton.setText(day.asHMM());
     }
 }

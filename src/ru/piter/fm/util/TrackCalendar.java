@@ -1,5 +1,6 @@
 package ru.piter.fm.util;
 
+import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -32,6 +33,21 @@ public class TrackCalendar extends GregorianCalendar {
     public String asURLPart() {
         return String.format(Locale.US, "%d/%02d/%02d/%02d%02d", get(YEAR),
                 get(MONTH) + 1, get(DATE), get(HOUR_OF_DAY), get(MINUTE));
+    }
+
+    @Override
+    public String toString() {
+        return asTrackTime() + "." + get(MILLISECOND);
+    }
+
+    public String asHMM() {
+        return String.format(Locale.US, "%d:%02d", get(HOUR_OF_DAY), get(MINUTE));
+    }
+
+    /** format me as "yyyy:MM:dd:HH:mm:ss" */
+    public String asTrackTime() {
+        return String.format(Locale.US, "%d:%02d:%02d:%02d:%02d:%02d", get(YEAR),
+                get(MONTH) + 1, get(DATE), get(HOUR_OF_DAY), get(MINUTE), get(SECOND));
     }
 
     /** Add one minute and set default time to seek for subsequent tracks */
