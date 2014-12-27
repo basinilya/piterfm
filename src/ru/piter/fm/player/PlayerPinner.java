@@ -5,6 +5,7 @@ package ru.piter.fm.player;
 
 import java.util.ArrayList;
 
+import ru.piter.fm.aac.PiterFMPlayer;
 import ru.piter.fm.util.Notifications;
 import ru.piter.fm.util.TrackCalendar;
 import android.annotation.SuppressLint;
@@ -81,7 +82,6 @@ public class PlayerPinner extends PiterFMPlayer implements PlayerInterface {
 
     private final ArrayList<EventHandler> eventHandlers = new ArrayList<EventHandler>();
 
-    @Override
     public void addEventHandler(EventHandler handler) {
         assertUIThread();
         eventHandlers.add(handler);

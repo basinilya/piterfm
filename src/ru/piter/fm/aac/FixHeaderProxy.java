@@ -1,0 +1,297 @@
+package ru.piter.fm.aac;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.FilterOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.SocketException;
+import java.util.Locale;
+
+import ru.piter.fm.util.Utils;
+import android.util.Log;
+
+public class FixHeaderProxy extends Thread {
+
+    private static final String Tag = "PiterFMPlayer";
+
+    private ServerSocket srv;
+    private StreamerUtil b = new StreamerUtil();
+
+    public FixHeaderProxy() throws IOException {
+        srv = new ServerSocket();
+        srv.bind(new InetSocketAddress("127.0.0.1", 0)); //$NON-NLS-1$
+        setDaemon(true);
+        start();
+    }
+
+    public String getUrl() {
+        return "http://127.0.0.1:" + srv.getLocalPort();
+    }
+
+    public void run() {
+        try {
+            for(;;) {
+                try {
+                    final Socket sock = srv.accept();
+                    RequestProcessor requestProcessor = new RequestProcessor();
+                    requestProcessor.proxySock = sock;
+                    requestProcessor.start();
+                } catch (SocketException e) {
+                    break;
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static String readCRLFLine(InputStream in) throws IOException {
+        StringBuilder line = new StringBuilder(80); // Typical line length
+        while (true) {
+            int nextByte = in.read();
+            switch (nextByte) {
+                case -1:
+                    if (line.length() == 0) {
+                        return null;
+                    }
+                    return line.toString();
+                case (byte) '\r':
+                    in.read();
+                    return line.toString();
+                case (byte) '\n':
+                    return line.toString();
+                default:
+                    line.append((char) nextByte);
+            }
+        }
+    }
+
+    private static byte[] crlf = new byte[] { '\r' , '\n' };
+
+    public static void writeCRLFLine(OutputStream out, String s) throws IOException {
+        out.write(s.getBytes("iso-8859-1"));
+        out.write(crlf);
+    }
+
+    private class RequestProcessor extends Thread {
+
+        public Socket proxySock;
+        
+        @Override
+        public void run() {
+            final String funcname = "RequestProcessor,run";
+            try {
+                processRequest();
+            } catch (Exception e) {
+                Log.d(Tag, funcname + "," + e.toString());
+                //e.printStackTrace();
+                //throw new RuntimeException(e);
+            }
+        }
+
+        @SuppressWarnings("resource")
+        public void processRequest() throws Exception {
+            final String funcname = "RequestProcessor,processRequest";
+            byte buf[] = new byte[1000];
+    
+            InputStream proxyIn = null;
+            OutputStream realOut = null;
+            Socket realSock = null;
+    
+            try {
+                proxyIn = new BufferedInputStream(proxySock.getInputStream());
+                
+                String s;
+    
+                String h_get = readCRLFLine(proxyIn);
+                if (h_get == null) {
+                    Log.w(Tag, funcname + ",instant EOF in MediaPlayer http request");
+                    return;
+                }
+                String h_host = readCRLFLine(proxyIn);
+    
+                String[] h_get_parts = h_get.split(" ", 3);
+                String[] parts = h_get_parts[1].split("/");
+                String stationId = parts[1];
+                String timestamp = parts[2];
+    
+                String realUrl = b.getStreamUrl(stationId, Long.parseLong(timestamp));
+                Log.d(Tag, funcname + ",realUrl = " + realUrl);
+                int i = realUrl.indexOf('/', 7);
+    
+                s = realUrl.substring(i);
+                h_get = h_get_parts[0] + " " + s + " " + h_get_parts[2];
+    
+                String realhostport = realUrl.substring(7, i);
+                h_host = "Host: " + realhostport;
+    
+                int port = 80;
+                i = realhostport.indexOf(':');
+                if (i != -1) {
+                    port = Integer.parseInt(realhostport.substring(i+1));
+                    realhostport = realhostport.substring(0, i);
+                }
+                realSock = new Socket(realhostport, port);
+       
+                realOut = new BufferedOutputStream(realSock.getOutputStream());
+    
+                writeCRLFLine(realOut, h_get);
+                writeCRLFLine(realOut, h_host);
+    
+                ResponseProcessor responseProcessor = new ResponseProcessor();
+                responseProcessor.proxySock = proxySock;
+                responseProcessor.realSock = realSock;
+                
+                realSock = null;
+                proxySock = null;
+                
+                responseProcessor.start();
+                
+                int len;
+                while (0 < (len = proxyIn.read(buf))) {
+                    realOut.write(buf, 0, len);
+                    realOut.flush();
+                }
+            } finally {
+                try { if (proxyIn != null) proxyIn.close(); } catch (Exception e) {  }
+                try { if (realOut != null) realOut.close(); } catch (Exception e) {  }
+
+                try { if (realSock != null) realSock.close(); } catch (Exception e) {  }
+                try { if (proxySock != null) proxySock.close(); } catch (Exception e) {  }
+                
+            }
+        }
+    }
+
+    private class ResponseProcessor extends Thread {
+
+        public Socket proxySock;
+        public Socket realSock;
+        
+        @Override
+        public void run() {
+            final String funcname = "ResponseProcessor,run";
+            try {
+                processResponse();
+            } catch (Exception e) {
+                Log.d(Tag, funcname + "," + e.toString());
+                //e.printStackTrace();
+                //throw new RuntimeException(e);
+            }
+        }
+
+        @SuppressWarnings("resource")
+        public void processResponse() throws Exception {
+            final String funcname = "ResponseProcessor,processResponse";
+            byte buf[] = new byte[1000];
+            
+            InputStream realIn = null;
+            OutputStream proxyOut = null;
+    
+            try {
+                proxyOut = proxySock.getOutputStream();
+                proxyOut = new FilterOutputStream(proxyOut) {
+                    private long total;
+                    private void logFirstBytes(byte[] buffer, int offset, int length) {
+                        final String funcname = "ResponseProcessor,logFirstBytes";
+                        final int limit = 800;
+                        //if (!Log.isLoggable(Tag, Log.VERBOSE)) return;
+                        if (total >= limit) return;
+                        length += offset;
+                        for (int i = offset; total < limit && i < length;) {
+                            int len2 = Math.min(length - i, 16);
+                            String s = Utils.bytesToHex(buffer, i, len2);
+                            Log.d(Tag, funcname + "," + s);
+                            i += len2;
+                            total += len2;
+                        }
+                        Log.d(Tag, funcname + "," + "...");
+                    }
+
+                    @Override
+                    public void write(byte[] buffer, int offset, int length) throws IOException {
+                        logFirstBytes(buffer, offset, length);
+                        super.write(buffer, offset, length);
+                    }
+                };
+                proxyOut = new BufferedOutputStream(proxyOut);
+                realIn = new BufferedInputStream(realSock.getInputStream());
+
+                String s;
+
+                String h_icy200 = readCRLFLine(realIn);
+                int i = h_icy200.indexOf(' ');
+                if (!h_icy200.startsWith("HTTP/")) {
+                    s = "HTTP/1.0" + h_icy200.substring(i);
+                    Log.d(Tag, funcname + ",replacing '" + h_icy200 + "' with '" + s + " in response");
+                    h_icy200 = s;
+                }
+                writeCRLFLine(proxyOut, h_icy200);
+
+                do {
+                    s = readCRLFLine(realIn);
+                    writeCRLFLine(proxyOut, s);
+                    if (s.toUpperCase(Locale.US).startsWith("CONTENT-TYPE:")) {
+                        String contentType = s.substring(s.indexOf(':') + 1);
+                        if (contentType.trim().startsWith("text/")) {
+                            Log.w(Tag, funcname + ",unexpected header: " + s);
+                            b.invalidate();
+                        }
+                    }
+                } while (s.length() != 0);
+
+                int len;
+
+                len = realIn.read(buf);
+                if (0 < len) {
+                    proxyOut.write(buf, 0, len);
+
+                    proxyOut.flush();
+                    proxyOut = proxySock.getOutputStream();
+
+                    while (0 < (len = realIn.read(buf))) {
+                        proxyOut.write(buf, 0, len);
+                    }
+                }
+            } finally {
+                try { if (proxyOut != null) proxyOut.close(); } catch (Exception e) {  }
+                try { if (realIn != null) realIn.close(); } catch (Exception e) {  }
+
+                try { if (realSock != null) realSock.close(); } catch (Exception e) {  }
+                try { if (proxySock != null) proxySock.close(); } catch (Exception e) {  }
+            }
+        }
+    }
+    
+
+    /*
+    
+    new Thread() {
+        public void run() {
+            try {
+                processResponse(sock);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        };
+    }.start();
+
+    
+    
+
+
+}
+
+public void processResponse(Socket sock) throws Exception {
+    byte buf[] = new byte[1000];
+    String http200str = "HTTP/1.1 200 OK\r\n\r\n";
+    byte[] http200bytes = http200str.getBytes("iso-8859-1");
+}
+
+*/
+}
