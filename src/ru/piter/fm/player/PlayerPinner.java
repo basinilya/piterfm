@@ -3,6 +3,8 @@
  */
 package ru.piter.fm.player;
 
+import java.util.ArrayList;
+
 import ru.piter.fm.util.Notifications;
 import ru.piter.fm.util.TrackCalendar;
 import android.annotation.SuppressLint;
@@ -77,9 +79,34 @@ public class PlayerPinner extends PiterFMPlayer implements PlayerInterface {
         }
     };
 
+    private final ArrayList<EventHandler> eventHandlers = new ArrayList<EventHandler>();
+
+    @Override
+    public void addEventHandler(EventHandler handler) {
+        assertUIThread();
+        eventHandlers.add(handler);
+    }
+
+    @Override
+    public void removeEventHandler(EventHandler handler) {
+        assertUIThread();
+        eventHandlers.remove(handler);
+    }
+
+    @Override
+    protected void callEvent2(EventType ev) {
+        if (ev == EventType.Error) {
+            Notifications.show(Notifications.CANT_LOAD_TRACK, new Intent());
+        }
+        @SuppressWarnings("unchecked")
+        ArrayList<EventHandler> eventHandlers = (ArrayList<EventHandler>)this.eventHandlers.clone();
+        for (EventHandler handler : eventHandlers) {
+            handler.onEvent(ev);
+        }
+    }
+
     @Override
     protected void locksAcquire() {
-        super.locksAcquire();
         cpuWakeLock.acquire();
         if (svc != null) {
             startForeground();
@@ -98,7 +125,6 @@ public class PlayerPinner extends PiterFMPlayer implements PlayerInterface {
     protected void locksRelease() {
         svc.stopForeground(true);
         cpuWakeLock.release();
-        super.locksRelease();
     }
 
     @Override

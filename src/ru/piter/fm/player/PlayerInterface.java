@@ -21,7 +21,8 @@ public interface PlayerInterface {
     /** @return <i>desired</i> paused state */
     boolean isPaused();
 
-    void setEventHandler(EventHandler handler);
+    void addEventHandler(EventHandler handler);
+    void removeEventHandler(EventHandler handler);
 
     public interface EventHandler {
         void onEvent(EventType ev);

@@ -18,6 +18,7 @@ import com.actionbarsherlock.app.*;
 import com.actionbarsherlock.app.ActionBar;
 import ru.piter.fm.App;
 import ru.piter.fm.player.PlayerInterface;
+import ru.piter.fm.player.PlayerInterface.EventType;
 import ru.piter.fm.prototype.R;
 import ru.piter.fm.radio.Channel;
 import ru.piter.fm.radio.Radio;
@@ -39,7 +40,10 @@ import java.util.*;
  * Time: 22:31:59
  * To change this template use File | Settings | File Templates.
  */
-public class ChannelActivity extends SherlockListActivity implements GetTracksTask.TracksLoadingListener, SharedPreferences.OnSharedPreferenceChangeListener {
+public class ChannelActivity extends SherlockListActivity implements 
+    GetTracksTask.TracksLoadingListener,
+    PlayerInterface.EventHandler,
+    SharedPreferences.OnSharedPreferenceChangeListener {
 
     private TrackAdapter adapter;
     private boolean needLoadTracks;
@@ -58,12 +62,15 @@ public class ChannelActivity extends SherlockListActivity implements GetTracksTa
     private Radio favouriteRadio = RadioFactory.getRadio(RadioFactory.FAVOURITE);
     private boolean isSettingsChanged = false;
 
+    private PlayerInterface player;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.channel);
 
+        player = App.getPlayer();
 
         channel = (Channel) getIntent().getExtras().get("channel");
         TimeZone tz = TimeZone.getTimeZone("GMT+3");
@@ -218,13 +225,6 @@ public class ChannelActivity extends SherlockListActivity implements GetTracksTa
 
         }
     };
-
-    private String getRightMinutes(Calendar calendar) {
-        int min = calendar.get(Calendar.MINUTE);
-        if (min < 9) return "0" + min;
-        return String.valueOf(min);
-    }
-
 
     private class TrackAdapter extends ArrayAdapter<Track> {
 
@@ -432,7 +432,7 @@ public class ChannelActivity extends SherlockListActivity implements GetTracksTa
                         .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                App.getPlayer().pause();
+                                player.pause();
                                 //finish();
                                 //ChannelActivity.this.moveTaskToBack(true);
                                 setResult(RESULT_OK, null);
@@ -449,6 +449,9 @@ public class ChannelActivity extends SherlockListActivity implements GetTracksTa
     @Override
     protected void onResume() {
         super.onResume();
+
+        player.addEventHandler(this);
+
         if (isSettingsChanged) {
             isSettingsChanged = false;
             finish();
@@ -458,7 +461,6 @@ public class ChannelActivity extends SherlockListActivity implements GetTracksTa
             return;
         }
 
-        final PlayerInterface player = App.getPlayer();
         day = player.getPosition();
         if (day == null) {
             day = RadioUtils.getCurrentTrackTime(channel.getChannelId());
@@ -472,9 +474,11 @@ public class ChannelActivity extends SherlockListActivity implements GetTracksTa
             task.setTracksLoadingListener(this);
             task.execute(day.getTime(), channel);
         }
+        maybeSchedule();
+    }
 
-        boolean isPlaying = App.isPlaying(channel);
-        if (isPlaying) {
+    private void maybeSchedule() {
+        if (App.isPlaying(channel)) {
             long remain = RadioUtils.TIME_MINUTE - (day.get(Calendar.SECOND) * 1000 + day.get(Calendar.MILLISECOND));
             autoUpdate.schedule(new TimerTask() {
                 @Override
@@ -487,18 +491,27 @@ public class ChannelActivity extends SherlockListActivity implements GetTracksTa
             }, remain);
         }
     }
-    
-    private void updateDateButton() {
-        dateButton.setText((FMT_DATE_BUTTON).format(day.getTime()));
-    }
-    private void updateTimeButton() {
-        timeButton.setText(day.get(Calendar.HOUR_OF_DAY) + ":" + getRightMinutes(day));
-    }
 
     @Override
     protected void onPause() {
         autoUpdate.cancel();
+        player.removeEventHandler(this);
+
         super.onPause();
     }
+
     private Timer autoUpdate = new Timer();
+
+    @Override
+    public void onEvent(EventType ev) {
+        maybeSchedule();
+    }
+    
+    private void updateDateButton() {
+        dateButton.setText((FMT_DATE_BUTTON).format(day.getTime()));
+    }
+
+    private void updateTimeButton() {
+        String.format(Locale.US, "%d:%02d", day.get(Calendar.HOUR_OF_DAY), day.get(Calendar.MINUTE));
+    }
 }

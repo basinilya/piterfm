@@ -52,14 +52,13 @@ public abstract class PlayerTask extends BaseTask<Void> {
     private static ArrayList<PlayerTask> startedTasks = new ArrayList<PlayerTask>();
 
     static {
-        App.getPlayer().setEventHandler(new PlayerInterface.EventHandler() {
+        App.getPlayer().addEventHandler(new PlayerInterface.EventHandler() {
             @Override
             public void onEvent(EventType ev) {
                 switch (ev) {
                 case Buffering:
                     break;
                 case Error:
-                    Notifications.show(Notifications.CANT_LOAD_TRACK, new Intent());
                     /* fallthrough */
                 default:
                     for (PlayerTask t : startedTasks) {

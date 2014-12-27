@@ -11,17 +11,15 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
-import ru.piter.fm.player.PlayerInterface.EventHandler;
 import ru.piter.fm.player.PlayerInterface.EventType;
 import ru.piter.fm.util.TrackCalendar;
 import ru.piter.fm.util.PiterFMCachingDownloader;
 
-class PiterFMPlayer {
+abstract class PiterFMPlayer {
 
-    protected void locksAcquire() {
-    }
-    protected void locksRelease() {
-    }
+    protected abstract void callEvent2(EventType ev);
+    protected abstract void locksAcquire();
+    protected abstract void locksRelease();
 
     private static final String Tag = "PiterFMPlayer";
 
@@ -43,13 +41,11 @@ class PiterFMPlayer {
 
     private boolean isPaused = true;
 
-    private EventHandler eventHandler;
-
     private boolean isNextPlayerSet;
 
     { assertUIThread(); }
 
-    private void assertUIThread() { assertEquals(Looper.getMainLooper().getThread(), Thread.currentThread()); }
+    protected void assertUIThread() { assertEquals(Looper.getMainLooper().getThread(), Thread.currentThread()); }
 
     public void open(String ch, TrackCalendar trackTime) {
         final String funcname = "open";
@@ -363,8 +359,7 @@ class PiterFMPlayer {
     private void callEvent(EventType ev) {
         final String funcname = "callEvent";
         Log.d(Tag, funcname + ",ev = " + ev);
-        if (eventHandler != null)
-            eventHandler.onEvent(ev);
+        callEvent2(ev);
     }
 
     public void release() {
@@ -372,11 +367,6 @@ class PiterFMPlayer {
         resetCommon();
         player1.player.release();
         player2.player.release();
-    }
-
-    public void setEventHandler(EventHandler handler) {
-        assertUIThread();
-        eventHandler = handler;
     }
 
     private void setPausedFalse() {
