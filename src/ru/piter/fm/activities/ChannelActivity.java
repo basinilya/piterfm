@@ -132,8 +132,10 @@ public class ChannelActivity extends SherlockListActivity implements
 
         timeButton = (Button) findViewById(R.id.time_button);
         timeButton.setOnClickListener(new View.OnClickListener() {
+            @SuppressWarnings("deprecation")
             @Override
             public void onClick(View view) {
+                //aaa
                 showDialog(TIMEPICKER_DIALOG);
             }
         });
@@ -207,7 +209,6 @@ public class ChannelActivity extends SherlockListActivity implements
             day.set(Calendar.MONTH, monthOfYear);
             day.set(Calendar.YEAR, year);
 
-
             updateDateButton();
             if (!new Date().before(day.getTime())) {
                 GetTracksTask task = new GetTracksTask(ChannelActivity.this);
@@ -224,10 +225,7 @@ public class ChannelActivity extends SherlockListActivity implements
             if (!dlgClicked)
                 return;
             dlgClicked = false;
-            //day.set(Calendar.HOUR_OF_DAY, hourOfDay);
-            // day.set(Calendar.MINUTE, minute);
-            // day.set(Calendar.SECOND, 0);
-            day.set(day.get(Calendar.YEAR), day.get(Calendar.MONTH), day.get(Calendar.DAY_OF_MONTH), hourOfDay, minute);
+            day.set(day.get(Calendar.YEAR), day.get(Calendar.MONTH), day.get(Calendar.DAY_OF_MONTH), hourOfDay, minute, 0);
             updateTimeButton();
             Track ti = new Track();
             Date trackTime = day.getTime();
@@ -376,6 +374,21 @@ public class ChannelActivity extends SherlockListActivity implements
     }
 
     @Override
+    protected void onPrepareDialog(int id, Dialog dialog) {
+        switch (id) {
+            case DATEPICKER_DIALOG:
+                DatePickerDialog ddlg = (DatePickerDialog)dialog;
+                ddlg.updateDate(day.get(Calendar.YEAR), day.get(Calendar.MONTH), day.get(Calendar.DAY_OF_MONTH));
+                return;
+            case TIMEPICKER_DIALOG:
+                TimePickerDialog tdlg = (TimePickerDialog)dialog;
+                tdlg.updateTime(day.get(Calendar.HOUR_OF_DAY), day.get(Calendar.MINUTE));
+                return;
+        }
+        super.onPrepareDialog(id, dialog);
+    }
+
+    @Override
     protected Dialog onCreateDialog(int id) {
         switch (id) {
             case DATEPICKER_DIALOG:
@@ -493,10 +506,7 @@ public class ChannelActivity extends SherlockListActivity implements
             return;
         }
 
-        maybeSchedule();
-
-        updateDateButton();
-        updateTimeButton();
+        showPlayerPos();
 
         if (needLoadTracks) {
             needLoadTracks = false;
@@ -514,16 +524,12 @@ public class ChannelActivity extends SherlockListActivity implements
 
             Log.d(Tag, funcname + ",day = " + day);
 
-            updateDateButton();
-            updateTimeButton();
-
-            maybeSchedule();
+            showPlayerPos();
         }
     };
 
-    private void maybeSchedule() {
-        final String funcname = "maybeSchedule";
-        handler.removeCallbacks(autoUpdateTask);
+    private void showPlayerPos() {
+        final String funcname = "showPlayerPos";
 
         day = player.getPosition();
         if (day == null) {
@@ -532,9 +538,13 @@ public class ChannelActivity extends SherlockListActivity implements
 
         Log.d(Tag, funcname + ",day = " + day);
 
+        handler.removeCallbacks(autoUpdateTask);
+
+        updateDateButton();
+        updateTimeButton();
+
         if (App.isPlaying(channel)) {
             long remain = RadioUtils.TIME_MINUTE - (day.get(Calendar.SECOND) * 1000 + day.get(Calendar.MILLISECOND));
-            //remain = 10000;
             Log.d(Tag, funcname + ",scheduling with remain = " + remain);
 
             handler.postDelayed(autoUpdateTask, remain);
@@ -546,7 +556,7 @@ public class ChannelActivity extends SherlockListActivity implements
     @Override
     public void onEvent(EventType ev) {
         if (ev == EventType.NotBuffering) {
-            maybeSchedule();
+            showPlayerPos();
         }
     }
     
