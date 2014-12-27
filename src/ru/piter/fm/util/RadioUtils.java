@@ -35,7 +35,7 @@ import java.util.*;
 public class RadioUtils {
 
     public static final String CHANNEL_PREFIX = "http://fresh.moskva.fm/files/";
-    private static final long TIME_MINUTE = 60000;
+    public static final long TIME_MINUTE = 60000;
 
     public static String getTracksUrl(String day, Channel channel) {
         String url = channel.getRadio().getHostUrl() + "/station.xml.html?station=" + channel.getChannelId() + "&day=" + day;
@@ -57,7 +57,6 @@ public class RadioUtils {
             Element root = dom.getDocumentElement();
             NodeList tracks = root.getElementsByTagName("track");
             Log.d("Parser ", "Tracks size = " + tracks.getLength());
-            TrackCalendar trackCal = new TrackCalendar();
             for (int i = 0; i < tracks.getLength(); i++) {
                 Track trackInfo = new Track(Track.TYPE_TRACK);
                 Element track = (Element) tracks.item(i);
@@ -65,11 +64,9 @@ public class RadioUtils {
                 trackInfo.setTrackName(track.getAttribute("artistName"));
                 trackInfo.setDuration(track.getAttribute("duration"));
 
-                String time = track.getAttribute("startAt");
-                trackInfo.setStartAt(Long.parseLong(time));
-                trackCal.setClientTimeInMillis(Long.parseLong(time) * 1000);
-                time = trackCal.asTrackTime();
-                trackInfo.setTime(time);
+                String startAtStr = track.getAttribute("startAt");
+                long startAtMillis = Long.parseLong(startAtStr) * 1000;
+                trackInfo.setClientTimeInMillis(startAtMillis);
 
                 trackInfo.setPlayCount(track.getAttribute("playCount"));
                 trackList.add(trackInfo);
@@ -82,11 +79,9 @@ public class RadioUtils {
                 Element track = (Element) tracks.item(i);
                 trackInfo.setTrackName(track.getAttribute("name"));
                 trackInfo.setDuration(track.getAttribute("duration"));
-                String time = track.getAttribute("startAt");
-                trackInfo.setStartAt(Long.parseLong(time));
-                trackCal.setClientTimeInMillis(Long.parseLong(time) * 1000);
-                time = trackCal.asTrackTime();
-                trackInfo.setTime(time);
+                String startAtStr = track.getAttribute("startAt");
+                long startAtMillis = Long.parseLong(startAtStr) * 1000;
+                trackInfo.setClientTimeInMillis(startAtMillis);
                 trackInfo.setPlayCount("0");
                 trackList.add(trackInfo);
             }
@@ -238,12 +233,11 @@ public class RadioUtils {
     }
 
 
-    public static String getCurrentTrackTime(String channelId) {
+    public static TrackCalendar getCurrentTrackTime(String channelId) {
         TrackCalendar trackCal = new TrackCalendar();
         trackCal.setClientTimeInMillis(System.currentTimeMillis() - (TIME_MINUTE * 5));
         trackCal.set(Calendar.SECOND, 0);
         trackCal.set(Calendar.MILLISECOND, 0);
-        String currentTrack = trackCal.asTrackTime();
-        return currentTrack;
+        return trackCal;
     }
 }

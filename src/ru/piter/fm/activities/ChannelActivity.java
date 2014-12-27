@@ -10,6 +10,7 @@ import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import static android.support.v4.view.MenuItemCompat.*;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -20,6 +21,8 @@ import com.actionbarsherlock.app.*;
 import com.actionbarsherlock.app.ActionBar;
 
 import ru.piter.fm.App;
+import ru.piter.fm.player.PlayerInterface;
+import ru.piter.fm.player.PlayerInterface.EventType;
 import ru.piter.fm.prototype.R;
 import ru.piter.fm.radio.Channel;
 import ru.piter.fm.radio.Radio;
@@ -41,12 +44,20 @@ import java.util.*;
  * Time: 22:31:59
  * To change this template use File | Settings | File Templates.
  */
-public class ChannelActivity extends SherlockListActivity implements GetTracksTask.TracksLoadingListener, SharedPreferences.OnSharedPreferenceChangeListener {
+public class ChannelActivity extends SherlockListActivity implements
+    GetTracksTask.TracksLoadingListener,
+    PlayerInterface.EventHandler,
+    SharedPreferences.OnSharedPreferenceChangeListener
+{
+
+    private static final String Tag = "ChannelActivity";
 
     private TrackAdapter adapter;
+    private boolean needLoadTracks;
     private Track currentTrack;
     private Channel channel;
-    private TrackCalendar day = new TrackCalendar();
+    private TrackCalendar day;
+    private TrackCalendar tmpCal = new TrackCalendar();
     private DateFormat FMT_DATE_BUTTON = new SimpleDateFormat("dd.MM.yyyy", Locale.US);
 
     private EditText search;
@@ -59,12 +70,15 @@ public class ChannelActivity extends SherlockListActivity implements GetTracksTa
     private Radio favouriteRadio = RadioFactory.getRadio(RadioFactory.FAVOURITE);
     private boolean isSettingsChanged = false;
 
+    private PlayerInterface player;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.channel);
 
+        player = App.getPlayer();
 
         channel = (Channel) getIntent().getExtras().get("channel");
         TimeZone tz = TrackCalendar.getTimezone();
@@ -84,10 +98,7 @@ public class ChannelActivity extends SherlockListActivity implements GetTracksTa
         initUI();
         adapter = (TrackAdapter) getLastNonConfigurationInstance();
         if (adapter == null) {
-            GetTracksTask task = new GetTracksTask(this);
-            task.setTracksLoadingListener(this);
-            task.execute(day.asTracksUrlPart(), channel);
-            //new GetTracksTask().execute(day.getTime());
+            needLoadTracks = true;
         } else {
             this.setListAdapter(adapter);
         }
@@ -116,7 +127,6 @@ public class ChannelActivity extends SherlockListActivity implements GetTracksTa
     private void initUI() {
 
         dateButton = (Button) findViewById(R.id.date_button);
-        dateButton.setText((FMT_DATE_BUTTON).format(day.getTime()));
         dateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -125,8 +135,8 @@ public class ChannelActivity extends SherlockListActivity implements GetTracksTa
         });
 
         timeButton = (Button) findViewById(R.id.time_button);
-        timeButton.setText(day.get(Calendar.HOUR_OF_DAY) + ":" + getRightMinutes(day));
         timeButton.setOnClickListener(new View.OnClickListener() {
+            @SuppressWarnings("deprecation")
             @Override
             public void onClick(View view) {
                 showDialog(TIMEPICKER_DIALOG);
@@ -180,6 +190,8 @@ public class ChannelActivity extends SherlockListActivity implements GetTracksTa
 
     private boolean dlgClicked; // workaround for event raised twice, see https://code.google.com/p/android/issues/detail?id=34833
 
+    private long lockCalUntil;
+
     private final DatePickerDialog.OnDateSetListener mDateSetListener = new DatePickerDialog.OnDateSetListener() {
         public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
             if (!dlgClicked)
@@ -189,8 +201,8 @@ public class ChannelActivity extends SherlockListActivity implements GetTracksTa
             day.set(Calendar.MONTH, monthOfYear);
             day.set(Calendar.YEAR, year);
 
-
-            dateButton.setText((FMT_DATE_BUTTON).format(day.getTime()));
+            lockCalUntil = System.nanoTime() + (30 * 1000 * 1000000L);
+            updateDateButton();
             if (!isFuture()) {
                 GetTracksTask task = new GetTracksTask(ChannelActivity.this);
                 task.setTracksLoadingListener(ChannelActivity.this);
@@ -210,16 +222,13 @@ public class ChannelActivity extends SherlockListActivity implements GetTracksTa
             if (!dlgClicked)
                 return;
             dlgClicked = false;
-            //day.set(Calendar.HOUR_OF_DAY, hourOfDay);
-            // day.set(Calendar.MINUTE, minute);
-            // day.set(Calendar.SECOND, 0);
-            day.set(day.get(Calendar.YEAR), day.get(Calendar.MONTH), day.get(Calendar.DAY_OF_MONTH), hourOfDay, minute);
-            timeButton.setText(day.get(Calendar.HOUR_OF_DAY) + ":" + getRightMinutes(day));
-            Track ti = new Track();
-            ti.setTime(day.asTrackTime());
+            day.set(Calendar.HOUR_OF_DAY, hourOfDay);
+            day.set(Calendar.MINUTE, minute);
+            day.set(Calendar.SECOND, 0);
+            updateTimeButton();
 
             if (!isFuture()) {
-                newPlayerTask().execute(channel, ti);
+                newPlayerTask().execute(channel, day);
             } else {
                 Toast.makeText(ChannelActivity.this, R.string.incorrect_time, Toast.LENGTH_SHORT).show();
             }
@@ -227,13 +236,6 @@ public class ChannelActivity extends SherlockListActivity implements GetTracksTa
 
         }
     };
-
-    private String getRightMinutes(Calendar calendar) {
-        int min = calendar.get(Calendar.MINUTE);
-        if (min < 9) return "0" + min;
-        return String.valueOf(min);
-    }
-
 
     private class TrackAdapter extends ArrayAdapter<Track> {
 
@@ -276,7 +278,8 @@ public class ChannelActivity extends SherlockListActivity implements GetTracksTa
                 holder.trackInfo.setText(composeItemText(track));
 
                 holder.trackTime.setTypeface(font);
-                holder.trackTime.setText(track.getTime().substring(11));
+                tmpCal.setClientTimeInMillis(track.getClientTimeInMillis());
+                holder.trackTime.setText(tmpCal.asHMM());
                 //holder.trackTime.setText("" + calculateRatingStars(maxRate, Integer.parseInt(track.getPlayCount())));
 //                if (track.getType() == Track.TYPE_SHOW) {
 //                     holder.image.setImageResource(R.drawable.ic_mic);
@@ -289,7 +292,8 @@ public class ChannelActivity extends SherlockListActivity implements GetTracksTa
                 @Override
                 public void onClick(View view) {
                     currentTrack = (Track) getListAdapter().getItem(pos);
-                    newPlayerTask().execute(channel, currentTrack);
+                    tmpCal.setClientTimeInMillis(currentTrack.getClientTimeInMillis());
+                    newPlayerTask().execute(channel, tmpCal);
                 }
 
             });
@@ -357,6 +361,7 @@ public class ChannelActivity extends SherlockListActivity implements GetTracksTa
             ChannelActivity.this.setListAdapter(adapter);
             ChannelActivity.this.setSelection((tracks.size()));
         }
+        // TODO: scroll to
     }
 
     @Override
@@ -367,7 +372,24 @@ public class ChannelActivity extends SherlockListActivity implements GetTracksTa
     }
 
     @Override
+    protected void onPrepareDialog(int id, Dialog dialog) {
+        initDay();
+        switch (id) {
+            case DATEPICKER_DIALOG:
+                DatePickerDialog ddlg = (DatePickerDialog)dialog;
+                ddlg.updateDate(day.get(Calendar.YEAR), day.get(Calendar.MONTH), day.get(Calendar.DAY_OF_MONTH));
+                return;
+            case TIMEPICKER_DIALOG:
+                TimePickerDialog tdlg = (TimePickerDialog)dialog;
+                tdlg.updateTime(day.get(Calendar.HOUR_OF_DAY), day.get(Calendar.MINUTE));
+                return;
+        }
+        super.onPrepareDialog(id, dialog);
+    }
+
+    @Override
     protected Dialog onCreateDialog(int id) {
+        initDay();
         switch (id) {
             case DATEPICKER_DIALOG:
                 return new DatePickerDialog(ChannelActivity.this, mDateSetListener, day.get(Calendar.YEAR), day.get(Calendar.MONTH), day.get(Calendar.DAY_OF_MONTH)) {
@@ -441,7 +463,7 @@ public class ChannelActivity extends SherlockListActivity implements GetTracksTa
                         .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                App.getPlayer().pause();
+                                player.pause();
                                 //finish();
                                 //ChannelActivity.this.moveTaskToBack(true);
                                 setResult(RESULT_OK, null);
@@ -456,14 +478,108 @@ public class ChannelActivity extends SherlockListActivity implements GetTracksTa
     }
 
     @Override
+    protected void onPause() {
+        final String funcname = "onPause";
+        Log.d(Tag, funcname + ",");
+
+        handler.removeCallbacks(autoUpdateTask);
+        player.removeEventHandler(this);
+
+        super.onPause();
+    }
+
+    @Override
     protected void onResume() {
+        final String funcname = "onResume";
+        Log.d(Tag, funcname + ",");
+
         super.onResume();
+
+        player.addEventHandler(this);
+
         if (isSettingsChanged) {
             isSettingsChanged = false;
             finish();
             Intent intent = new Intent(this, ChannelActivity.class);
             intent.putExtra("channel", channel);
             startActivity(intent);
+            return;
         }
+
+        showPlayerPos();
+
+        if (needLoadTracks) {
+            needLoadTracks = false;
+            GetTracksTask task = new GetTracksTask(this);
+            task.setTracksLoadingListener(this);
+            task.execute(day.asTracksUrlPart(), channel);
+        }
+    }
+
+    private final Runnable autoUpdateTask = new TimerTask() {
+        @Override
+        public void run() {
+            final String funcname = "autoUpdateTask.run";
+            Log.d(Tag, funcname + ",");
+            long remainNanos = lockCalUntil - System.nanoTime();
+            if (remainNanos <= 0) {
+                showPlayerPos();
+            } else {
+                long remain = remainNanos / 1000000L;
+                Log.d(Tag, funcname + ",scheduling with remain = " + remain);
+                handler.postDelayed(autoUpdateTask, remain);
+            }
+        }
+    };
+
+    private void getDay() {
+        day = player.getPosition();
+        if (day == null) {
+            day = RadioUtils.getCurrentTrackTime(channel.getChannelId());
+        }
+    }
+
+    private void initDay() {
+        if (day == null)
+            getDay();
+    }
+    
+    private void showPlayerPos() {
+        final String funcname = "showPlayerPos";
+
+        getDay();
+
+        Log.d(Tag, funcname + ",day = " + day);
+
+        handler.removeCallbacks(autoUpdateTask);
+
+        updateDateButton();
+        updateTimeButton();
+
+        if (App.isPlaying(channel)) {
+            long remain = RadioUtils.TIME_MINUTE - (day.get(Calendar.SECOND) * 1000 + day.get(Calendar.MILLISECOND));
+            Log.d(Tag, funcname + ",scheduling with remain = " + remain);
+
+            handler.postDelayed(autoUpdateTask, remain);
+        }
+    }
+
+    private final Handler handler = new Handler();
+
+    @Override
+    public void onEvent(EventType ev) {
+        if (ev == EventType.NotBuffering) {
+            if (System.nanoTime() - lockCalUntil > 0) {
+                showPlayerPos();
+            }
+        }
+    }
+    
+    private void updateDateButton() {
+        dateButton.setText((FMT_DATE_BUTTON).format(day.getTime()));
+    }
+
+    private void updateTimeButton() {
+        timeButton.setText(day.asHMM());
     }
 }
