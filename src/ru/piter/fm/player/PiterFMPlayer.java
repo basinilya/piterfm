@@ -3,6 +3,7 @@ package ru.piter.fm.player;
 import static junit.framework.Assert.*;
 
 import java.io.IOException;
+import java.util.Calendar;
 
 import android.media.MediaPlayer;
 import android.os.AsyncTask;
@@ -10,23 +11,21 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
-import ru.piter.fm.player.PlayerInterface.EventHandler;
 import ru.piter.fm.player.PlayerInterface.EventType;
 import ru.piter.fm.util.TrackCalendar;
 import ru.piter.fm.util.PiterFMCachingDownloader;
 
-class PiterFMPlayer {
+abstract class PiterFMPlayer {
 
-    protected void locksAcquire() {
-    }
-    protected void locksRelease() {
-    }
+    protected abstract void callEvent2(EventType ev);
+    protected abstract void locksAcquire();
+    protected abstract void locksRelease();
 
     private static final String Tag = "PiterFMPlayer";
 
     private final Handler handler = new Handler();
 
-    private final TrackCalendar trackCal = new TrackCalendar();
+    private TrackCalendar nextChunkTime;
     private String channelId;
     private final PiterFMCachingDownloader cache = PiterFMCachingDownloader.INSTANCE;
 
@@ -38,29 +37,38 @@ class PiterFMPlayer {
         player2.otherPlayerWrap = player1;
     }
 
-    private SmoothMediaPlayer currentPlayer;
+    private PlayerWrap currentPlayer;
 
     private boolean isPaused = true;
-
-    private EventHandler eventHandler;
 
     private boolean isNextPlayerSet;
 
     { assertUIThread(); }
 
-    private void assertUIThread() { assertEquals(Looper.getMainLooper().getThread(), Thread.currentThread()); }
+    protected void assertUIThread() { assertEquals(Looper.getMainLooper().getThread(), Thread.currentThread()); }
 
-    /** "2010:11:13:20:31:12" */
-    public void open(String ch, String trackTimeStr) {
+    public void open(String ch, TrackCalendar trackTime) {
         final String funcname = "open";
-        Log.d(Tag, funcname + ",ch = " + ch + ", trackTimeStr = " + trackTimeStr);
+        Log.d(Tag, funcname + ",ch = " + ch + ", trackTimeStr = " + trackTime);
         assertUIThread();
 
         channelId = ch;
-        trackCal.setTrackTime(trackTimeStr);
+        nextChunkTime = trackTime.clone();
 
         setPausedFalse();
         reopen();
+    }
+
+    public TrackCalendar getPosition() {
+        TrackCalendar rslt;
+        if (currentPlayer == null) {
+            rslt = nextChunkTime;
+        } else {
+            rslt = currentPlayer.chunkTime;
+            rslt.set(Calendar.SECOND, 0);
+            rslt.set(Calendar.MILLISECOND, currentPlayer.player.getCurrentPosition());
+        }
+        return rslt == null ? null : rslt.clone();
     }
 
     private void reopen() {
@@ -94,6 +102,7 @@ class PiterFMPlayer {
     {
         private final int dbgId = player1 == null ? 1 : 2;
         public final SmoothMediaPlayer player = SmoothMediaPlayer.newInstance(dbgId);
+        public TrackCalendar chunkTime;
         public PlayerWrap otherPlayerWrap;
         public String path;
 
@@ -131,8 +140,8 @@ class PiterFMPlayer {
             Log.d(Tag, funcname + ",");
             assertNull(getFileTask);
             final String channelId = PiterFMPlayer.this.channelId;
-            final TrackCalendar trackCal = PiterFMPlayer.this.trackCal.clone();
-            Log.d(Tag, funcname + ",channelId = " + channelId + ", trackCal = " + trackCal.asURLPart());
+            chunkTime = nextChunkTime.clone();
+            Log.d(Tag, funcname + ",channelId = " + channelId + ", trackCal = " + chunkTime.asURLPart());
 
             getFileTask = new AsyncTask<Void, Void, Void>() {
                 private String path;
@@ -140,9 +149,9 @@ class PiterFMPlayer {
                 @Override
                 protected Void doInBackground(Void... params) {
                     final String funcname = "PlayerWrap," + dbgId + ",doInBackground";
-                    Log.d(Tag, funcname + ",channelId = " + channelId + ", trackCal = " + trackCal.asURLPart());
+                    Log.d(Tag, funcname + ",channelId = " + channelId + ", trackCal = " + chunkTime.asURLPart());
                     try {
-                        path = cache.getFile(channelId, trackCal);
+                        path = cache.getFile(channelId, chunkTime);
                     } catch (Exception e) {
                         Log.e(Tag, funcname + ",Exception caught", e);
                     }
@@ -197,7 +206,7 @@ class PiterFMPlayer {
             Log.d(Tag, funcname + ",");
             // not resetting player now, because it won't be used until reopen()
             getFileTask = null;
-            if (currentPlayer != otherPlayerWrap.player) {
+            if (currentPlayer != otherPlayerWrap) {
                 // this check is for when error occurs in next player, while currentPlayer is playing
                 Log.d(Tag, funcname + ",currentPlayer != otherPlayerWrap.player, calling giveUp()");
                 giveUp();
@@ -208,7 +217,7 @@ class PiterFMPlayer {
         public void onPrepared(MediaPlayer mp) {
             final String funcname = "PlayerWrap," + dbgId + ",onPrepared";
             Log.d(Tag, funcname + ",");
-            int msec = trackCal.getSeekTo();
+            int msec = nextChunkTime.getSeekTo();
             if (msec == 0) {
                 internalOnSeekComplete();
             } else {
@@ -236,14 +245,14 @@ class PiterFMPlayer {
             // The other player is either playing now or has finished playing
             if (currentPlayer == null) {
                 Log.d(Tag, funcname + ",currentPlayer == null, not trying to setNextMediaPlayer");
-                currentPlayer = player;
+                currentPlayer = this;
                 if (!isPaused) {
                     Log.d(Tag, funcname + ",isPaused == false, calling start()");
                     player.start();
                     callEvent(EventType.NotBuffering);
                 }
                 else { Log.d(Tag, funcname + ",isPaused == true, not calling start()"); }
-                trackCal.nextTrackTime();
+                nextChunkTime.nextTrackTime();
                 other.scheduleGetFile();
             } else {
                 Log.d(Tag, funcname + ",currentPlayer != null, trying to set me as NextMediaPlayer");
@@ -258,14 +267,14 @@ class PiterFMPlayer {
             //Log.d(Tag, funcname + ",");
             if (isNextPlayerSet) {
                 //Log.d(Tag, funcname + ",isNextPlayerSet == true, trying to start next mediaplayer");
-                currentPlayer = otherPlayerWrap.player;
+                currentPlayer = otherPlayerWrap;
             }
             Log.d(Tag, funcname + ",");
             reset();
             if (isNextPlayerSet) {
                 Log.d(Tag, funcname + ",isNextPlayerSet == true, calling scheduleGetFile()");
                 isNextPlayerSet = false;
-                trackCal.nextTrackTime();
+                nextChunkTime.nextTrackTime();
                 scheduleGetFile();
             } else if (getFileTask == null) {
                 Log.w(Tag, funcname + ",isNextPlayerSet == false && getFileTask == null, calling giveUp()");
@@ -288,7 +297,7 @@ class PiterFMPlayer {
             postEvent(EventType.NotBuffering);
             if (currentPlayer != null) {
                 Log.d(Tag, funcname + ",currentPlayer != null, calling pause()");
-                currentPlayer.pause();
+                currentPlayer.player.pause();
             }
             else { Log.d(Tag, funcname + ",currentPlayer == null, nothing to pause"); }
         }
@@ -305,7 +314,7 @@ class PiterFMPlayer {
             setPausedFalse();
             if (currentPlayer != null) {
                 Log.d(Tag, funcname + ",currentPlayer != null, calling start()");
-                currentPlayer.start();
+                currentPlayer.player.start();
                 postEvent(EventType.NotBuffering);
             } else if (getFileTask == null) {
                 Log.d(Tag, funcname + ",getFileTask == null, calling reopen()");
@@ -350,8 +359,7 @@ class PiterFMPlayer {
     private void callEvent(EventType ev) {
         final String funcname = "callEvent";
         Log.d(Tag, funcname + ",ev = " + ev);
-        if (eventHandler != null)
-            eventHandler.onEvent(ev);
+        callEvent2(ev);
     }
 
     public void release() {
@@ -359,11 +367,6 @@ class PiterFMPlayer {
         resetCommon();
         player1.player.release();
         player2.player.release();
-    }
-
-    public void setEventHandler(EventHandler handler) {
-        assertUIThread();
-        eventHandler = handler;
     }
 
     private void setPausedFalse() {

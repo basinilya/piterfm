@@ -13,6 +13,7 @@ import ru.piter.fm.radio.Channel;
 import ru.piter.fm.radio.Track;
 import ru.piter.fm.util.Notifications;
 import ru.piter.fm.util.RadioUtils;
+import ru.piter.fm.util.TrackCalendar;
 import ru.piter.fm.util.Utils;
 
 /**
@@ -51,14 +52,13 @@ public abstract class PlayerTask extends BaseTask<Void> {
     private static ArrayList<PlayerTask> startedTasks = new ArrayList<PlayerTask>();
 
     static {
-        App.getPlayer().setEventHandler(new PlayerInterface.EventHandler() {
+        App.getPlayer().addEventHandler(new PlayerInterface.EventHandler() {
             @Override
             public void onEvent(EventType ev) {
                 switch (ev) {
                 case Buffering:
                     break;
                 case Error:
-                    Notifications.show(Notifications.CANT_LOAD_TRACK, new Intent());
                     /* fallthrough */
                 default:
                     for (PlayerTask t : startedTasks) {
@@ -92,7 +92,7 @@ public abstract class PlayerTask extends BaseTask<Void> {
     @Override
     public Void doWork(Object... objects) throws Exception {
         Channel channel = (Channel) objects[0];
-        String trackTime;
+        TrackCalendar trackTime;
         PlayerInterface pl = App.getPlayer();
         String ch = channel.getChannelId();
         if (objects.length > 1) {
