@@ -1,6 +1,7 @@
 package ru.piter.fm.radio;
 
 import ru.piter.fm.util.SearchFilter;
+import ru.piter.fm.util.TrackCalendar;
 
 /**
  * Created by IntelliJ IDEA.
@@ -18,19 +19,14 @@ public class Track implements SearchFilter.Filterable {
     private String artistName;
     private String trackName;
     private String duration;
-    private String time;
+    private TrackCalendar time;
     private String timestamp;
     private String cover;
     private String playCount;
     private int type;
-    private long startAt;
 
-    public long getStartAt() {
-        return startAt;
-    }
-
-    public void setStartAt(long startAt) {
-        this.startAt = startAt;
+    public long getTimeInMillis() {
+        return time.getTimeInMillis();
     }
 
     public int getType() {
@@ -88,12 +84,12 @@ public class Track implements SearchFilter.Filterable {
         this.duration = duration;
     }
 
-    public String getTime() {
+    public TrackCalendar getTime() {
         return time;
     }
 
-    public void setTime(String time) {
-        this.time = time;
+    public void setTime(TrackCalendar time) {
+        this.time = time.clone();
     }
 
     public String getTimestamp() {
