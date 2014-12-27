@@ -5,6 +5,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Environment;
 import android.util.Log;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -16,6 +17,7 @@ import org.apache.http.params.HttpParams;
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Arrays;
 
 /**
  * Created by IntelliJ IDEA.
@@ -102,4 +104,17 @@ public class Utils {
         }
     }
 
+    private static final char[] hexArray = "0123456789ABCDEF".toCharArray();
+
+    public static String bytesToHex(byte[] buf16bytes, int start, int len) {
+        char[] hexChars = new char[16 * 4 + 2];
+        Arrays.fill(hexChars, ' ');
+        for ( int j = 0; j < len; j++ ) {
+            int v = buf16bytes[start + j] & 0xFF;
+            hexChars[j * 3] = hexArray[v >>> 4];
+            hexChars[j * 3 + 1] = hexArray[v & 0x0F];
+            hexChars[16 * 3 + 2 + j] = Character.isISOControl(v) ? '.' : (char)v;
+        }
+        return new String(hexChars);
+    }
 }
