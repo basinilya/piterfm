@@ -2,8 +2,6 @@
 <resources>
 
     <string name="loading">Загрузка...</string>
-    <string name="buffering">Буферизация...</string>
-
     <string name="translationUnavailable">Трансляция недоступна, попробуйте еще раз</string>
     <string name="sdCardUnavailable">Нет доступа к SD карте</string>
     <string name="cantLoadChannels">Невозможно загрузить каналы</string>
