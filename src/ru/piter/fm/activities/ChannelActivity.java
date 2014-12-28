@@ -340,7 +340,6 @@ public class ChannelActivity extends SherlockListActivity implements GetTracksTa
     }
 
 
-    private final int BUFFERING_DIALOG = 0;
     private final int DATEPICKER_DIALOG = 1;
     private final int TIMEPICKER_DIALOG = 2;
 
@@ -364,9 +363,6 @@ public class ChannelActivity extends SherlockListActivity implements GetTracksTa
     @Override
     protected Dialog onCreateDialog(int id) {
         switch (id) {
-            case BUFFERING_DIALOG:
-                ProgressDialog dialog = ProgressDialog.show(this, "", getResources().getString(R.string.buffering), true);
-                return dialog;
             case DATEPICKER_DIALOG:
                 return new DatePickerDialog(ChannelActivity.this, mDateSetListener, day.get(Calendar.YEAR), day.get(Calendar.MONTH), day.get(Calendar.DAY_OF_MONTH)) {
                     @Override
