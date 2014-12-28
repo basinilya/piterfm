@@ -375,6 +375,7 @@ public class ChannelActivity extends SherlockListActivity implements
 
     @Override
     protected void onPrepareDialog(int id, Dialog dialog) {
+        initDay();
         switch (id) {
             case DATEPICKER_DIALOG:
                 DatePickerDialog ddlg = (DatePickerDialog)dialog;
@@ -390,6 +391,7 @@ public class ChannelActivity extends SherlockListActivity implements
 
     @Override
     protected Dialog onCreateDialog(int id) {
+        initDay();
         switch (id) {
             case DATEPICKER_DIALOG:
                 return new DatePickerDialog(ChannelActivity.this, mDateSetListener, day.get(Calendar.YEAR), day.get(Calendar.MONTH), day.get(Calendar.DAY_OF_MONTH)) {
@@ -520,21 +522,22 @@ public class ChannelActivity extends SherlockListActivity implements
         @Override
         public void run() {
             final String funcname = "autoUpdateTask.run";
-            day = player.getPosition();
-
-            Log.d(Tag, funcname + ",day = " + day);
-
+            Log.d(Tag, funcname + ",");
             showPlayerPos();
         }
     };
 
-    private void showPlayerPos() {
-        final String funcname = "showPlayerPos";
-
+    private void initDay() {
         day = player.getPosition();
         if (day == null) {
             day = RadioUtils.getCurrentTrackTime(channel.getChannelId());
         }
+    }
+    
+    private void showPlayerPos() {
+        final String funcname = "showPlayerPos";
+
+        initDay();
 
         Log.d(Tag, funcname + ",day = " + day);
 
