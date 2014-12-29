@@ -115,16 +115,24 @@ public class PlayerPinner extends PiterFMPlayer implements PlayerInterface {
         }
     }
 
+    @Override
+    protected void locksRelease() {
+        if (svc != null) {
+            stopForeground();
+        } else {
+            delayStartForeground = false;
+        }
+        cpuWakeLock.release();
+    }
+
     @SuppressLint("NewApi")
     private void startForeground() {
         svc.startForeground(Notifications.PLAY_STOP, currentNotif);
     }
 
     @SuppressLint("NewApi")
-    @Override
-    protected void locksRelease() {
+    private void stopForeground() {
         svc.stopForeground(true);
-        cpuWakeLock.release();
     }
 
     @Override

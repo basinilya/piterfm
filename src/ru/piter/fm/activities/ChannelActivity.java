@@ -527,17 +527,22 @@ public class ChannelActivity extends SherlockListActivity implements
         }
     };
 
-    private void initDay() {
+    private void getDay() {
         day = player.getPosition();
         if (day == null) {
             day = RadioUtils.getCurrentTrackTime(channel.getChannelId());
         }
     }
+
+    private void initDay() {
+        if (day == null)
+            getDay();
+    }
     
     private void showPlayerPos() {
         final String funcname = "showPlayerPos";
 
-        initDay();
+        getDay();
 
         Log.d(Tag, funcname + ",day = " + day);
 
