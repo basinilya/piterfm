@@ -275,8 +275,18 @@ public class PiterFMCachingDownloader {
             file = new File(Utils.CHUNKS_DIR, nEntry + ".mp4");
         }
 
+        @Override
+        public String toString() {
+            int i;
+            String s = null;
+            if (m_url != null && (i = m_url.lastIndexOf('/')) != -1) {
+                s = m_url.substring(i + 1);
+            }
+            return "CacheEntry " + file.getName() + "->" + s;
+        }
+
         private void rescheduleNoLock(String url) {
-            final String funcname = "CacheEntry,rescheduleNoLock";
+            final String funcname = CacheEntry.this + ",rescheduleNoLock";
             Log.d(Tag, funcname + ",url = " + url);
             try {
                 if (m_url != null) {
@@ -294,7 +304,7 @@ public class PiterFMCachingDownloader {
             new Thread("trackDownloader") {
                 @Override
                 public void run() {
-                    final String funcname = "CacheEntry,run";
+                    final String funcname = CacheEntry.this + ",run";
                     Log.d(Tag, funcname + ",");
                     try {
                         downloadTrack(fos);
@@ -309,7 +319,7 @@ public class PiterFMCachingDownloader {
         }
 
         private void downloadTrack(OutputStream fos) throws InterruptedException, IOException {
-            final String funcname = "downloadTrack";
+            final String funcname = CacheEntry.this + ",downloadTrack";
             Log.d(Tag, funcname + ",");
             byte[] buffer = new byte[512];
             int oldpos = 0;
@@ -395,7 +405,7 @@ public class PiterFMCachingDownloader {
         }
 
         private void checkpointNoLock(OutputStream fos) throws InterruptedException {
-            final String funcname = "checkpointNoLock";
+            final String funcname = CacheEntry.this + ",checkpointNoLock";
             boolean dbgWasWaiting = false;
             for (;;) {
                 if (fos != m_fos) {
