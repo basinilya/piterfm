@@ -1,3 +1,44 @@
+!!!!!
+fresh.moskva.fm закрыт
+
+Новый алгоритм:
+
+- Скачать документ:
+    http://www.moskva.fm/player_xml.html
+        ?startat=<timestamp>
+        &type=full
+        &rnd=<random>
+        &v=3
+        &time=<timestamp>
+        &station=<station_id>
+
+    Пример:
+        http://www.moskva.fm/player_xml.html?startat=1425204000&type=full&rnd=0%2E8877400369383395&v=3&time=1425204000&station=7840
+
+    Содержимое документа:
+        <data>
+            <streamers>
+                <streamer id="1" url="http://extstreamer800.moskva.fm/stream/%station_id/%timestamp?format=flv&amp;hash=35131ae425f6f6131f2316ca8c618506" />
+                </streamers>
+
+
+- Подставить %station_id и %timestamp
+
+- Опционально поменять "format=flv" на "format=ac3"
+
+    Пример:
+    http://extstreamer800.moskva.fm/stream/7840/1425210598.2754881?format=ac3&hash=35131ae425f6f6131f2316ca8c618506
+
+- Ссылка будет валидна в течение нескольких часов
+
+
+
+!!!!!
+
+
+
+
+
 1) Сохранение в базу  +
 2) Сортировка каналов по частоте +
 3) Уведомления при ошибках +
