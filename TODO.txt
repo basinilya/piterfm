@@ -24,12 +24,14 @@ fresh.moskva.fm закрыт
 
 - Подставить %station_id и %timestamp
 
-- Опционально поменять "format=flv" на "format=ac3"
+- Опционально поменять "format=flv" на "format=aac"
 
     Пример:
-    http://extstreamer800.moskva.fm/stream/7840/1425210598.2754881?format=ac3&hash=35131ae425f6f6131f2316ca8c618506
 
-- Ссылка будет валидна в течение нескольких часов
+    wget -O b.flv "http://extstreamer.moskva.fm/stream/4019/1425399170.844?format=flv&hash=62ab18b24be0f38d3253378ccad84635"
+    wget -O c.aac "http://extstreamer.moskva.fm/stream/4019/1425399170.844?format=aac&hash=62ab18b24be0f38d3253378ccad84635"
+
+- Ссылка будет валидна в течение нескольких минут (часов?)
 
 
 
