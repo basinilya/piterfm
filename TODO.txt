@@ -36,6 +36,16 @@ fresh.moskva.fm закрыт
 !!!!!
 
 
+программа максимум:
+
+components used:
+    Downloader
+    android.media.MediaExtractor
+    packet cache
+    android.media.MediaCodec
+    android.media.AudioTrack
+
+
 
 
 
