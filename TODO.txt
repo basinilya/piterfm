@@ -33,6 +33,18 @@ fresh.moskva.fm закрыт
 
 - Ссылка будет валидна в течение нескольких минут (часов?)
 
+хидеры:
+    ICY 200 OK
+    Date: Wed, 04 Mar 2015 12:25:48 GMT
+    icy-notice1: <BR>This stream requires <a href="http://www.winamp.com/">Winamp</a><BR>
+    icy-notice2: Moskva audio streamer
+    icy-name: Moskva audio streamer
+    Content-Type: audio/aacp
+    icy-pub: 1
+    icy-br: 32
+    X-Cache: MISS from gate
+    Via: 0.0 gate (squid/3.3.9)
+    Connection: close
 
 
 !!!!!
