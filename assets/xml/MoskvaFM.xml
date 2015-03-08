@@ -74,14 +74,14 @@
         <id>4008</id>
         <name>Хит FM</name>
         <range>107.4 FM</range>
-        <logo>http://t2.moskva.fm/uimg/stations/165x165/fb/fb3f4248a999a68e0691cb2adcca2dd9.png</logo>
+        <logo>http://t2.moskva.fm/uimg/stations/165x165/8a/8a0d6b5cf0f591117b7845d1e9583c35.png</logo>
         <translation>http://www.moskva.fm/play/4008/translation</translation>
     </channel>
     <channel>
         <id>2001</id>
         <name>Best FM</name>
         <range>100.5 FM</range>
-        <logo>http://t2.moskva.fm/uimg/stations/165x165/2f/2f4657f8996abf2407aa82b8ae2e6917.png</logo>
+        <logo>http://t2.moskva.fm/uimg/stations/165x165/40/40a7e56d9626fbfec8d5286d15441514.png</logo>
         <translation>http://www.moskva.fm/play/2001/translation</translation>
     </channel>
     <channel>
@@ -165,7 +165,7 @@
         <id>2012</id>
         <name>Радио Jazz</name>
         <range>89.1 FM</range>
-        <logo>http://t2.moskva.fm/uimg/stations/165x165/42/429c61a1d373c6be390df9b1fe9af35a.png</logo>
+        <logo>http://t2.moskva.fm/uimg/stations/165x165/c8/c81cfaf3324871fe1fc55d0d87fb49df.png</logo>
         <translation>http://www.moskva.fm/play/2012/translation</translation>
     </channel>
     <channel>
@@ -228,7 +228,7 @@
         <id>4021</id>
         <name>Радио Звезда</name>
         <range>95.6 FM</range>
-        <logo>http://t2.moskva.fm/uimg/stations/165x165/62/620f6209ec8fdff8383d094a1ebd601f.png</logo>
+        <logo>http://t2.moskva.fm/uimg/stations/165x165/e1/e1d6c7a3a0b816d1bdf69812d70984a9.jpeg</logo>
         <translation>http://www.moskva.fm/play/4021/translation</translation>
     </channel>
     <channel>
