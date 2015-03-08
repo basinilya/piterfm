@@ -243,6 +243,7 @@ public class RadioUtils {
         TrackCalendar trackCal = new TrackCalendar();
         trackCal.setClientTimeInMillis(System.currentTimeMillis() - (TIME_MINUTE * 5));
         trackCal.set(Calendar.SECOND, 0);
+        trackCal.set(Calendar.MILLISECOND, 0);
         return trackCal;
     }
 }
