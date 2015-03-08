@@ -22,7 +22,7 @@ public class StreamerUtil {
 
     public String getStreamUrl(String stationId, long timestamp) throws Exception {
         final String funcname = "doIt";
-        if ("".length() == 0) {
+        if ("".length() == 10) {
             return "http://192.168.2.146:8080/piterfm-test-server/sample.aac";
         }
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
