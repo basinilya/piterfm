@@ -132,7 +132,7 @@ public class RadioUtils {
     }
 
     @SuppressLint("NewApi")
-    private static String myGetTextContent(Node n) {
+    public static String myGetTextContent(Node n) {
         String s;
         if (HAVE_GETTEXTCONTENT) {
             s = n.getTextContent();
