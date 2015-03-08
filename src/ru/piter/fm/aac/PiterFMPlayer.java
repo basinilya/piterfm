@@ -7,14 +7,11 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
 
-import java.io.IOException;
-
 import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
-import ru.piter.fm.player.PlayerInterface.EventHandler;
 import ru.piter.fm.player.PlayerInterface.EventType;
 import ru.piter.fm.util.TrackCalendar;
 
@@ -28,16 +25,12 @@ public abstract class PiterFMPlayer {
     protected abstract void locksAcquire();
     protected abstract void locksRelease();
 
-    /**
-     * Not all methods of MediaPlayer are asynchronous, e.g. setDataSource("http://.../test.aac") takes half a minute,
-     * regardless of download speed. This is why when I need to cancel the current operation, I create a new instance of
-     * MediaPlayer.
-     */
-    private AsyncTask<?,?,?> getFileTask;
-    private MediaPlayer player = new MediaPlayer();
+    private AsyncTask<?,?,?> openStreamTask;
+    private final MediaPlayer player = new MediaPlayer();
 
-    private B b = new B();
-    private PlayerEvents playerEvents = new PlayerEvents();
+    private final StreamerUtil b = new StreamerUtil();
+    final PlayerEvents playerEvents = new PlayerEvents();
+
     private long startTime;
     private String channelId;
 
@@ -72,14 +65,14 @@ public abstract class PiterFMPlayer {
         resetCommon();
 
         Log.d(Tag, funcname + ",starting background task");
-        getFileTask = new AsyncTask<Void, Void, Exception>() {
+        openStreamTask = new AsyncTask<Void, Void, Exception>() {
             @Override
             protected Exception doInBackground(Void... params) {
                 if (isCancelled()) return null;
                 final String funcname = "doInBackground";
                 Log.d(Tag, funcname + ",");
                 try {
-                    String streamUrl = b.doIt(channelId, startTime);
+                    String streamUrl = b.getStreamUrl(channelId, startTime);
                     if (isCancelled()) return null;
                     Log.d(Tag, funcname + ",calling player.setDataSource(),streamUrl = " + streamUrl);
                     player.setDataSource(streamUrl);
@@ -99,7 +92,7 @@ public abstract class PiterFMPlayer {
                 Log.d(Tag, funcname + ",");
 
                 if (exception != null) {
-                    getFileTask = null;
+                    openStreamTask = null;
                     giveUp();
                 }
             };
@@ -149,14 +142,14 @@ public abstract class PiterFMPlayer {
                 Log.d(Tag, funcname + ",isPlayerReady == true, calling player.start()");
                 player.start();
                 postEvent(EventType.NotBuffering);
-            } else if (getFileTask == null) {
-                Log.d(Tag, funcname + ",getFileTask == null, need to adjust startTime and reopen");
+            } else if (openStreamTask == null) {
+                Log.d(Tag, funcname + ",openStreamTask == null, need to adjust startTime and reopen");
                 int curPos = player.getCurrentPosition();
                 Log.d(Tag, funcname + ",player.getCurrentPosition() returned " + curPos);
                 startTime += curPos;
                 reopen();
             } else {
-                Log.d(Tag, funcname + ",isPlayerReady == false && getFileTask != null, something is downloading");
+                Log.d(Tag, funcname + ",isPlayerReady == false && openStreamTask != null, something is downloading");
                 postEvent(EventType.Buffering);
             }
         }
@@ -194,7 +187,7 @@ public abstract class PiterFMPlayer {
             final String funcname = "PlayerEvents,onPrepared";
             Log.d(Tag, funcname + ",");
 
-            getFileTask = null;
+            openStreamTask = null;
             isPlayerReady = true;
             if (!isPaused) {
                 Log.d(Tag, funcname + ",isPaused == false, calling player.start()");
@@ -233,10 +226,10 @@ public abstract class PiterFMPlayer {
     private void resetCommon() {
         final String funcname = "resetCommon";
         Log.d(Tag, funcname + ",");
-        if (getFileTask != null) {
-            Log.d(Tag, funcname + ", getFileTask != null, calling cancel()");
-            getFileTask.cancel(false);
-            getFileTask = null;
+        if (openStreamTask != null) {
+            Log.d(Tag, funcname + ", openStreamTask != null, calling cancel()");
+            openStreamTask.cancel(false);
+            openStreamTask = null;
         }
         player.reset();
         isPlayerReady = false;
