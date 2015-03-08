@@ -21,7 +21,7 @@ public class StreamerUtil {
     private static final String Tag = "PiterFMPlayer";
 
     public String getStreamUrl(String stationId, long timestamp) throws Exception {
-        final String funcname = "doIt";
+        final String funcname = "getStreamUrl";
         if ("".length() == 10) {
             return "http://192.168.2.146:8080/piterfm-test-server/sample.aac";
         }

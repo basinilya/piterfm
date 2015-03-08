@@ -106,8 +106,12 @@ public abstract class PiterFMPlayer {
         if (startTime == 0)
             return null;
         TrackCalendar rslt = new TrackCalendar();
-        rslt.setTimeInMillis(startTime + player.getCurrentPosition());
-        Log.d(Tag, funcname + ",returning " + rslt);
+        int curPos = 0;
+        if (isPlayerReady) {
+            curPos = player.getCurrentPosition();
+        }
+        rslt.setTimeInMillis(startTime + curPos);
+        Log.d(Tag, funcname + ",returning " + rslt + " ( +" + curPos + "ms)");
         return rslt;
     }
 
@@ -143,10 +147,7 @@ public abstract class PiterFMPlayer {
                 player.start();
                 postEvent(EventType.NotBuffering);
             } else if (openStreamTask == null) {
-                Log.d(Tag, funcname + ",openStreamTask == null, need to adjust startTime and reopen");
-                int curPos = player.getCurrentPosition();
-                Log.d(Tag, funcname + ",player.getCurrentPosition() returned " + curPos);
-                startTime += curPos;
+                Log.d(Tag, funcname + ",openStreamTask == null, need to reopen");
                 reopen();
             } else {
                 Log.d(Tag, funcname + ",isPlayerReady == false && openStreamTask != null, something is downloading");
@@ -240,8 +241,14 @@ public abstract class PiterFMPlayer {
         Log.d(Tag, funcname + ",");
         assertUIThread();
         assertFalse(isPaused);
+
         setPausedTrue();
-        isPlayerReady = false;
+        if (isPlayerReady) {
+            isPlayerReady = false;
+            int curPos = player.getCurrentPosition();
+            Log.d(Tag, funcname + ",player.getCurrentPosition() returned " + curPos);
+            startTime += curPos;
+        }
         callEvent(EventType.Error);
     }
 
