@@ -55,7 +55,7 @@ public class StreamerUtil {
     }
     /*
     public static void main(String[] args) throws Exception {
-        System.out.println(new B().getStreamUrl("4019", 1425399170844L));
+        System.out.println(new StreamerUtil().getStreamUrl("4019", 1425399170844L));
     }
     */
 }
