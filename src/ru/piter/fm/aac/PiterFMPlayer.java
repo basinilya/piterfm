@@ -4,14 +4,17 @@
 package ru.piter.fm.aac;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
 
 import java.io.IOException;
 
 import android.media.MediaPlayer;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import ru.piter.fm.player.PlayerInterface.EventHandler;
+import ru.piter.fm.player.PlayerInterface.EventType;
 import ru.piter.fm.util.TrackCalendar;
 
 /**
@@ -20,45 +23,75 @@ import ru.piter.fm.util.TrackCalendar;
  */
 public abstract class PiterFMPlayer {
 
+    protected abstract void callEvent2(EventType ev);
+    protected abstract void locksAcquire();
+    protected abstract void locksRelease();
+
+    /**
+     * Not all methods of MediaPlayer are asynchronous, e.g. setDataSource("http://.../test.aac") takes half a minute,
+     * regardless of download speed. This is why when I need to cancel the current operation, I create a new instance of
+     * MediaPlayer.
+     */
+    private AsyncTask<?,?,?> getFileTask;
     private MediaPlayer player = new MediaPlayer();
+
     private B b = new B();
-    private PlayerWrap playerWrap = new PlayerWrap();
+    private PlayerEvents playerEvents = new PlayerEvents();
     private long startTime;
     private String channelId;
+    private boolean isPaused = true;
 
     private static final String Tag = "PiterFMPlayer";
 
-    public void open(final String ch, final TrackCalendar trackTime) {
+    private final Handler handler = new Handler();
+
+    { assertUIThread(); }
+
+    protected void assertUIThread() { assertEquals(Looper.getMainLooper().getThread(), Thread.currentThread()); }
+
+    public void open(String ch, TrackCalendar trackTime) {
+        final String funcname = "open";
+        Log.d(Tag, funcname + ",");
+        assertUIThread();
+
         channelId = ch;
         startTime = trackTime.getTimeInMillis();
-        AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+        setPausedFalse();
+        reopen();
+    }
 
-            //private String streamUrl;
+    private void reopen() {
+        final String funcname = "reopen";
+        Log.d(Tag, funcname + ",");
 
+        postEvent(EventType.Buffering);
+
+        resetCommon();
+
+        getFileTask = new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
+                if (isCancelled()) return null;
+                final String funcname = "doInBackground";
+                Log.d(Tag, funcname + ",");
                 try {
-                    String streamUrl = b.doIt(ch, startTime);
+                    String streamUrl = b.doIt(channelId, startTime);
+                    if (isCancelled()) return null;
                     player.setDataSource(streamUrl);
+                    if (isCancelled()) return null;
                     player.prepare();
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    Log.e(Tag, funcname + ",Exception caught", e);
                 }
                 return null;
             }
-/*
+
             @Override
             protected void onPostExecute(Void result) {
-                final String funcname = "onPostExecute";
-                try {
-                    Log.d(Tag, funcname + ",calling player.setDataSource(), streamUrl = " + streamUrl);
-                } catch (IOException e) {
-                    e.printStackTrace();
+                if (getFileTask == this) {
                 }
-            }
-            */
-        };
-        task.execute((Void[])null);
+            };
+        }.execute((Void[])null);
     }
 
     public TrackCalendar getPosition() {
@@ -85,15 +118,12 @@ public abstract class PiterFMPlayer {
         return true;
     }
 
-    protected void assertUIThread() { assertEquals(Looper.getMainLooper().getThread(), Thread.currentThread()); }
-
-
-    private class PlayerWrap implements MediaPlayer.OnErrorListener,
+    private class PlayerEvents implements MediaPlayer.OnErrorListener,
     MediaPlayer.OnPreparedListener,
     MediaPlayer.OnCompletionListener
     {
         {
-            final String funcname = "PlayerWrap,";
+            final String funcname = "PlayerEvents,";
             Log.d(Tag, funcname + ",");
             player.setOnErrorListener(this);
             player.setOnPreparedListener(this);
@@ -102,22 +132,73 @@ public abstract class PiterFMPlayer {
 
         @Override
         public void onCompletion(MediaPlayer mp) {
-            // TODO Auto-generated method stub
-            
+            final String funcname = "PlayerEvents,onCompletion";
+            Log.d(Tag, funcname + ",");
         }
 
         @Override
         public void onPrepared(MediaPlayer mp) {
-            final String funcname = "PlayerWrap,onPrepared";
+            final String funcname = "PlayerEvents,onPrepared";
             Log.d(Tag, funcname + ",");
             player.start();
         }
 
         @Override
         public boolean onError(MediaPlayer mp, int what, int extra) {
-            // TODO Auto-generated method stub
+            final String funcname = "PlayerEvents,onError";
+            Log.d(Tag, funcname + ",");
             return false;
         }
     }
 
+    private void callEvent(EventType ev) {
+        final String funcname = "callEvent";
+        Log.d(Tag, funcname + ",ev = " + ev);
+        callEvent2(ev);
+    }
+
+    private void setPausedFalse() {
+        if (isPaused) {
+            isPaused = false;
+            locksAcquire();
+        }
+    }
+
+    private void postEvent(final EventType ev) {
+        final String funcname = "postEvent";
+        Log.d(Tag, funcname + ",ev = " + ev);
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                callEvent(ev);
+            }
+        });
+    }
+
+    private void resetCommon() {
+        final String funcname = "resetCommon";
+        Log.d(Tag, funcname + ",");
+        if (getFileTask != null) {
+            Log.d(Tag, funcname + ", getFileTask != null, calling cancel()");
+            getFileTask.cancel(false);
+            getFileTask = null;
+        }
+        player.reset();
+    }
+
+    private void giveUp() {
+        final String funcname = "giveUp";
+        Log.d(Tag, funcname + ",");
+        assertUIThread();
+        assertFalse(isPaused);
+        setPausedTrue();
+        callEvent(EventType.Error);
+    }
+
+    private void setPausedTrue() {
+        if (!isPaused) {
+            isPaused = true;
+            locksRelease();
+        }
+    }
 }

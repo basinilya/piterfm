@@ -93,6 +93,7 @@ public class PlayerPinner extends PiterFMPlayer implements PlayerInterface {
         eventHandlers.remove(handler);
     }
 
+    @Override
     protected void callEvent2(EventType ev) {
         if (ev == EventType.Error) {
             Notifications.show(Notifications.CANT_LOAD_TRACK, new Intent());
@@ -104,6 +105,7 @@ public class PlayerPinner extends PiterFMPlayer implements PlayerInterface {
         }
     }
 
+    @Override
     protected void locksAcquire() {
         cpuWakeLock.acquire();
         if (svc != null) {
@@ -113,6 +115,7 @@ public class PlayerPinner extends PiterFMPlayer implements PlayerInterface {
         }
     }
 
+    @Override
     protected void locksRelease() {
         if (svc != null) {
             stopForeground();
