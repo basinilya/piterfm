@@ -5,6 +5,7 @@ package ru.piter.fm.aac;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertNotNull;
 
 import java.io.IOException;
 
@@ -39,6 +40,8 @@ public abstract class PiterFMPlayer {
     private PlayerEvents playerEvents = new PlayerEvents();
     private long startTime;
     private String channelId;
+
+    private boolean isPlayerReady;
     private boolean isPaused = true;
 
     private static final String Tag = "PiterFMPlayer";
@@ -68,46 +71,92 @@ public abstract class PiterFMPlayer {
 
         resetCommon();
 
-        getFileTask = new AsyncTask<Void, Void, Void>() {
+        getFileTask = new AsyncTask<Void, Void, Exception>() {
             @Override
-            protected Void doInBackground(Void... params) {
+            protected Exception doInBackground(Void... params) {
                 if (isCancelled()) return null;
                 final String funcname = "doInBackground";
                 Log.d(Tag, funcname + ",");
                 try {
                     String streamUrl = b.doIt(channelId, startTime);
                     if (isCancelled()) return null;
+                    Log.d(Tag, funcname + ",calling player.setDataSource(),streamUrl = " + streamUrl);
                     player.setDataSource(streamUrl);
                     if (isCancelled()) return null;
+                    Log.d(Tag, funcname + ",calling player.prepare()");
                     player.prepare();
                 } catch (Exception e) {
                     Log.e(Tag, funcname + ",Exception caught", e);
+                    return e;
                 }
                 return null;
             }
 
             @Override
-            protected void onPostExecute(Void result) {
-                if (getFileTask == this) {
+            protected void onPostExecute(Exception exception) {
+                final String funcname = "onPostExecute";
+                Log.d(Tag, funcname + ",");
+
+                if (exception != null) {
+                    getFileTask = null;
+                    giveUp();
                 }
             };
         }.execute((Void[])null);
     }
 
     public TrackCalendar getPosition() {
+        final String funcname = "getPosition";
+        Log.d(Tag, funcname + ",");
+
         if (startTime == 0)
             return null;
         TrackCalendar rslt = new TrackCalendar();
         rslt.setTimeInMillis(startTime + player.getCurrentPosition());
+        Log.d(Tag, funcname + ",returning " + rslt);
         return rslt;
     }
 
     public void pause() {
-        player.pause();
+        final String funcname = "pause";
+        Log.d(Tag, funcname + ",");
+
+        assertUIThread();
+        if (!isPaused) {
+            Log.d(Tag, funcname + ",isPaused == false, maybe there is a player to pause");
+            setPausedTrue();
+            postEvent(EventType.NotBuffering);
+            if (isPlayerReady) {
+                Log.d(Tag, funcname + ",isPlayerReady == true, calling pause()");
+                player.pause();
+            }
+            else { Log.d(Tag, funcname + ",isPlayerReady == false, nothing to pause"); }
+        }
+        else { Log.d(Tag, funcname + ",isPaused == true, doing nothing"); }
     }
 
     public void resume() {
-        player.start();
+        final String funcname = "resume";
+        Log.d(Tag, funcname + ",");
+
+        assertUIThread();
+        assertNotNull(channelId);
+        if (isPaused) {
+            Log.d(Tag, funcname + ",isPaused == true, maybe there is a player to resume");
+            setPausedFalse();
+            if (isPlayerReady) {
+                Log.d(Tag, funcname + ",isPlayerReady == true, calling start()");
+                player.start();
+                postEvent(EventType.NotBuffering);
+            } else if (getFileTask == null) {
+                Log.d(Tag, funcname + ",getFileTask == null, calling reopen()");
+                reopen();
+            } else {
+                Log.d(Tag, funcname + ",isPlayerReady == false && getFileTask != null, something is downloading");
+                postEvent(EventType.Buffering);
+            }
+        }
+        else { Log.d(Tag, funcname + ",isPaused == false, doing nothing"); }
     }
 
     public String getChannelId() {
@@ -115,17 +164,16 @@ public abstract class PiterFMPlayer {
     }
 
     public boolean isPaused() {
-        return true;
+        return isPaused;
     }
 
-    private class PlayerEvents implements MediaPlayer.OnErrorListener,
+    private class PlayerEvents implements
     MediaPlayer.OnPreparedListener,
     MediaPlayer.OnCompletionListener
     {
         {
             final String funcname = "PlayerEvents,";
             Log.d(Tag, funcname + ",");
-            player.setOnErrorListener(this);
             player.setOnPreparedListener(this);
             player.setOnCompletionListener(this);
         }
@@ -134,21 +182,24 @@ public abstract class PiterFMPlayer {
         public void onCompletion(MediaPlayer mp) {
             final String funcname = "PlayerEvents,onCompletion";
             Log.d(Tag, funcname + ",");
+            giveUp();
         }
 
         @Override
         public void onPrepared(MediaPlayer mp) {
             final String funcname = "PlayerEvents,onPrepared";
             Log.d(Tag, funcname + ",");
-            player.start();
+
+            getFileTask = null;
+            isPlayerReady = true;
+            if (!isPaused) {
+                Log.d(Tag, funcname + ",isPaused == false, calling player.start()");
+                player.start();
+                callEvent(EventType.NotBuffering);
+            }
+            else { Log.d(Tag, funcname + ",isPaused == true, not calling player.start()"); }
         }
 
-        @Override
-        public boolean onError(MediaPlayer mp, int what, int extra) {
-            final String funcname = "PlayerEvents,onError";
-            Log.d(Tag, funcname + ",");
-            return false;
-        }
     }
 
     private void callEvent(EventType ev) {
@@ -184,6 +235,7 @@ public abstract class PiterFMPlayer {
             getFileTask = null;
         }
         player.reset();
+        isPlayerReady = false;
     }
 
     private void giveUp() {
@@ -192,6 +244,7 @@ public abstract class PiterFMPlayer {
         assertUIThread();
         assertFalse(isPaused);
         setPausedTrue();
+        isPlayerReady = false;
         callEvent(EventType.Error);
     }
 
