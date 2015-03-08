@@ -45,7 +45,7 @@ public class ChannelsDownloader {
         DocumentBuilder domBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 
         for (int iURL = 0; iURL < URLS.length; iURL++) {
-            File docfile = new File("../assets/xml/" + FILES[iURL]);
+            File docfile = new File("assets/xml/" + FILES[iURL]);
             Document filedoc = domBuilder.parse(docfile);
             URL stationsPage = new URL(URLS[iURL]);
             new ChannelsDownloader().doStuff(filedoc, docfile, stationsPage);
