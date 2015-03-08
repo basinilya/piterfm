@@ -71,6 +71,7 @@ public abstract class PiterFMPlayer {
 
         resetCommon();
 
+        Log.d(Tag, funcname + ",starting background task");
         getFileTask = new AsyncTask<Void, Void, Exception>() {
             @Override
             protected Exception doInBackground(Void... params) {
