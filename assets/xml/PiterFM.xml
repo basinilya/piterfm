@@ -238,13 +238,7 @@
         <logo>http://t2.moskva.fm/uimg/stations/165x165/96/96aca29f261d885423edc9d5c0923ffc.png</logo>
         <translation>http://www.piter.fm/play/7877/translation</translation>
     </channel>
-    <channel>
-        <id>7885</id>
-        <name>Nostalgia FM</name>
-        <range>98.6 FM</range>
-        <logo>http://t2.moskva.fm/uimg/stations/165x165/8c/8cd76e144f28f7399ab682f1fa9b22da.png</logo>
-        <translation>http://www.piter.fm/play/7885/translation</translation>
-    </channel>
+    
     <channel>
         <id>7886</id>
         <name>Радио России FM</name>
