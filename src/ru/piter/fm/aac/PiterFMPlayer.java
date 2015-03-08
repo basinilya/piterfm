@@ -7,11 +7,17 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
 
+import java.io.IOException;
+
+import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnPreparedListener;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import ru.piter.fm.App;
 import ru.piter.fm.player.PlayerInterface.EventType;
 import ru.piter.fm.util.TrackCalendar;
 
@@ -42,6 +48,9 @@ public abstract class PiterFMPlayer {
     private final Handler handler = new Handler();
 
     { assertUIThread(); }
+
+    private long nanosBegin;
+    private long nanosTotal;
 
     protected void assertUIThread() { assertEquals(Looper.getMainLooper().getThread(), Thread.currentThread()); }
 
@@ -108,7 +117,7 @@ public abstract class PiterFMPlayer {
         TrackCalendar rslt = new TrackCalendar();
         int curPos = 0;
         if (isPlayerReady) {
-            curPos = player.getCurrentPosition();
+            curPos = playerGetCurrentPosition();
         }
         rslt.setTimeInMillis(startTime + curPos);
         Log.d(Tag, funcname + ",returning " + rslt + " ( +" + curPos + "ms)");
@@ -126,7 +135,9 @@ public abstract class PiterFMPlayer {
             postEvent(EventType.NotBuffering);
             if (isPlayerReady) {
                 Log.d(Tag, funcname + ",isPlayerReady == true, calling pause()");
+
                 player.pause();
+                playerPaused();
             }
             else { Log.d(Tag, funcname + ",isPlayerReady == false, nothing to pause"); }
         }
@@ -144,7 +155,9 @@ public abstract class PiterFMPlayer {
             setPausedFalse();
             if (isPlayerReady) {
                 Log.d(Tag, funcname + ",isPlayerReady == true, calling player.start()");
-                player.start();
+
+                playerStart();
+
                 postEvent(EventType.NotBuffering);
             } else if (openStreamTask == null) {
                 Log.d(Tag, funcname + ",openStreamTask == null, need to reopen");
@@ -178,6 +191,7 @@ public abstract class PiterFMPlayer {
 
         @Override
         public void onCompletion(MediaPlayer mp) {
+            playerPaused();
             final String funcname = "PlayerEvents,onCompletion";
             Log.d(Tag, funcname + ",");
             giveUp();
@@ -192,7 +206,7 @@ public abstract class PiterFMPlayer {
             isPlayerReady = true;
             if (!isPaused) {
                 Log.d(Tag, funcname + ",isPaused == false, calling player.start()");
-                player.start();
+                playerStart();
                 callEvent(EventType.NotBuffering);
             }
             else { Log.d(Tag, funcname + ",isPaused == true, not calling player.start()"); }
@@ -232,6 +246,7 @@ public abstract class PiterFMPlayer {
             openStreamTask.cancel(false);
             openStreamTask = null;
         }
+        nanosTotal = 0;
         player.reset();
         isPlayerReady = false;
     }
@@ -245,7 +260,7 @@ public abstract class PiterFMPlayer {
         setPausedTrue();
         if (isPlayerReady) {
             isPlayerReady = false;
-            int curPos = player.getCurrentPosition();
+            int curPos = playerGetCurrentPosition();
             Log.d(Tag, funcname + ",player.getCurrentPosition() returned " + curPos);
             startTime += curPos;
         }
@@ -257,5 +272,23 @@ public abstract class PiterFMPlayer {
             isPaused = true;
             locksRelease();
         }
+    }
+
+    private void playerPaused() {
+        nanosTotal += System.nanoTime() - nanosBegin;
+    }
+
+    private void playerStart() {
+        nanosBegin = System.nanoTime();
+        player.start();
+    }
+
+    private int playerGetCurrentPosition() {
+        //return player.getCurrentPosition();
+        long n = nanosTotal;
+        if (player.isPlaying()) {
+            n += System.nanoTime() - nanosBegin;
+        }
+        return (int)(n / 1000000);
     }
 }

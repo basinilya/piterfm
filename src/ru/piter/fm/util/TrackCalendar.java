@@ -16,8 +16,14 @@ public class TrackCalendar extends GregorianCalendar {
 
     private static final long serialVersionUID = -5323025958149225720L;
 
+    private static final long CLIENT_TZ_MS = 3*3600*1000;
+
     public void setClientTimeInMillis(long milliseconds) {
-        setTimeInMillis(milliseconds + (3*3600*1000));
+        setTimeInMillis(milliseconds + CLIENT_TZ_MS);
+    }
+
+    public long getClientTimeInMillis() {
+        return getTimeInMillis() - CLIENT_TZ_MS;
     }
 
     public static TimeZone getTimezone() {
