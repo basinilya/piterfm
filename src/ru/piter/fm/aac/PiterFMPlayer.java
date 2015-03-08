@@ -145,11 +145,14 @@ public abstract class PiterFMPlayer {
             Log.d(Tag, funcname + ",isPaused == true, maybe there is a player to resume");
             setPausedFalse();
             if (isPlayerReady) {
-                Log.d(Tag, funcname + ",isPlayerReady == true, calling start()");
+                Log.d(Tag, funcname + ",isPlayerReady == true, calling player.start()");
                 player.start();
                 postEvent(EventType.NotBuffering);
             } else if (getFileTask == null) {
-                Log.d(Tag, funcname + ",getFileTask == null, calling reopen()");
+                Log.d(Tag, funcname + ",getFileTask == null, need to adjust startTime and reopen");
+                int curPos = player.getCurrentPosition();
+                Log.d(Tag, funcname + ",player.getCurrentPosition() returned " + curPos);
+                startTime += curPos;
                 reopen();
             } else {
                 Log.d(Tag, funcname + ",isPlayerReady == false && getFileTask != null, something is downloading");
@@ -172,7 +175,7 @@ public abstract class PiterFMPlayer {
     MediaPlayer.OnCompletionListener
     {
         {
-            final String funcname = "PlayerEvents,";
+            final String funcname = "PlayerEvents,<init>";
             Log.d(Tag, funcname + ",");
             player.setOnPreparedListener(this);
             player.setOnCompletionListener(this);
