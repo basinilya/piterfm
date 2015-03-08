@@ -22,6 +22,9 @@ public class B {
 
     public String doIt(String channelId, long timestamp) throws Exception {
         final String funcname = "doIt";
+        if ("".length() == 0) {
+            return "http://192.168.2.146:8080/piterfm-test-server/sample.aac";
+        }
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
         String secondsFloor = Long.toString(timestamp / 1000);

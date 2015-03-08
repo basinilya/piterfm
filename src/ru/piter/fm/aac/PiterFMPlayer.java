@@ -33,29 +33,30 @@ public abstract class PiterFMPlayer {
         startTime = trackTime.getTimeInMillis();
         AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
 
-            private String streamUrl;
+            //private String streamUrl;
 
             @Override
             protected Void doInBackground(Void... params) {
                 try {
-                    streamUrl = b.doIt(ch, startTime);
+                    String streamUrl = b.doIt(ch, startTime);
+                    player.setDataSource(streamUrl);
+                    player.prepare();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
                 return null;
             }
-
+/*
             @Override
             protected void onPostExecute(Void result) {
                 final String funcname = "onPostExecute";
                 try {
                     Log.d(Tag, funcname + ",calling player.setDataSource(), streamUrl = " + streamUrl);
-                    player.setDataSource(streamUrl);
-                    player.prepare();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
+            */
         };
         task.execute((Void[])null);
     }
