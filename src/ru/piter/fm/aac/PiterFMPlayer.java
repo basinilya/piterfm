@@ -34,8 +34,8 @@ public abstract class PiterFMPlayer {
     private AsyncTask<?,?,?> openStreamTask;
     private MediaPlayer player;
 
-    private final StreamerUtil b = new StreamerUtil();
-    //private final CachingAacStreamProxy b = new CachingAacStreamProxy();
+    //private final StreamerUtil b = new StreamerUtil();
+    private final CachingAacStreamProxy b = new CachingAacStreamProxy();
     final PlayerEvents playerEvents = new PlayerEvents();
 
     private long startTime;
