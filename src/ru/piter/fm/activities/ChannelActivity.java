@@ -86,7 +86,7 @@ public class ChannelActivity extends SherlockListActivity implements GetTracksTa
         if (adapter == null) {
             GetTracksTask task = new GetTracksTask(this);
             task.setTracksLoadingListener(this);
-            task.execute(day.getTime(), channel);
+            task.execute(day.asTracksUrlPart(), channel);
             //new GetTracksTask().execute(day.getTime());
         } else {
             this.setListAdapter(adapter);
@@ -194,7 +194,7 @@ public class ChannelActivity extends SherlockListActivity implements GetTracksTa
             if (!new Date().before(day.getTime())) {
                 GetTracksTask task = new GetTracksTask(ChannelActivity.this);
                 task.setTracksLoadingListener(ChannelActivity.this);
-                task.execute(day.getTime(), channel);
+                task.execute(day.asTracksUrlPart(), channel);
             } else {
                 Toast.makeText(ChannelActivity.this, R.string.incorrect_date, Toast.LENGTH_SHORT).show();
             }
@@ -413,7 +413,7 @@ public class ChannelActivity extends SherlockListActivity implements GetTracksTa
             case 100:
                 GetTracksTask task = new GetTracksTask(this);
                 task.setTracksLoadingListener(this);
-                task.execute(day.getTime(), channel, true);
+                task.execute(day.asTracksUrlPart(), channel, true);
                 break;
             case 200:
                 startActivity(new Intent(this, SettingsActivity.class));

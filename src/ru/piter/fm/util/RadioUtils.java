@@ -37,9 +37,8 @@ public class RadioUtils {
     public static final String CHANNEL_PREFIX = "http://fresh.moskva.fm/files/";
     private static final long TIME_MINUTE = 60000;
 
-    public static String getTracksUrl(Date startAt, Channel channel) {
-        String date = new SimpleDateFormat("yyyyMMdd").format(startAt);
-        String url = channel.getRadio().getHostUrl() + "/station.xml.html?station=" + channel.getChannelId() + "&day=" + date;
+    public static String getTracksUrl(String day, Channel channel) {
+        String url = channel.getRadio().getHostUrl() + "/station.xml.html?station=" + channel.getChannelId() + "&day=" + day;
         return url;
 
         //http://www.piter.fm/station.xml.html?station=7835&day=20101218&r=0.47836548276245594

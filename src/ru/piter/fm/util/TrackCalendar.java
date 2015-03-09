@@ -55,6 +55,12 @@ public class TrackCalendar extends GregorianCalendar {
                 get(MONTH) + 1, get(DATE), get(HOUR_OF_DAY), get(MINUTE), get(SECOND));
     }
 
+    public String asTracksUrlPart() {
+        return String.format(Locale.US, "%d%02d%02d", get(YEAR), get(MONTH)+1, get(DAY_OF_MONTH));
+
+        //http://www.piter.fm/station.xml.html?station=7835&day=20101218&r=0.47836548276245594
+    }
+
     /** Add one minute and set default time to seek for subsequent tracks */
     public void nextTrackTime() {
         add(MINUTE, 1);
