@@ -32,10 +32,10 @@ public abstract class PiterFMPlayer {
     protected abstract void locksRelease();
 
     private AsyncTask<?,?,?> openStreamTask;
-    private final MediaPlayer player = new MediaPlayer();
+    private MediaPlayer player;
 
-    //private final StreamerUtil b = new StreamerUtil();
-    private final CachingAacStreamProxy b = new CachingAacStreamProxy();
+    private final StreamerUtil b = new StreamerUtil();
+    //private final CachingAacStreamProxy b = new CachingAacStreamProxy();
     final PlayerEvents playerEvents = new PlayerEvents();
 
     private long startTime;
@@ -87,8 +87,8 @@ public abstract class PiterFMPlayer {
                     Log.d(Tag, funcname + ",calling player.setDataSource(),streamUrl = " + streamUrl);
                     player.setDataSource(streamUrl);
                     if (isCancelled()) return null;
-                    Log.d(Tag, funcname + ",calling player.prepare()");
-                    player.prepare();
+                    Log.d(Tag, funcname + ",calling player.prepareAsync()");
+                    player.prepareAsync();
                 } catch (Exception e) {
                     Log.e(Tag, funcname + ",Exception caught", e);
                     return e;
@@ -179,21 +179,26 @@ public abstract class PiterFMPlayer {
         return isPaused;
     }
 
+    private void createPlayer() {
+        final String funcname = "createPlayer";
+        Log.d(Tag, funcname + ",");
+        player = new MediaPlayer();
+        player.setOnPreparedListener(playerEvents);
+        player.setOnCompletionListener(playerEvents);
+    }
+
     private class PlayerEvents implements
     MediaPlayer.OnPreparedListener,
     MediaPlayer.OnCompletionListener
     {
-        {
-            final String funcname = "PlayerEvents,<init>";
-            Log.d(Tag, funcname + ",");
-            player.setOnPreparedListener(this);
-            player.setOnCompletionListener(this);
-        }
-
         @Override
         public void onCompletion(MediaPlayer mp) {
-            playerPaused();
             final String funcname = "PlayerEvents,onCompletion";
+            if (mp != player) {
+                Log.w(Tag, funcname + ",got event from reset player");
+                return;
+            }
+            playerPaused();
             Log.d(Tag, funcname + ",");
             giveUp();
         }
@@ -201,6 +206,10 @@ public abstract class PiterFMPlayer {
         @Override
         public void onPrepared(MediaPlayer mp) {
             final String funcname = "PlayerEvents,onPrepared";
+            if (mp != player) {
+                Log.w(Tag, funcname + ",got event from reset player");
+                return;
+            }
             Log.d(Tag, funcname + ",");
 
             openStreamTask = null;
@@ -248,7 +257,9 @@ public abstract class PiterFMPlayer {
             openStreamTask = null;
         }
         nanosTotal = 0;
-        player.reset();
+        if (player != null)
+            player.reset();
+        createPlayer();
         isPlayerReady = false;
     }
 
