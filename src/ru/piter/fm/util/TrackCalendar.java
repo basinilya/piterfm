@@ -1,9 +1,13 @@
 package ru.piter.fm.util;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.TimeZone;
+
+import ru.piter.fm.radio.Channel;
 
 /**
  * This Calendar wrapper provides convenience methods for radio tracks. It
@@ -48,6 +52,12 @@ public class TrackCalendar extends GregorianCalendar {
     public String asTrackTime() {
         return String.format(Locale.US, "%d:%02d:%02d:%02d:%02d:%02d", get(YEAR),
                 get(MONTH) + 1, get(DATE), get(HOUR_OF_DAY), get(MINUTE), get(SECOND));
+    }
+
+    public String asTracksUrlPart() {
+        return String.format(Locale.US, "%d%02d%02d", get(YEAR), get(MONTH)+1, get(DAY_OF_MONTH));
+
+        //http://www.piter.fm/station.xml.html?station=7835&day=20101218&r=0.47836548276245594
     }
 
     /** Add one minute and set default time to seek for subsequent tracks */

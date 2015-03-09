@@ -19,7 +19,6 @@ public class GetTracksTask extends BaseTask<List<Track>> {
 
 
     public TracksLoadingListener tracksLoadingListener;
-    private DateFormat df = new SimpleDateFormat("dd.MM.yyyy");
 
     public GetTracksTask(Context context) {
         super(context);
@@ -34,19 +33,19 @@ public class GetTracksTask extends BaseTask<List<Track>> {
             return null;
         }
         List<Track> tracks = null;
-        Date date = (Date) objects[0];
+        String day = (String) objects[0];
         Channel channel = (Channel) objects[1];
         // force update
         if (objects.length != 3){
-            tracks = TracksCache.get(channel.getChannelId(), df.format(date));
+            tracks = TracksCache.get(channel.getChannelId(), day);
             if (tracks != null)
                 return tracks;
 
         }
-        String url = RadioUtils.getTracksUrl(date, channel);
+        String url = RadioUtils.getTracksUrl(day, channel);
         tracks = RadioUtils.getTracks(url);
         if (tracks != null){
-            TracksCache.put(channel.getChannelId(),  df.format(date), tracks);
+            TracksCache.put(channel.getChannelId(), day, tracks);
             Collections.sort(tracks, new TrackComparator(Settings.getTrackSort()));
         }
         return tracks;
