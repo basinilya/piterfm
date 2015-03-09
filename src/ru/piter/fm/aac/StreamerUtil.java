@@ -36,7 +36,7 @@ public class StreamerUtil {
                 for (Node node3 = node2.getFirstChild();node3 != null; node3 = node3.getNextSibling()) {
                     if (node3.getNodeType() == Node.ELEMENT_NODE && "streamer".equals(node3.getNodeName())) {
                         String streamUrl = ((Element)node3).getAttribute("url");
-                        Log.d(Tag, funcname + ",url = " + streamUrl + " , channelId = " + stationId + " , timestamp = " + timestamp);
+                        Log.d(Tag, funcname + ",template = " + streamUrl + " , channelId = " + stationId + " , timestamp = " + timestamp);
                         streamUrl = streamUrl.replace("format=flv", "format=aac");
                         streamUrl = streamUrl.replace("%station_id", stationId);
                         streamUrl = streamUrl.replace("%timestamp", seconds);
@@ -49,8 +49,10 @@ public class StreamerUtil {
     }
 
     private String formatXmlUrl(String channelId, String secondsFloor) {
+        final String funcname = "formatXmlUrl";
         String rnd = Double.toString(Math.random()).replace(".", "%2E");
         String s = "http://www.moskva.fm/player_xml.html?startat=" + secondsFloor + "&type=full&rnd=" + rnd + "&v=3&time=" + secondsFloor + "&station=" + channelId;
+        Log.d(Tag, funcname + ",xmlurl = " + s);
         return s;
     }
     /*
