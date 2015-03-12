@@ -105,6 +105,7 @@ public abstract class PiterFMPlayer {
                     openStreamTask = null;
                     giveUp();
                 }
+                // if ok, not clearing openStreamTask until prepared
             };
         }.execute((Void[])null);
     }
@@ -195,10 +196,12 @@ public abstract class PiterFMPlayer {
         public void onCompletion(MediaPlayer mp) {
             final String funcname = "PlayerEvents,onCompletion";
             if (mp != player) {
-                Log.w(Tag, funcname + ",got event from reset player");
+                Log.w(Tag, funcname + ",got event from cancelled player");
                 return;
             }
-            playerPaused();
+            if (!isPaused) {
+                playerPaused();
+            }
             Log.d(Tag, funcname + ",");
             giveUp();
         }
@@ -267,7 +270,6 @@ public abstract class PiterFMPlayer {
         final String funcname = "giveUp";
         Log.d(Tag, funcname + ",");
         assertUIThread();
-        assertFalse(isPaused);
 
         setPausedTrue();
         if (isPlayerReady) {
