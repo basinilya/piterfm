@@ -93,6 +93,7 @@ public class FixHeaderProxy extends Thread {
 
         @SuppressWarnings("resource")
         public void processRequest() throws Exception {
+            final String funcname = "RequestProcessor,processRequest";
             byte buf[] = new byte[1000];
     
             InputStream proxyIn = null;
@@ -105,6 +106,10 @@ public class FixHeaderProxy extends Thread {
                 String s;
     
                 String h_get = readCRLFLine(proxyIn);
+                if (h_get == null) {
+                    Log.w(Tag, funcname + ",instant EOF in MediaPlayer http request");
+                    return;
+                }
                 String h_host = readCRLFLine(proxyIn);
     
                 String[] h_get_parts = h_get.split(" ", 3);
@@ -113,6 +118,7 @@ public class FixHeaderProxy extends Thread {
                 String timestamp = parts[2];
     
                 String realUrl = b.getStreamUrl(stationId, Long.parseLong(timestamp));
+                Log.d(Tag, funcname + ",realUrl = " + realUrl);
                 int i = realUrl.indexOf('/', 7);
     
                 s = realUrl.substring(i);
@@ -166,7 +172,7 @@ public class FixHeaderProxy extends Thread {
         
         @Override
         public void run() {
-            final String funcname = "RequestProcessor,run";
+            final String funcname = "ResponseProcessor,run";
             try {
                 processResponse();
             } catch (Exception e) {
