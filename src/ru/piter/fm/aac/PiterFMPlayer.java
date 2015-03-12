@@ -224,7 +224,6 @@ public abstract class PiterFMPlayer {
             }
             else { Log.d(Tag, funcname + ",isPaused == true, not calling player.start()"); }
         }
-
     }
 
     private void callEvent(EventType ev) {

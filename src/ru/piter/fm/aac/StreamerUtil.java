@@ -23,7 +23,7 @@ public class StreamerUtil {
     public String getStreamUrl(String stationId, long timestamp) throws Exception {
         final String funcname = "getStreamUrl";
         if ("".length() == 10) {
-            return "http://192.168.2.146:8080/piterfm-test-server/MyServlet?kbs=800&boostkb=200";
+            return "http://192.168.2.146:8080/piterfm-test-server/MyServlet?throttlekbs=8&boostkb=0";
         }
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();

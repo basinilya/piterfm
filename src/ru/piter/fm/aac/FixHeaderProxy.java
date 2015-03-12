@@ -219,11 +219,14 @@ public class FixHeaderProxy extends Thread {
                 };
                 proxyOut = new BufferedOutputStream(proxyOut);
                 realIn = new BufferedInputStream(realSock.getInputStream());
-                
+
                 String h_icy200 = readCRLFLine(realIn);
                 int i = h_icy200.indexOf(' ');
-                h_icy200 = "HTTP/1.0" + h_icy200.substring(i);
-
+                if (!h_icy200.startsWith("HTTP/")) {
+                    String s = "HTTP/1.0" + h_icy200.substring(i);
+                    Log.d(Tag, funcname + ",replacing '" + h_icy200 + "' with '" + s + " in response");
+                    h_icy200 = s;
+                }
                 writeCRLFLine(proxyOut, h_icy200);
 
                 int len;
