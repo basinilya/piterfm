@@ -20,32 +20,44 @@ public class StreamerUtil {
 
     private static final String Tag = "PiterFMPlayer";
 
-    public String getStreamUrl(String stationId, long timestamp) throws Exception {
+    private String cachedTemplate;
+    private long nanos;
+    private static final long EXPIRE_NANOS = 1800 * 1000 * 1000000L;
+
+    public synchronized String getStreamUrl(String stationId, long timestamp) throws Exception {
         final String funcname = "getStreamUrl";
         if ("".length() == 10) {
             return "http://192.168.2.146:8080/piterfm-test-server/MyServlet?throttlekbs=8&boostkb=0";
         }
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder = factory.newDocumentBuilder();
+        
         String secondsFloor = Long.toString(timestamp / 1000);
         String seconds = secondsFloor + "." + Long.toString(timestamp % 1000);
-        String s = formatXmlUrl(stationId, secondsFloor);
-        Document dom = builder.parse(s);
-        for (Node node2 = dom.getDocumentElement().getFirstChild();node2 != null; node2 = node2.getNextSibling()) {
-            if (node2.getNodeType() == Node.ELEMENT_NODE && "streamers".equals(node2.getNodeName())) {
-                for (Node node3 = node2.getFirstChild();node3 != null; node3 = node3.getNextSibling()) {
-                    if (node3.getNodeType() == Node.ELEMENT_NODE && "streamer".equals(node3.getNodeName())) {
-                        String streamUrl = ((Element)node3).getAttribute("url");
-                        Log.d(Tag, funcname + ",template = " + streamUrl + " , channelId = " + stationId + " , timestamp = " + timestamp);
-                        streamUrl = streamUrl.replace("format=flv", "format=aac");
-                        streamUrl = streamUrl.replace("%station_id", stationId);
-                        streamUrl = streamUrl.replace("%timestamp", seconds);
-                        return streamUrl;
+
+        mylabel:
+        if (cachedTemplate == null || System.nanoTime() - nanos > EXPIRE_NANOS) {
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            String s = formatXmlUrl(stationId, secondsFloor);
+            Document dom = builder.parse(s);
+            for (Node node2 = dom.getDocumentElement().getFirstChild();node2 != null; node2 = node2.getNextSibling()) {
+                if (node2.getNodeType() == Node.ELEMENT_NODE && "streamers".equals(node2.getNodeName())) {
+                    for (Node node3 = node2.getFirstChild();node3 != null; node3 = node3.getNextSibling()) {
+                        if (node3.getNodeType() == Node.ELEMENT_NODE && "streamer".equals(node3.getNodeName())) {
+                            cachedTemplate = ((Element)node3).getAttribute("url");
+                            Log.d(Tag, funcname + ",template = " + cachedTemplate + " , channelId = " + stationId + " , timestamp = " + timestamp);
+                            cachedTemplate = cachedTemplate.replace("format=flv", "format=aac");
+                            nanos = System.nanoTime();
+                            break mylabel;
+                        }
                     }
                 }
             }
+            throw new Exception("stream url not found");
         }
-        throw new Exception("stream url not found");
+
+        String streamUrl = cachedTemplate.replace("%station_id", stationId);
+        streamUrl = streamUrl.replace("%timestamp", seconds);
+        return streamUrl;    
     }
 
     private String formatXmlUrl(String channelId, String secondsFloor) {
