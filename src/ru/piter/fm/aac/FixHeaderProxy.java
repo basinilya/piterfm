@@ -2,6 +2,7 @@ package ru.piter.fm.aac;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -10,6 +11,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 
+import ru.piter.fm.util.Utils;
 import android.util.Log;
 
 public class FixHeaderProxy extends Thread {
@@ -181,15 +183,41 @@ public class FixHeaderProxy extends Thread {
                 //throw new RuntimeException(e);
             }
         }
-        
+
         public void processResponse() throws Exception {
+            final String funcname = "ResponseProcessor,processResponse";
             byte buf[] = new byte[1000];
             
             InputStream realIn = null;
             OutputStream proxyOut = null;
     
             try {
-                proxyOut = new BufferedOutputStream(proxySock.getOutputStream());
+                proxyOut = proxySock.getOutputStream();
+                proxyOut = new FilterOutputStream(proxyOut) {
+                    private long total;
+                    private void logFirstBytes(byte[] buffer, int offset, int length) {
+                        final String funcname = "ResponseProcessor,logFirstBytes";
+                        final int limit = 800;
+                        //if (!Log.isLoggable(Tag, Log.VERBOSE)) return;
+                        if (total >= limit) return;
+                        length += offset;
+                        for (int i = offset; total < limit && i < length;) {
+                            int len2 = Math.min(length - i, 16);
+                            String s = Utils.bytesToHex(buffer, i, len2);
+                            Log.d(Tag, funcname + "," + s);
+                            i += len2;
+                            total += len2;
+                        }
+                        Log.d(Tag, funcname + "," + "...");
+                    }
+
+                    @Override
+                    public void write(byte[] buffer, int offset, int length) throws IOException {
+                        logFirstBytes(buffer, offset, length);
+                        super.write(buffer, offset, length);
+                    }
+                };
+                proxyOut = new BufferedOutputStream(proxyOut);
                 realIn = new BufferedInputStream(realSock.getInputStream());
                 
                 String h_icy200 = readCRLFLine(realIn);
@@ -208,7 +236,6 @@ public class FixHeaderProxy extends Thread {
 
                 try { if (realSock != null) realSock.close(); } catch (Exception e) {  }
                 try { if (proxySock != null) proxySock.close(); } catch (Exception e) {  }
-                
             }
         }
     }
