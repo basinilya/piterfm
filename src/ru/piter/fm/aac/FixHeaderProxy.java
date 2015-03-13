@@ -10,6 +10,7 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.Locale;
 
 import ru.piter.fm.util.Utils;
 import android.util.Log;
@@ -184,6 +185,7 @@ public class FixHeaderProxy extends Thread {
             }
         }
 
+        @SuppressWarnings("resource")
         public void processResponse() throws Exception {
             final String funcname = "ResponseProcessor,processResponse";
             byte buf[] = new byte[1000];
@@ -220,19 +222,42 @@ public class FixHeaderProxy extends Thread {
                 proxyOut = new BufferedOutputStream(proxyOut);
                 realIn = new BufferedInputStream(realSock.getInputStream());
 
+                String s;
+
                 String h_icy200 = readCRLFLine(realIn);
                 int i = h_icy200.indexOf(' ');
                 if (!h_icy200.startsWith("HTTP/")) {
-                    String s = "HTTP/1.0" + h_icy200.substring(i);
+                    s = "HTTP/1.0" + h_icy200.substring(i);
                     Log.d(Tag, funcname + ",replacing '" + h_icy200 + "' with '" + s + " in response");
                     h_icy200 = s;
                 }
                 writeCRLFLine(proxyOut, h_icy200);
 
+                do {
+                    s = readCRLFLine(realIn);
+                    writeCRLFLine(proxyOut, s);
+                    if (s.toUpperCase(Locale.US).startsWith("CONTENT-TYPE:")) {
+                        String contentType = s.substring(s.indexOf(':') + 1);
+                        if (contentType.startsWith("text/")) {
+                            Log.w(Tag, funcname + ",unexpected header: " + s);
+                            //b.getStreamUrl(stationId, timestamp)
+                        }
+                    }
+                } while (s.length() != 0);
+
                 int len;
-                while (0 < (len = realIn.read(buf))) {
+
+                len = realIn.read(buf);
+                if (0 < len) {
                     proxyOut.write(buf, 0, len);
-                }            
+
+                    proxyOut.flush();
+                    proxyOut = proxySock.getOutputStream();
+
+                    while (0 < (len = realIn.read(buf))) {
+                        proxyOut.write(buf, 0, len);
+                    }
+                }
             } finally {
                 try { if (proxyOut != null) proxyOut.close(); } catch (Exception e) {  }
                 try { if (realIn != null) realIn.close(); } catch (Exception e) {  }
