@@ -24,20 +24,27 @@ public class StreamerUtil {
     private long nanos;
     private static final long EXPIRE_NANOS = 1800 * 1000 * 1000000L;
 
+    public synchronized void invalidate() {
+        cachedTemplate = null;
+    }
+
     public synchronized String getStreamUrl(String stationId, long timestamp) throws Exception {
         final String funcname = "getStreamUrl";
         if ("".length() == 10) {
             return "http://192.168.2.146:8080/piterfm-test-server/MyServlet?throttlekbs=8&boostkb=0";
         }
         
-        String secondsFloor = Long.toString(timestamp / 1000);
-        String seconds = secondsFloor + "." + Long.toString(timestamp % 1000);
+        // Shoutcast can't parse scientific timestamp: 1.426247880001E9
+        String s = Long.toString(timestamp);
+        int i = s.length() - 3;
+        String secondsFloor = s.substring(0, i);
+        String seconds = secondsFloor + '.' + s.substring(i);
 
         mylabel:
         if (cachedTemplate == null || System.nanoTime() - nanos > EXPIRE_NANOS) {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
-            String s = formatXmlUrl(stationId, secondsFloor);
+            s = formatXmlUrl(stationId, secondsFloor);
             Document dom = builder.parse(s);
             for (Node node2 = dom.getDocumentElement().getFirstChild();node2 != null; node2 = node2.getNextSibling()) {
                 if (node2.getNodeType() == Node.ELEMENT_NODE && "streamers".equals(node2.getNodeName())) {

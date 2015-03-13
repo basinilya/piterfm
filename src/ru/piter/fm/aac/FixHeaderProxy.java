@@ -238,9 +238,9 @@ public class FixHeaderProxy extends Thread {
                     writeCRLFLine(proxyOut, s);
                     if (s.toUpperCase(Locale.US).startsWith("CONTENT-TYPE:")) {
                         String contentType = s.substring(s.indexOf(':') + 1);
-                        if (contentType.startsWith("text/")) {
+                        if (contentType.trim().startsWith("text/")) {
                             Log.w(Tag, funcname + ",unexpected header: " + s);
-                            //b.getStreamUrl(stationId, timestamp)
+                            b.invalidate();
                         }
                     }
                 } while (s.length() != 0);

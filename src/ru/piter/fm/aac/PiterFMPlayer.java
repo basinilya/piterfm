@@ -102,7 +102,6 @@ public abstract class PiterFMPlayer {
                 Log.d(Tag, funcname + ",");
 
                 if (exception != null) {
-                    openStreamTask = null;
                     giveUp();
                 }
                 // if ok, not clearing openStreamTask until prepared
@@ -270,6 +269,7 @@ public abstract class PiterFMPlayer {
         Log.d(Tag, funcname + ",");
         assertUIThread();
 
+        openStreamTask = null;
         setPausedTrue();
         if (isPlayerReady) {
             isPlayerReady = false;
