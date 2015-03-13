@@ -7,8 +7,11 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.os.Build.VERSION;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.util.Log;
+
 import com.nostra13.universalimageloader.cache.disc.impl.UnlimitedDiscCache;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -35,6 +38,8 @@ import ru.piter.fm.util.Utils;
  */
 public class App extends Application implements OnSharedPreferenceChangeListener {
 
+    private static final String Tag = "PiterFMPlayer";
+
     private static Context context;
     private static PlayerInterface player;
     private static DBAdapter db;
@@ -48,8 +53,12 @@ public class App extends Application implements OnSharedPreferenceChangeListener
 
     @Override
     public void onCreate() {
+        final String funcname = "App,onCreate";
         super.onCreate();
 
+        @SuppressWarnings("deprecation")
+        String SDK = VERSION.SDK;
+        Log.d(Tag, funcname + ",running on " + VERSION.RELEASE + " (API " + SDK + ")");
         // init preferences
         PreferenceManager.setDefaultValues(this, R.xml.preferences, true);
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
