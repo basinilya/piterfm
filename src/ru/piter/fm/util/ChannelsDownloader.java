@@ -1,5 +1,6 @@
 package ru.piter.fm.util;
 import android.annotation.SuppressLint;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.net.URL;
@@ -50,6 +51,16 @@ public class ChannelsDownloader {
             URL stationsPage = new URL(URLS[iURL]);
             new ChannelsDownloader().doStuff(filedoc, docfile, stationsPage);
         }
+        FileOutputStream fos = new FileOutputStream("src/ru/piter/fm/util/ChannelsDownloaderConst.java");
+        String s = ""
+                       + "package " + ChannelsDownloader.class.getPackage().getName() + ";"
+                + "\n" + ""
+                + "\n" + "public class ChannelsDownloaderConst {"
+                + "\n" + "    public static final long LASTMODIFIED = " + System.currentTimeMillis() + "L;"
+                + "\n" + "}"
+                + "\n";
+        fos.write(s.getBytes("iso-8859-1"));
+        fos.close();
     }
 
     public ChannelsDownloader() throws Exception {
