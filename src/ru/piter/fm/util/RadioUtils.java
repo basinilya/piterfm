@@ -67,7 +67,7 @@ public class RadioUtils {
 
                 String startAtStr = track.getAttribute("startAt");
                 long startAtMillis = Long.parseLong(startAtStr) * 1000;
-                trackCal.setTimeInMillis(startAtMillis);
+                trackCal.setClientTimeInMillis(startAtMillis);
                 trackInfo.setTime(trackCal);
 
                 trackInfo.setPlayCount(track.getAttribute("playCount"));
@@ -83,7 +83,7 @@ public class RadioUtils {
                 trackInfo.setDuration(track.getAttribute("duration"));
                 String startAtStr = track.getAttribute("startAt");
                 long startAtMillis = Long.parseLong(startAtStr) * 1000;
-                trackCal.setTimeInMillis(startAtMillis);
+                trackCal.setClientTimeInMillis(startAtMillis);
                 trackInfo.setTime(trackCal);
 
                 trackInfo.setPlayCount("0");
@@ -240,7 +240,7 @@ public class RadioUtils {
 
     public static TrackCalendar getCurrentTrackTime(String channelId) {
         TrackCalendar trackCal = new TrackCalendar();
-        trackCal.setTimeInMillis(System.currentTimeMillis() - (TIME_MINUTE * 5));
+        trackCal.setClientTimeInMillis(System.currentTimeMillis() - (TIME_MINUTE * 5));
         trackCal.set(Calendar.SECOND, 0);
         trackCal.set(Calendar.MILLISECOND, 0);
         return trackCal;
