@@ -164,7 +164,7 @@ public class RadioUtils {
 
         List<Channel> channels = null;
         Document dom = null;
-        if (overrideFile.exists()) {
+        if (overrideFile.lastModified() >= ChannelsDownloaderConst.LASTMODIFIED) {
             InputStream is = new FileInputStream(overrideFile);
             try {
                 dom = builder.parse(is);
