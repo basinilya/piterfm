@@ -20,8 +20,22 @@ public class TrackCalendar extends GregorianCalendar {
 
     private static final long serialVersionUID = -5323025958149225720L;
 
+    private static final long CLIENT_TZ_MS = 0*3600*1000;
+
+    public void setClientTimeInMillis(long milliseconds) {
+        setTimeInMillis(milliseconds + CLIENT_TZ_MS);
+    }
+
+    public long getClientTimeInMillis() {
+        return getTimeInMillis() - CLIENT_TZ_MS;
+    }
+
+    public static TimeZone getTimezone() {
+        return TimeZone.getTimeZone("GMT+3");
+    }
+
     public TrackCalendar() {
-        super(TimeZone.getTimeZone("GMT+3"));
+        super(getTimezone());
     }
 
     /**
