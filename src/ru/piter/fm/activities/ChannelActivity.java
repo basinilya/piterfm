@@ -67,7 +67,7 @@ public class ChannelActivity extends SherlockListActivity implements GetTracksTa
 
 
         channel = (Channel) getIntent().getExtras().get("channel");
-        TimeZone tz = TimeZone.getTimeZone("GMT+3");
+        TimeZone tz = TrackCalendar.getTimezone();
         FMT_DATE_BUTTON.setTimeZone(tz);
         font = Typeface.createFromAsset(getAssets(), "fonts/Roboto-Light.ttf");
 
@@ -191,7 +191,7 @@ public class ChannelActivity extends SherlockListActivity implements GetTracksTa
 
 
             dateButton.setText((FMT_DATE_BUTTON).format(day.getTime()));
-            if (!new Date().before(day.getTime())) {
+            if (!isFuture()) {
                 GetTracksTask task = new GetTracksTask(ChannelActivity.this);
                 task.setTracksLoadingListener(ChannelActivity.this);
                 task.execute(day.asTracksUrlPart(), channel);
@@ -200,6 +200,10 @@ public class ChannelActivity extends SherlockListActivity implements GetTracksTa
             }
         }
     };
+
+    private boolean isFuture() {
+        return System.currentTimeMillis() < day.getClientTimeInMillis();
+    }
 
     private TimePickerDialog.OnTimeSetListener mTimeSetListener = new TimePickerDialog.OnTimeSetListener() {
         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
@@ -212,10 +216,9 @@ public class ChannelActivity extends SherlockListActivity implements GetTracksTa
             day.set(day.get(Calendar.YEAR), day.get(Calendar.MONTH), day.get(Calendar.DAY_OF_MONTH), hourOfDay, minute);
             timeButton.setText(day.get(Calendar.HOUR_OF_DAY) + ":" + getRightMinutes(day));
             Track ti = new Track();
-            Date trackTime = day.getTime();
             ti.setTime(day.asTrackTime());
 
-            if (!new Date().before(trackTime)) {
+            if (!isFuture()) {
                 newPlayerTask().execute(channel, ti);
             } else {
                 Toast.makeText(ChannelActivity.this, R.string.incorrect_time, Toast.LENGTH_SHORT).show();
