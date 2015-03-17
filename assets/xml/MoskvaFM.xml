@@ -344,11 +344,11 @@
         <translation>http://www.moskva.fm/play/4023/translation</translation>
     </channel>
     <channel>
-        <id>4006</id>
-        <name>Сити-FM</name>
+        <id>4033</id>
+        <name>LikeFM</name>
         <range>87.9 FM</range>
-        <logo>http://t2.moskva.fm/uimg/stations/165x165/94/94ac863fd61fcd6c7b176b314fd31d20.png</logo>
-        <translation>http://www.moskva.fm/play/4006/translation</translation>
+        <logo>http://t2.moskva.fm/uimg/stations/165x165/fa/fa5a3c8827455fb71d9aff51def3cca7.png</logo>
+        <translation>http://www.moskva.fm/play/4033/translation</translation>
     </channel>
     <channel>
         <id>2020</id>
