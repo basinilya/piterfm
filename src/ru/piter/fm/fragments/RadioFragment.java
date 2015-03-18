@@ -14,6 +14,7 @@ import ru.piter.fm.App;
 import ru.piter.fm.activities.ChannelActivity;
 import ru.piter.fm.activities.RadioActivity;
 import ru.piter.fm.player.PlayerInterface;
+import ru.piter.fm.player.PlayerInterface.EventType;
 import ru.piter.fm.prototype.R;
 import ru.piter.fm.radio.Channel;
 import ru.piter.fm.radio.Radio;
@@ -33,13 +34,17 @@ import java.util.List;
  * Time: 16:51
  * To change this template use File | Settings | File Templates.
  */
-public class RadioFragment extends ListFragment implements GetChannelsTask.ChannelsLoadingListener{
+public class RadioFragment extends ListFragment implements
+        PlayerInterface.EventHandler,
+        GetChannelsTask.ChannelsLoadingListener
+        {
 
     private Radio radio;
     private LayoutInflater inflater;
     private ChannelAdapter adapter;
     private Typeface font;
     private ImageLoader imageLoader = ImageLoader.getInstance();
+    private String greenChannel1;
 
     public RadioFragment() {
     }
@@ -104,7 +109,7 @@ public class RadioFragment extends ListFragment implements GetChannelsTask.Chann
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            final ViewHolder holder;
+            ViewHolder holder;
             if (convertView == null) {
                 convertView = inflater.inflate(R.layout.channel_item, null);
                 holder = new ViewHolder();
@@ -119,6 +124,8 @@ public class RadioFragment extends ListFragment implements GetChannelsTask.Chann
 
             if (ch != null) {
                 boolean isPlaying = App.isPlaying(ch);
+                if (isPlaying)
+                    greenChannel1 = ch.getChannelId();
                 holder.channelInfo.setTypeface(font);
                 holder.channelInfo.setText(ch.getName() + " " + ch.getRange());
                 imageLoader.displayImage(ch.getLogoUrl(), holder.image);
@@ -127,13 +134,6 @@ public class RadioFragment extends ListFragment implements GetChannelsTask.Chann
                     @Override
                     public void onClick(View view) {
                         new PlayerTask(getActivity()) {
-                            @Override
-                            public void onResult(Void result) {
-                                boolean isPlaying = App.isPlaying(ch);
-                                holder.button.setImageResource(isPlaying ? R.drawable.play_on : R.drawable.play);
-                                notifyDataSetChanged();
-                            }
-
                             @Override
                             public Intent getPlayingNotificationIntent() {
                                 Intent intent = new Intent(getActivity(), RadioActivity.class);
@@ -183,6 +183,31 @@ public class RadioFragment extends ListFragment implements GetChannelsTask.Chann
         outState.putSerializable("radio", radio );
     }
 
+
+    @Override
+    public void onEvent(EventType _unused) {
+        if (adapter == null)
+            return;
+        PlayerInterface player = App.getPlayer();
+
+        if (player.isPaused()) {
+            if (greenChannel1 == null) {
+                return;
+            }
+        } else {
+            if (player.getChannelId().equals(greenChannel1))
+                return;
+        }
+        greenChannel1 = null;
+        adapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        App.getPlayer().removeEventHandler(this);
+    }
+
     @Override
     public void onResume() {
         super.onResume();
@@ -190,6 +215,8 @@ public class RadioFragment extends ListFragment implements GetChannelsTask.Chann
             updateChannels(false);
         }else{
         }
+        App.getPlayer().addEventHandler(this);
+        greenChannel1 = null;
         if (adapter != null)
             adapter.notifyDataSetChanged();
     }
