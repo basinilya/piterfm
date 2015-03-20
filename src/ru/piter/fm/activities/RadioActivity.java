@@ -94,12 +94,10 @@ public class RadioActivity extends SherlockFragmentActivity implements ViewPager
         actionBar.addTab(actionBar.newTab().setText("PITER FM").setTabListener(this));
         actionBar.addTab(actionBar.newTab().setText("MOSKVA FM").setTabListener(this));
 
-        mAdapter.addFragment(new RadioFragment(RadioFactory.getRadio(RadioFactory.PITER_FM)));
-        mAdapter.addFragment(new RadioFragment(RadioFactory.getRadio(RadioFactory.MOSKVA_FM)));
-
+        mAdapter.count = 2;
         if(Settings.isFavouritesEnabled()){
-            actionBar.addTab(actionBar.newTab().setText("FAV").setTabListener(this));
-            mAdapter.addFragment(new RadioFragment(RadioFactory.getRadio(RadioFactory.FAVOURITE)));
+            addFavTab();
+            mAdapter.count = 3;
         }
 
         mPager.setAdapter(mAdapter);
@@ -108,6 +106,10 @@ public class RadioActivity extends SherlockFragmentActivity implements ViewPager
         TelephonyManager tm = (TelephonyManager)getSystemService(TELEPHONY_SERVICE);
         tm.listen(phoneListener, PhoneStateListener.LISTEN_CALL_STATE);
 
+    }
+
+    private void addFavTab() {
+        actionBar.addTab(actionBar.newTab().setText("FAV").setTabListener(this));
     }
 
 
@@ -131,11 +133,8 @@ public class RadioActivity extends SherlockFragmentActivity implements ViewPager
         }
 
         public void onTextChanged(CharSequence s, int start, int before, int count) {
-            if (mAdapter != null ){
-                ArrayAdapter adapter = ((RadioFragment)mAdapter.getItem(mPager.getCurrentItem())).getAdapter();
-                adapter.getFilter().filter(s);
-            }
-
+            ArrayAdapter<?> adapter = mAdapter.getPrimaryFragment().getAdapter();
+            adapter.getFilter().filter(s);
         }
     };
 
@@ -143,7 +142,7 @@ public class RadioActivity extends SherlockFragmentActivity implements ViewPager
     public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
         switch (item.getItemId()){
             case 1:
-                ((RadioFragment) mAdapter.getItem(mPager.getCurrentItem())).updateChannels();
+                mAdapter.getPrimaryFragment().updateChannels();
                 break;
             case 2:
                 startActivity(new Intent(this, SettingsActivity.class));
@@ -211,6 +210,21 @@ public class RadioActivity extends SherlockFragmentActivity implements ViewPager
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
+        if (key.equals(Settings.FAVOURITES)) {
+            if (Settings.isFavouritesEnabled()) {
+                if (mAdapter.count == 2) {
+                    addFavTab();
+                    mAdapter.count = 3;
+                    mAdapter.notifyDataSetChanged();
+                }
+            } else {
+                if (mAdapter.count == 3) {
+                    actionBar.removeTabAt(2);
+                    mAdapter.count = 2;
+                    mAdapter.notifyDataSetChanged();
+                }
+            }
+        }
         if (key.equals(Settings.CHANNEL_SORT_TYPE))
         isSettingsChanged = true;
     }
