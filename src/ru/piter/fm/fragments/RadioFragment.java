@@ -58,6 +58,9 @@ public class RadioFragment extends ListFragment implements GetChannelsTask.Chann
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (savedInstanceState != null) {
+            radio = (Radio) savedInstanceState.getSerializable("radio");
+        }
         font = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Roboto-Light.ttf");
         GetChannelsTask task = new GetChannelsTask(getActivity());
         task.setChannelsLoadingListener(this);
@@ -74,16 +77,6 @@ public class RadioFragment extends ListFragment implements GetChannelsTask.Chann
         list.setBackgroundDrawable(bg);
         return list;
     }
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        if (savedInstanceState != null) {
-            radio = (Radio) savedInstanceState.getSerializable("radio");
-        }
-    }
-
-
 
 
     @Override
