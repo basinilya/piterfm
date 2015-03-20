@@ -9,7 +9,9 @@ import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.view.*;
 import android.widget.*;
+
 import com.nostra13.universalimageloader.core.ImageLoader;
+
 import ru.piter.fm.App;
 import ru.piter.fm.activities.ChannelActivity;
 import ru.piter.fm.activities.RadioActivity;
@@ -62,6 +64,8 @@ public class RadioFragment extends ListFragment implements
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        adapter = new ChannelAdapter(getActivity(), R.layout.channel_item, new ArrayList<Channel>());
+        setListAdapter(adapter);
         if (savedInstanceState != null) {
             radio = (Radio) savedInstanceState.getSerializable("radio");
         }
@@ -85,25 +89,28 @@ public class RadioFragment extends ListFragment implements
     public void onChannelsLoaded(List<Channel> channels) {
         if (channels == null)
             return;
-        adapter = new ChannelAdapter(getActivity(), R.layout.channel_item, channels);
-        setListAdapter(adapter);
-
+        adapter.setNotifyOnChange(false);
+        adapter.clear();
+        for (int i = 0; i < channels.size(); i++) {
+            adapter.add(channels.get(i));
+        }
+        adapter.setNotifyOnChange(true);
+        adapter.notifyDataSetChanged();
     }
 
-    public ChannelAdapter getAdapter() {
+    @Override
+    public ChannelAdapter getListAdapter() {
         return adapter;
     }
 
 
     private class ChannelAdapter extends ArrayAdapter<Channel> {
 
-        private List<Channel> channels;
         private Filter channelFilter;
 
         public ChannelAdapter(Context context, int textViewResourceId, List<Channel> objects) {
             super(context, textViewResourceId, objects);
-            this.channels = objects;
-            this.channelFilter = new SearchFilter(new ArrayList<SearchFilter.Filterable>(channels), this);
+            this.channelFilter = new SearchFilter(new ArrayList<SearchFilter.Filterable>(objects), this);
         }
 
 
@@ -120,7 +127,7 @@ public class RadioFragment extends ListFragment implements
             } else {
                 holder = (ViewHolder) convertView.getTag();
             }
-            final Channel ch = channels.get(position);
+            final Channel ch = getItem(position);
 
             if (ch != null) {
                 boolean isPlaying = App.isPlaying(ch);
@@ -186,8 +193,6 @@ public class RadioFragment extends ListFragment implements
 
     @Override
     public void onEvent(EventType _unused) {
-        if (adapter == null)
-            return;
         PlayerInterface player = App.getPlayer();
 
         if (player.isPaused()) {
@@ -217,7 +222,6 @@ public class RadioFragment extends ListFragment implements
         }
         App.getPlayer().addEventHandler(this);
         greenChannel1 = null;
-        if (adapter != null)
-            adapter.notifyDataSetChanged();
+        adapter.notifyDataSetChanged();
     }
 }
