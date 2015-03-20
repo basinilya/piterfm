@@ -10,16 +10,17 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.*;
+import static android.support.v4.view.MenuItemCompat.*;
 import android.support.v4.view.ViewPager;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 
@@ -113,11 +114,11 @@ public class RadioActivity extends SherlockFragmentActivity implements ViewPager
     @Override
     public boolean onCreateOptionsMenu(com.actionbarsherlock.view.Menu menu) {
 
-        menu.add(0, 1, 1, "Refresh").setIcon(R.drawable.ic_navigation_refresh).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM );
-        menu.add(0, 2, 2, "Settings").setIcon(R.drawable.ic_action_settings).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+        menu.add(0, 1, 1, "Refresh").setIcon(R.drawable.ic_navigation_refresh).setShowAsAction(SHOW_AS_ACTION_IF_ROOM );
+        menu.add(0, 2, 2, "Settings").setIcon(R.drawable.ic_action_settings).setShowAsAction(SHOW_AS_ACTION_IF_ROOM);
         menu.add(0, 3, 3, "Search").setIcon(R.drawable.ic_action_search).setActionView(R.layout.action_search)
-                                    .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
-        menu.add(0, 4, 4, R.string.ac_exit    ).setIcon(R.drawable.ic_cancel).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+                                    .setShowAsAction(SHOW_AS_ACTION_IF_ROOM | SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
+        menu.add(0, 4, 4, R.string.ac_exit    ).setIcon(R.drawable.ic_cancel).setShowAsAction(SHOW_AS_ACTION_IF_ROOM);
 
         return super.onCreateOptionsMenu(menu);
     }

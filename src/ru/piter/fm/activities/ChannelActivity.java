@@ -9,14 +9,16 @@ import android.graphics.Shader;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
+import static android.support.v4.view.MenuItemCompat.*;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.*;
-import android.view.MenuItem;
 import android.widget.*;
+
 import com.actionbarsherlock.app.*;
 import com.actionbarsherlock.app.ActionBar;
+
 import ru.piter.fm.App;
 import ru.piter.fm.R;
 import ru.piter.fm.player.PlayerService;
@@ -411,12 +413,12 @@ public class ChannelActivity extends SherlockListActivity implements GetTracksTa
 
     @Override
     public boolean onCreateOptionsMenu(com.actionbarsherlock.view.Menu menu) {
-        menu.add(0, 1, 1, R.string.ac_refresh).setIcon(R.drawable.ic_navigation_refresh).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-        menu.add(0, 2, 2, R.string.ac_settings).setIcon(R.drawable.ic_action_settings).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-        menu.add(0, 3, 3, R.string.ac_favourite).setIcon(isFavouriteChannel(channel) ? R.drawable.ic_rating_important : R.drawable.ic_rating_not_important).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+        menu.add(0, 1, 1, R.string.ac_refresh).setIcon(R.drawable.ic_navigation_refresh).setShowAsAction(SHOW_AS_ACTION_IF_ROOM);
+        menu.add(0, 2, 2, R.string.ac_settings).setIcon(R.drawable.ic_action_settings).setShowAsAction(SHOW_AS_ACTION_IF_ROOM);
+        menu.add(0, 3, 3, R.string.ac_favourite).setIcon(isFavouriteChannel(channel) ? R.drawable.ic_rating_important : R.drawable.ic_rating_not_important).setShowAsAction(SHOW_AS_ACTION_IF_ROOM);
         menu.add(0, 4, 4, R.string.ac_search).setIcon(R.drawable.ic_action_search).setActionView(R.layout.action_search)
-                .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
-        menu.add(0, 5, 5, R.string.ac_exit).setIcon(R.drawable.ic_cancel).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+                .setShowAsAction(SHOW_AS_ACTION_IF_ROOM | SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
+        menu.add(0, 5, 5, R.string.ac_exit).setIcon(R.drawable.ic_cancel).setShowAsAction(SHOW_AS_ACTION_IF_ROOM);
 
         //return true;
         return super.onCreateOptionsMenu(menu);
