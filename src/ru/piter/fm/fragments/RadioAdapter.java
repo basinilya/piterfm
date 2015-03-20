@@ -1,12 +1,11 @@
 package ru.piter.fm.fragments;
 
+import static ru.piter.fm.radio.RadioFactory.*;
+import ru.piter.fm.radio.RadioFactory;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import ru.piter.fm.radio.RadioFactory;
-
-import java.util.ArrayList;
-import java.util.List;
+import android.view.ViewGroup;
 
 /**
  * Created by IntelliJ IDEA.
@@ -17,27 +16,35 @@ import java.util.List;
  */
 public class RadioAdapter extends FragmentPagerAdapter{
 
-    public List<Fragment> fragments;
+    private final String radioNames[] = {
+            PITER_FM, MOSKVA_FM, FAVOURITE
+    };
+
+    public int count;
+    private RadioFragment primaryFragment;
 
     public RadioAdapter(FragmentManager fm) {
         super(fm);
     }
 
     @Override
+    public void setPrimaryItem(ViewGroup container, int position, Object object) {
+        super.setPrimaryItem(container, position, object);
+        primaryFragment = (RadioFragment)object;
+    }
+
+    public RadioFragment getPrimaryFragment() {
+        return primaryFragment;
+    }
+
+    @Override
     public Fragment getItem(int position) {
-        return fragments.get(position);
+        return new RadioFragment(RadioFactory.getRadio(radioNames[position]));
     }
 
     @Override
     public int getCount() {
-        return fragments.size();
+        return count;
     }
-
-    public void addFragment(Fragment fragment){
-        if (fragments == null)
-            fragments = new ArrayList<Fragment>();
-        fragments.add(fragment);
-    }
-
 
 }
