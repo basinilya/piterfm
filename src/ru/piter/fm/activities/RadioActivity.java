@@ -113,7 +113,7 @@ public class RadioActivity extends SherlockFragmentActivity implements ViewPager
         }
 
         public void onTextChanged(CharSequence s, int start, int before, int count) {
-            ArrayAdapter<?> adapter = mAdapter.getPrimaryFragment().getAdapter();
+            ArrayAdapter<?> adapter = mAdapter.getPrimaryFragment().getListAdapter();
             adapter.getFilter().filter(s);
         }
     };
