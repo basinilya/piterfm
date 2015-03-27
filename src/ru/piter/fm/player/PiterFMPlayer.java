@@ -339,7 +339,6 @@ abstract class PiterFMPlayer {
     private void giveUp() {
         final String funcname = "giveUp";
         Log.d(Tag, funcname + ",");
-        assertFalse(isPaused);
         currentPlayer = null; // it may be already null, if failed before seek success
         setPausedTrue();
         callEvent(EventType.Error);
