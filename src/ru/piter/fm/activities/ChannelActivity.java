@@ -63,6 +63,7 @@ public class ChannelActivity extends SherlockListActivity implements
     private Button dateButton;
     private Button timeButton;
     private ImageButton playButton;
+    private boolean isGreen;
 
     private LinearLayout buttons;
     private Typeface font;
@@ -150,19 +151,16 @@ public class ChannelActivity extends SherlockListActivity implements
             }
         });
         // inflatePlayStopButton();
-        boolean isPlaying = App.isPlaying(channel);
-        playButton.setImageResource(isPlaying ? R.drawable.ic_pause : R.drawable.ic_play);
+        isGreen = App.isPlaying(channel);
+        togglePlayButton();
+    }
 
+    private void togglePlayButton() {
+        playButton.setImageResource(isGreen ? R.drawable.ic_pause : R.drawable.ic_play);
     }
 
     private PlayerTask newPlayerTask() {
         return new PlayerTask(this) {
-            @Override
-            public void onResult(Void result) {
-                boolean isPlaying = App.isPlaying(channel);
-                playButton.setImageResource(isPlaying ? R.drawable.ic_pause : R.drawable.ic_play);
-            }
-
             @Override
             protected Intent getPlayingNotificationIntent() {
                 Intent intent = new Intent(ChannelActivity.this, ChannelActivity.class);
@@ -570,6 +568,10 @@ public class ChannelActivity extends SherlockListActivity implements
     public void onEvent(EventType ev) {
         if (ev == EventType.NotBuffering) {
             showPlayerPos();
+        }
+        if (isGreen != App.isPlaying(channel)) {
+            isGreen = !isGreen;
+            togglePlayButton();
         }
     }
     
