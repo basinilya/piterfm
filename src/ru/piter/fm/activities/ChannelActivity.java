@@ -150,9 +150,6 @@ public class ChannelActivity extends SherlockListActivity implements
                 newPlayerTask().execute(channel);
             }
         });
-        // inflatePlayStopButton();
-        isGreen = App.isPlaying(channel);
-        togglePlayButton();
     }
 
     private void togglePlayButton() {
@@ -499,6 +496,9 @@ public class ChannelActivity extends SherlockListActivity implements
         Log.d(Tag, funcname + ",");
 
         super.onResume();
+
+        isGreen = App.isPlaying(channel);
+        togglePlayButton();
 
         player.addEventHandler(this);
 
