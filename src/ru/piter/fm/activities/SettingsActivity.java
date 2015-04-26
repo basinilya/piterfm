@@ -23,6 +23,7 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
     private CheckBoxPreference reconnectPref;
     private ListPreference reconnectCountPref;
     private ListPreference reconnectTimeoutPref;
+    private EditTextPreference cacheSizePref;
     private CheckBoxPreference debugLogPref;
 
     @Override
@@ -37,6 +38,12 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
         reconnectPref = (CheckBoxPreference) getPreferenceScreen().findPreference(Settings.RECONNECT);
         reconnectCountPref = (ListPreference) getPreferenceScreen().findPreference(Settings.RECONNECT_COUNT);
         reconnectTimeoutPref = (ListPreference) getPreferenceScreen().findPreference(Settings.RECONNECT_TIMEOUT);
+        cacheSizePref = (EditTextPreference) getPreferenceScreen().findPreference(Settings.CACHE_SIZE);
+        cacheSizePref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {@Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                return Integer.parseInt((String) newValue) >= 2;
+            }
+        });
         debugLogPref = (CheckBoxPreference) getPreferenceScreen().findPreference(Settings.DEBUG_LOG_ENABLED);
         debugLogPref.setSummary(Utils.LOG_DIR.getAbsolutePath() + '/');
     }
@@ -57,6 +64,7 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
         reconnectPref.setSummary(Settings.isReconnect() ? on : off);
         reconnectCountPref.setSummary(String.valueOf(Settings.getReconnectCount()));
         reconnectTimeoutPref.setSummary(String.valueOf(Settings.getReconnectTimeout()));
+        cacheSizePref.setSummary(String.valueOf(Settings.getCacheSize()));
 
 
         getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
@@ -90,6 +98,8 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
             reconnectCountPref.setSummary(sharedPreferences.getString(Settings.RECONNECT_COUNT, "-1"));
         } else if (key.equals(Settings.RECONNECT_TIMEOUT)) {
             reconnectTimeoutPref.setSummary(sharedPreferences.getString(Settings.RECONNECT_TIMEOUT, "-1"));
+        } else if (key.equals(Settings.CACHE_SIZE)) {
+            cacheSizePref.setSummary(sharedPreferences.getString(Settings.CACHE_SIZE, "-1"));
         }
 
     }
