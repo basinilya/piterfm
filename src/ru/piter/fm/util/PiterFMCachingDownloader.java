@@ -98,9 +98,6 @@ public class PiterFMCachingDownloader {
     /** global object instance */
     public static final PiterFMCachingDownloader INSTANCE = new PiterFMCachingDownloader();
 
-    /** cache size */
-    private static final int READ_AHEAD_NUM = 10;
-
     /**
      * a dummy non-null value for {@link CacheEntry#m_url} to ensure the entry
      * is not picked by {@link #getFile(String, TrackCalendar)}. null can't be
@@ -114,25 +111,13 @@ public class PiterFMCachingDownloader {
     private final Object lock = new Object();
 
     /** holds queued URLs */
-    private ArrayList<String> urlQueue = new ArrayList<String>(READ_AHEAD_NUM);
+    private ArrayList<String> urlQueue = new ArrayList<String>();
 
     /** holds Cache Entries */
-    private CacheEntry[] entries = new CacheEntry[READ_AHEAD_NUM];
+    private ArrayList<CacheEntry> entries = new ArrayList<CacheEntry>();
 
     /** current URL for download. If differs from thread's URL, then thread waits. Can be null. */
     private String currentUrl;
-
-    /** constant map of entries by path. See also {@link #byUrl(String)} */
-    private final HashMap<String, CacheEntry> byPath = new HashMap<String, CacheEntry>(READ_AHEAD_NUM);
-
-    {
-        for (int i = 0; i < READ_AHEAD_NUM; i++) {
-            urlQueue.add(null);
-            CacheEntry entry = new CacheEntry(i);
-            entries[i] = entry;
-            byPath.put(entry.file.getAbsolutePath(), entry);
-        }
-    }
 
     /**
      * Get and lock a file with the provided params. This function is
@@ -148,12 +133,19 @@ public class PiterFMCachingDownloader {
             String trackUrl;
             // update the queue. Not queued entries may become victims, if not locked
             String prefix = CHANNEL_PREFIX + channelId + "/mp4/";
-            for (int i = 0;; i++) {
+            int cacheSize = Settings.getCacheSize();
+            urlQueue.clear();
+            urlQueue.ensureCapacity(cacheSize);
+            for (int i = cacheSize - 1;; i--) {
                 trackUrl = prefix + trackTime.asURLPart() + ".mp4";
-                urlQueue.set(i, trackUrl);
-                if (i == READ_AHEAD_NUM - 1)
+                urlQueue.add(trackUrl);
+                if (i == 0)
                     break;
                 trackTime.nextTrackTime();
+            }
+            entries.ensureCapacity(cacheSize);
+            for (int i = entries.size(); i < cacheSize; i++) {
+                entries.add(new CacheEntry(i));
             }
             resumeOrCreateNextDownloadNoLock();
             lock.notifyAll();
@@ -197,7 +189,8 @@ public class PiterFMCachingDownloader {
         Log.v(Tag, funcname + ",synchronized before, dummyNo:197"); try {
         synchronized (lock) {
             Log.v(Tag, funcname + ",synchronized in, dummyNo:199");
-            CacheEntry entry = byPath.get(path);
+            String sIndex = path.substring(path.lastIndexOf('/') + 1, path.length() - 4);
+            CacheEntry entry = entries.get(Integer.parseInt(sIndex));
             assertNull(entry.m_fos);
             assertTrue(entry.omniCount > 0);
             entry.omniCount--;
@@ -234,7 +227,10 @@ public class PiterFMCachingDownloader {
 
             // rank victim candidates. null > scheduled > complete unrefed
             entry = null;
-            for (CacheEntry candidate : entries) {
+            // CacheEntry candidate : entries1
+            int cacheSize = urlQueue.size();
+            for (int i = 0; i < cacheSize; i++) {
+                CacheEntry candidate = entries.get(i);
                 if (candidate.m_url == null) {
                     entry = candidate; // best choice
                     break;
