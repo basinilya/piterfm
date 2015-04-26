@@ -57,7 +57,6 @@ public class RadioUtils {
             Element root = dom.getDocumentElement();
             NodeList tracks = root.getElementsByTagName("track");
             Log.d("Parser ", "Tracks size = " + tracks.getLength());
-            TrackCalendar trackCal = new TrackCalendar();
             for (int i = 0; i < tracks.getLength(); i++) {
                 Track trackInfo = new Track(Track.TYPE_TRACK);
                 Element track = (Element) tracks.item(i);
@@ -67,8 +66,7 @@ public class RadioUtils {
 
                 String startAtStr = track.getAttribute("startAt");
                 long startAtMillis = Long.parseLong(startAtStr) * 1000;
-                trackCal.setClientTimeInMillis(startAtMillis);
-                trackInfo.setTime(trackCal);
+                trackInfo.setClientTimeInMillis(startAtMillis);
 
                 trackInfo.setPlayCount(track.getAttribute("playCount"));
                 trackList.add(trackInfo);
@@ -83,11 +81,9 @@ public class RadioUtils {
                 trackInfo.setDuration(track.getAttribute("duration"));
                 String startAtStr = track.getAttribute("startAt");
                 long startAtMillis = Long.parseLong(startAtStr) * 1000;
-                trackCal.setClientTimeInMillis(startAtMillis);
-                trackInfo.setTime(trackCal);
+                trackInfo.setClientTimeInMillis(startAtMillis);
 
                 trackInfo.setPlayCount("0");
-
                 trackList.add(trackInfo);
             }
 

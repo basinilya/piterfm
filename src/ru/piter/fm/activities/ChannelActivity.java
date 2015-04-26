@@ -57,6 +57,7 @@ public class ChannelActivity extends SherlockListActivity implements
     private Track currentTrack;
     private Channel channel;
     private TrackCalendar day;
+    private TrackCalendar tmpCal = new TrackCalendar();
     private DateFormat FMT_DATE_BUTTON = new SimpleDateFormat("dd.MM.yyyy", Locale.US);
 
     private EditText search;
@@ -165,19 +166,6 @@ public class ChannelActivity extends SherlockListActivity implements
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 return intent;
             }
-
-            @Override
-            public void execute(Channel ch, Track tr) {
-                final String funcname = "newPlayerTask.execute";
-                Log.d(Tag, funcname + ",tr.getTime() = " + tr.getTime());
-                super.execute(ch, tr);
-            }
-            @Override
-            public void execute(Channel ch) {
-                final String funcname = "newPlayerTask.execute";
-                Log.d(Tag, funcname + ",");
-                super.execute(ch);
-            }
         };
     }
 
@@ -226,13 +214,13 @@ public class ChannelActivity extends SherlockListActivity implements
             if (!dlgClicked)
                 return;
             dlgClicked = false;
-            day.set(day.get(Calendar.YEAR), day.get(Calendar.MONTH), day.get(Calendar.DAY_OF_MONTH), hourOfDay, minute, 0);
+            day.set(Calendar.HOUR_OF_DAY, hourOfDay);
+            day.set(Calendar.MINUTE, minute);
+            day.set(Calendar.SECOND, 0);
             updateTimeButton();
-            Track ti = new Track();
-            ti.setTime(day);
 
             if (!isFuture()) {
-                newPlayerTask().execute(channel, ti);
+                newPlayerTask().execute(channel, day);
             } else {
                 Toast.makeText(ChannelActivity.this, R.string.incorrect_time, Toast.LENGTH_SHORT).show();
             }
@@ -282,7 +270,8 @@ public class ChannelActivity extends SherlockListActivity implements
                 holder.trackInfo.setText(composeItemText(track));
 
                 holder.trackTime.setTypeface(font);
-                holder.trackTime.setText(track.getTime().asHMM());
+                tmpCal.setClientTimeInMillis(track.getClientTimeInMillis());
+                holder.trackTime.setText(tmpCal.asHMM());
                 //holder.trackTime.setText("" + calculateRatingStars(maxRate, Integer.parseInt(track.getPlayCount())));
 //                if (track.getType() == Track.TYPE_SHOW) {
 //                     holder.image.setImageResource(R.drawable.ic_mic);
@@ -295,7 +284,8 @@ public class ChannelActivity extends SherlockListActivity implements
                 @Override
                 public void onClick(View view) {
                     currentTrack = (Track) getListAdapter().getItem(pos);
-                    newPlayerTask().execute(channel, currentTrack);
+                    tmpCal.setClientTimeInMillis(currentTrack.getClientTimeInMillis());
+                    newPlayerTask().execute(channel, tmpCal);
                 }
 
             });

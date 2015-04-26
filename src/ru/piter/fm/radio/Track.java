@@ -19,14 +19,14 @@ public class Track implements SearchFilter.Filterable {
     private String artistName;
     private String trackName;
     private String duration;
-    private TrackCalendar time;
+    private long time;
     private String timestamp;
     private String cover;
     private String playCount;
     private int type;
 
-    public long getTimeInMillis() {
-        return time.getTimeInMillis();
+    public long getClientTimeInMillis() {
+        return time;
     }
 
     public int getType() {
@@ -84,12 +84,8 @@ public class Track implements SearchFilter.Filterable {
         this.duration = duration;
     }
 
-    public TrackCalendar getTime() {
-        return time;
-    }
-
-    public void setTime(TrackCalendar time) {
-        this.time = time.clone();
+    public void setClientTimeInMillis(long time) {
+        this.time = time;
     }
 
     public String getTimestamp() {

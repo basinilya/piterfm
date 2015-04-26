@@ -97,8 +97,7 @@ public abstract class PlayerTask extends BaseTask<Void> {
         String ch = channel.getChannelId();
         if (objects.length > 1) {
             // open another time and/or channel
-            Track track = (Track) objects[1];
-            trackTime = track.getTime();
+            trackTime = (TrackCalendar)objects[1];
         } else {
             if (ch.equals(pl.getChannelId())) {
                 // maybe pause, maybe resume

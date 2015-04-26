@@ -36,8 +36,8 @@ public class TrackComparator implements Comparator {
         }
 
         if (sortBy.equals("sort_by_time")){
-            long time1 = track_1.getTimeInMillis();
-            long time2 = track_2.getTimeInMillis();
+            long time1 = track_1.getClientTimeInMillis();
+            long time2 = track_2.getClientTimeInMillis();
             if (time1 > time2)
                 return 1;
             else if (time1 < time2)
