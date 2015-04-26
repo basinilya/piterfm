@@ -41,7 +41,7 @@ public abstract class PlayerTask extends BaseTask<Void> {
     // BEGIN DIRTY HACK
 
     // hide final execute methods of super
-    public void execute(Channel ch, Track tr) {
+    public void execute(Channel ch, Object tr) {
         executeInternal(ch, tr);
     }
     public void execute(Channel ch) {
