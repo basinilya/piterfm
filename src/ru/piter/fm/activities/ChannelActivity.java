@@ -185,6 +185,8 @@ public class ChannelActivity extends SherlockListActivity implements
 
     private boolean dlgClicked; // workaround for event raised twice, see https://code.google.com/p/android/issues/detail?id=34833
 
+    private long lockCalUntil;
+
     private final DatePickerDialog.OnDateSetListener mDateSetListener = new DatePickerDialog.OnDateSetListener() {
         public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
             if (!dlgClicked)
@@ -194,6 +196,7 @@ public class ChannelActivity extends SherlockListActivity implements
             day.set(Calendar.MONTH, monthOfYear);
             day.set(Calendar.YEAR, year);
 
+            lockCalUntil = System.nanoTime() + (30 * 1000 * 1000000L);
             updateDateButton();
             if (!isFuture()) {
                 GetTracksTask task = new GetTracksTask(ChannelActivity.this);
@@ -516,7 +519,14 @@ public class ChannelActivity extends SherlockListActivity implements
         public void run() {
             final String funcname = "autoUpdateTask.run";
             Log.d(Tag, funcname + ",");
-            showPlayerPos();
+            long remainNanos = lockCalUntil - System.nanoTime();
+            if (remainNanos <= 0) {
+                showPlayerPos();
+            } else {
+                long remain = remainNanos / 1000000L;
+                Log.d(Tag, funcname + ",scheduling with remain = " + remain);
+                handler.postDelayed(autoUpdateTask, remain);
+            }
         }
     };
 
@@ -557,7 +567,9 @@ public class ChannelActivity extends SherlockListActivity implements
     @Override
     public void onEvent(EventType ev) {
         if (ev == EventType.NotBuffering) {
-            showPlayerPos();
+            if (System.nanoTime() - lockCalUntil > 0) {
+                showPlayerPos();
+            }
         }
         if (isGreen != App.isPlaying(channel)) {
             isGreen = !isGreen;
