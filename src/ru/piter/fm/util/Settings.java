@@ -22,6 +22,7 @@ public class Settings {
     public static final String RECONNECT = "reconnect_key";
     public static final String RECONNECT_COUNT = "reconnect_count_key";
     public static final String RECONNECT_TIMEOUT = "reconnect_timeout_key";
+    public static final String CACHE_SIZE = "cache_size_key";
     public static final String DEBUG_LOG_ENABLED = "debug_log_enabled_key";
 
 
@@ -71,5 +72,9 @@ public class Settings {
 
     public static int getReconnectTimeout(){
         return getInt(RECONNECT_TIMEOUT);
+    }
+
+    public static int getCacheSize() {
+        return getInt(CACHE_SIZE);
     }
 }

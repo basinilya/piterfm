@@ -77,6 +77,15 @@
                 android:entryValues="@array/reconnect_timeout"
                 android:dialogTitle="@string/reconnect_timeout"/>
 
+        <EditTextPreference
+                android:key="cache_size_key"
+                android:numeric="integer"
+                android:maxLength="2"
+                android:defaultValue="5"
+                android:title="@string/cache_size"
+                android:dialogTitle="@string/cache_size"
+                />
+
     </android.preference.PreferenceCategory>
 
     <android.preference.PreferenceCategory android:title="@string/debug_preferences">
