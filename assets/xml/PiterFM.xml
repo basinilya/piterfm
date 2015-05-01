@@ -18,7 +18,7 @@
         <id>7809</id>
         <name>Радио для двоих</name>
         <range>90.6 FM</range>
-        <logo>http://t2.moskva.fm/uimg/stations/165x165/77/7705f803bd249c863ce377af8b1fe135.png</logo>
+        <logo>http://t2.moskva.fm/uimg/stations/165x165/78/78ddb3efaa385edb5c7997166c64648c.png</logo>
         <translation>http://www.piter.fm/play/7809/translation</translation>
     </channel>
     <channel>
@@ -177,7 +177,7 @@
     </channel>
     <channel>
         <id>7872</id>
-        <name>Маяк</name>
+        <name>Радио Маяк</name>
         <range>107.0 FM</range>
         <logo>http://t2.moskva.fm/uimg/stations/165x165/f8/f84177d19ab1f8b1fb90762ff67c9ba2.png</logo>
         <translation>http://www.piter.fm/play/7872/translation</translation>
@@ -212,7 +212,7 @@
     </channel>
     <channel>
         <id>7842</id>
-        <name>Бизнес FM</name>
+        <name>Business FM</name>
         <range>107.4 FM</range>
         <logo>http://t2.moskva.fm/uimg/stations/165x165/71/7104ffc9b8ee857b37eeb4d152f93faa.png</logo>
         <translation>http://www.piter.fm/play/7842/translation</translation>
@@ -245,5 +245,12 @@
         <range>99.0 FM</range>
         <logo>http://t2.moskva.fm/uimg/stations/165x165/eb/eb4579c64302d74d94db8c6bd3e7ada8.png</logo>
         <translation>http://www.piter.fm/play/7886/translation</translation>
+    </channel>
+    <channel>
+        <id>7885</id>
+        <name>Nostalgia FM</name>
+        <range>98.6 FM</range>
+        <logo>http://t2.moskva.fm/uimg/stations/165x165/8c/8cd76e144f28f7399ab682f1fa9b22da.png</logo>
+        <translation>http://www.piter.fm/play/7885/translation</translation>
     </channel>
     </channels>

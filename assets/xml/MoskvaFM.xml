@@ -221,7 +221,7 @@
         <id>2108</id>
         <name>Комсомольская Правда</name>
         <range>97.2 FM</range>
-        <logo>http://t2.moskva.fm/uimg/stations/165x165/98/98435f7b34764d21cdf7b35d17d0ec3b.png</logo>
+        <logo>http://t2.moskva.fm/uimg/stations/165x165/25/2543f181d2ee5ccc6f7e9fee536892d9.png</logo>
         <translation>http://www.moskva.fm/play/2108/translation</translation>
     </channel>
     <channel>
@@ -345,7 +345,7 @@
     </channel>
     <channel>
         <id>4033</id>
-        <name>LikeFM</name>
+        <name>Like FM</name>
         <range>87.9 FM</range>
         <logo>http://t2.moskva.fm/uimg/stations/165x165/fa/fa5a3c8827455fb71d9aff51def3cca7.png</logo>
         <translation>http://www.moskva.fm/play/4033/translation</translation>
@@ -359,7 +359,7 @@
     </channel>
     <channel>
         <id>4005</id>
-        <name>Бизнес FM</name>
+        <name>Business FM</name>
         <range>87.5 FM</range>
         <logo>http://t2.moskva.fm/uimg/stations/165x165/4a/4ac1c3d32fab8541eed901e4c901b6b9.png</logo>
         <translation>http://www.moskva.fm/play/4005/translation</translation>
