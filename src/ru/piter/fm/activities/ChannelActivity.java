@@ -510,7 +510,7 @@ public class ChannelActivity extends SherlockListActivity implements
             needLoadTracks = false;
             GetTracksTask task = new GetTracksTask(this);
             task.setTracksLoadingListener(this);
-            task.execute(day.getTime(), channel);
+            task.execute(day.asTracksUrlPart(), channel);
         }
     }
 
