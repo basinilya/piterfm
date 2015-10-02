@@ -46,7 +46,7 @@ public abstract class PlayerTask extends BaseTask<Void> {
         executeInternal(ch, tr);
     }
     public void execute(Channel ch) {
-        executeInternal(ch);
+        if (ch.getTomskStationId() != null) executeInternal(ch);
     }
 
     private static ArrayList<PlayerTask> startedTasks = new ArrayList<PlayerTask>();
@@ -112,7 +112,7 @@ public abstract class PlayerTask extends BaseTask<Void> {
                 trackTime = RadioUtils.getCurrentTrackTime(ch);
             }
         }
-        pl.open(getPlayingNotificationIntent(), ch, trackTime);
+        pl.open(getPlayingNotificationIntent(), channel, trackTime);
         return null;
     }
 

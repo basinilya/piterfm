@@ -12,6 +12,7 @@ import android.os.Looper;
 import android.util.Log;
 
 import ru.piter.fm.player.PlayerInterface.EventType;
+import ru.piter.fm.radio.Channel;
 import ru.piter.fm.util.TrackCalendar;
 import ru.piter.fm.util.PiterFMCachingDownloader;
 
@@ -26,7 +27,7 @@ abstract class PiterFMPlayer {
     private final Handler handler = new Handler();
 
     private TrackCalendar nextChunkTime;
-    private String channelId;
+    private Channel channel;
     private final PiterFMCachingDownloader cache = PiterFMCachingDownloader.INSTANCE;
 
     private AsyncTask<?,?,?> getFileTask;
@@ -47,12 +48,12 @@ abstract class PiterFMPlayer {
 
     protected void assertUIThread() { assertEquals(Looper.getMainLooper().getThread(), Thread.currentThread()); }
 
-    public void open(String ch, TrackCalendar trackTime) {
+    public void open(Channel ch_, TrackCalendar trackTime) {
         final String funcname = "open";
-        Log.d(Tag, funcname + ",ch = " + ch + ", trackTimeStr = " + trackTime);
+        Log.d(Tag, funcname + ",ch = " + ch_.getChannelId() + ", trackTimeStr = " + trackTime);
         assertUIThread();
 
-        channelId = ch;
+        channel = ch_;
         nextChunkTime = trackTime.clone();
 
         setPausedFalse();
@@ -139,7 +140,7 @@ abstract class PiterFMPlayer {
             final String funcname = "PlayerWrap," + dbgId + ",scheduleGetFile";
             Log.d(Tag, funcname + ",");
             assertNull(getFileTask);
-            final String channelId = PiterFMPlayer.this.channelId;
+            final String channelId = PiterFMPlayer.this.channel.getTomskStationId();
             chunkTime = nextChunkTime.clone();
             Log.d(Tag, funcname + ",channelId = " + channelId + ", trackCal = " + chunkTime.asURLPart());
 
@@ -308,7 +309,8 @@ abstract class PiterFMPlayer {
         final String funcname = "resume";
         Log.d(Tag, funcname + ",");
         assertUIThread();
-        assertNotNull(channelId);
+        assertNotNull(channel);
+        assertNotNull(channel.getTomskStationId());
         if (isPaused) {
             Log.d(Tag, funcname + ",isPaused == true, maybe there is a player to resume");
             setPausedFalse();
@@ -329,7 +331,7 @@ abstract class PiterFMPlayer {
 
     public String getChannelId() {
         assertUIThread();
-        return channelId;
+        return channel == null ? null : channel.getChannelId();
     }
 
     public boolean isPaused() {

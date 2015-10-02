@@ -136,7 +136,7 @@ public class RadioFragment extends ListFragment implements
                 holder.channelInfo.setTypeface(font);
                 holder.channelInfo.setText(ch.getName() + " " + ch.getRange());
                 imageLoader.displayImage(ch.getLogoUrl(), holder.image);
-                holder.button.setImageResource(isPlaying ? R.drawable.play_on : R.drawable.play);
+                holder.button.setImageResource(ch.getTomskStationId() == null ? R.drawable.play_unavail : isPlaying ? R.drawable.play_on : R.drawable.play);
                 holder.button.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {

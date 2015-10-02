@@ -5,6 +5,7 @@ package ru.piter.fm.player;
 
 import java.util.ArrayList;
 
+import ru.piter.fm.radio.Channel;
 import ru.piter.fm.util.Notifications;
 import ru.piter.fm.util.TrackCalendar;
 import android.annotation.SuppressLint;
@@ -136,9 +137,9 @@ public class PlayerPinner extends PiterFMPlayer implements PlayerInterface {
     }
 
     @Override
-    public void open(Intent notificationIntent, String channelId, TrackCalendar trackTime) {
+    public void open(Intent notificationIntent, Channel channel, TrackCalendar trackTime) {
         beforeOpenOrResume(notificationIntent);
-        super.open(channelId, trackTime);
+        super.open(channel, trackTime);
     }
 
     @Override

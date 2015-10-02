@@ -128,4 +128,14 @@ public class Channel implements Serializable, Comparable, SearchFilter.Filterabl
                 ", range='" + range + '\'' +
                 '}';
     }
+
+    public TomskStation getTomsk() {
+        if (radio == null) return null;
+        return TomskStation.get(radio.getName(), range);
+    }
+
+    public String getTomskStationId() {
+        TomskStation t = getTomsk();
+        return t == null ? null : t.station_id;
+    }
 }

@@ -4,6 +4,7 @@
 package ru.piter.fm.player;
 
 import ru.piter.fm.util.StatsCalc;
+import ru.piter.fm.util.TrackCalendar;
 import android.annotation.SuppressLint;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
@@ -201,7 +202,7 @@ class SmoothMediaPlayerImpl extends SmoothMediaPlayer implements OnCompletionLis
 {
 
     /** track position, where next track begins */
-    private static final int OVERLAP_BEGIN_MS = 60000;
+    private static final int OVERLAP_BEGIN_MS = TrackCalendar.SEGMENT_MINUTES * 60 * 1000;
 
     /**
      * Switch to next track approx this value before real {@link OnCompletionListener#onCompletion(MediaPlayer)

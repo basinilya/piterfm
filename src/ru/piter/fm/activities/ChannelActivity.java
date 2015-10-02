@@ -58,7 +58,6 @@ public class ChannelActivity extends SherlockListActivity implements
     private Channel channel;
     private TrackCalendar day;
     private TrackCalendar tmpCal = new TrackCalendar();
-    private DateFormat FMT_DATE_BUTTON = new SimpleDateFormat("dd.MM.yyyy", Locale.US);
 
     private EditText search;
     private Button dateButton;
@@ -82,8 +81,6 @@ public class ChannelActivity extends SherlockListActivity implements
         player = App.getPlayer();
 
         channel = (Channel) getIntent().getExtras().get("channel");
-        TimeZone tz = TrackCalendar.getTimezone();
-        FMT_DATE_BUTTON.setTimeZone(tz);
         font = Typeface.createFromAsset(getAssets(), "fonts/Roboto-Light.ttf");
 
         getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -154,7 +151,7 @@ public class ChannelActivity extends SherlockListActivity implements
     }
 
     private void togglePlayButton() {
-        playButton.setImageResource(isGreen ? R.drawable.ic_pause : R.drawable.ic_play);
+        playButton.setImageResource(channel.getTomskStationId() == null ? R.drawable.ic_unavail : isGreen ? R.drawable.ic_pause : R.drawable.ic_play);
     }
 
     private PlayerTask newPlayerTask() {
@@ -274,7 +271,7 @@ public class ChannelActivity extends SherlockListActivity implements
 
                 holder.trackTime.setTypeface(font);
                 tmpCal.setClientTimeInMillis(track.getClientTimeInMillis());
-                holder.trackTime.setText(tmpCal.asHMM());
+                holder.trackTime.setText(tmpCal.asClientHMM());
                 //holder.trackTime.setText("" + calculateRatingStars(maxRate, Integer.parseInt(track.getPlayCount())));
 //                if (track.getType() == Track.TYPE_SHOW) {
 //                     holder.image.setImageResource(R.drawable.ic_mic);
@@ -578,10 +575,10 @@ public class ChannelActivity extends SherlockListActivity implements
     }
     
     private void updateDateButton() {
-        dateButton.setText((FMT_DATE_BUTTON).format(day.getTime()));
+        dateButton.setText(day.asClientDMY());
     }
 
     private void updateTimeButton() {
-        timeButton.setText(day.asHMM());
+        timeButton.setText(day.asClientHMM());
     }
 }

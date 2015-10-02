@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -132,12 +133,12 @@ public class PiterFMCachingDownloader {
             Log.v(Tag, funcname + ",synchronized in, dummyNo:147");
             String trackUrl;
             // update the queue. Not queued entries may become victims, if not locked
-            String prefix = CHANNEL_PREFIX + channelId + "/mp4/";
+            String prefix = CHANNEL_PREFIX + channelId + "/";
             int cacheSize = Settings.getCacheSize();
             urlQueue.clear();
             urlQueue.ensureCapacity(cacheSize);
             for (int i = cacheSize - 1;; i--) {
-                trackUrl = prefix + trackTime.asURLPart() + ".mp4";
+                trackUrl = prefix + trackTime.asURLPart();
                 urlQueue.add(trackUrl);
                 if (i == 0)
                     break;
@@ -314,6 +315,24 @@ public class PiterFMCachingDownloader {
             }.start();
         }
 
+        private String sessionId;
+
+        private synchronized String getSessionId() throws IOException {
+            if (sessionId != null) return sessionId;
+
+            HttpURLConnection conn = (HttpURLConnection)Utils.getURLConnection("http://radiovtomske.ru/");
+            String s;
+            int i;
+            conn.setRequestMethod("HEAD");
+            s = conn.getHeaderField("Set-Cookie");
+            final String x = "PHPSESSID=";
+            if ( s == null || (i = s.indexOf(x)) == -1 || (i = (s = s.substring(i + x.length())).indexOf(';')) == -1) {
+                throw new IOException();
+            }
+            sessionId = s.substring(0, i);
+            return sessionId;
+        }
+        
         private void downloadTrack(OutputStream fos) throws InterruptedException, IOException {
             final String funcname = CacheEntry.this + ",downloadTrack";
             Log.d(Tag, funcname + ",");
@@ -342,8 +361,9 @@ public class PiterFMCachingDownloader {
                 int pos = 0;
                 InputStream in = null;
                 try {
+                    String sessionId = getSessionId();
                     Log.d(Tag, funcname + ",before openConnection(), tryNo = " + tryNo + ", url: " + url);
-                    in = Utils.openConnection(url);
+                    in = Utils.openConnection(url + "&session_id=" + sessionId);
                     Log.d(Tag, funcname + ",after openConnection()");
                     Log.v(Tag, funcname + ",synchronized before, dummyNo:345"); try {
                     synchronized (lock) {

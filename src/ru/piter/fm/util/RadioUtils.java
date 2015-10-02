@@ -34,7 +34,7 @@ import java.util.*;
  */
 public class RadioUtils {
 
-    public static final String CHANNEL_PREFIX = "http://fresh.moskva.fm/files/";
+    public static final String CHANNEL_PREFIX = "http://archive.radiovtomske.ru/station_";
     public static final long TIME_MINUTE = 60000;
 
     public static String getTracksUrl(String day, Channel channel) {

@@ -1,6 +1,5 @@
 package ru.piter.fm.util;
 
-import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -14,6 +13,8 @@ import java.util.TimeZone;
  */
 public class TrackCalendar extends GregorianCalendar {
 
+    private GregorianCalendar serverCal = new GregorianCalendar(TimeZone.getTimeZone("GMT+6"));
+
     private static final long serialVersionUID = -5323025958149225720L;
 
     private static final long CLIENT_TZ_MS = 0*3600*1000;
@@ -26,7 +27,7 @@ public class TrackCalendar extends GregorianCalendar {
         return getTimeInMillis() - CLIENT_TZ_MS;
     }
 
-    public static TimeZone getTimezone() {
+    private static TimeZone getTimezone() {
         return TimeZone.getTimeZone("GMT+3");
     }
 
@@ -43,10 +44,16 @@ public class TrackCalendar extends GregorianCalendar {
         return (TrackCalendar)super.clone();
     }
 
-    /** format me as "yyyy/MM/dd/HHmm" */
+    /** format me as "yyyy/MM/dd/HH00.m4a?start=n&end=n" */
     public String asURLPart() {
-        return String.format(Locale.US, "%d/%02d/%02d/%02d%02d", get(YEAR),
-                get(MONTH) + 1, get(DATE), get(HOUR_OF_DAY), get(MINUTE));
+        serverCal.setTimeInMillis(getTimeInMillis());
+
+        int h = serverCal.get(HOUR_OF_DAY);
+        int m = serverCal.get(MINUTE);
+        int start = m * 60;
+        int end = start + (SEGMENT_MINUTES*60+2);
+        return String.format(Locale.US, "%d/%02d/%02d/%02d00.m4a?start=%d&end=%d", serverCal.get(YEAR),
+                serverCal.get(MONTH) + 1, serverCal.get(DATE), h, start, end);
     }
 
     @Override
@@ -54,7 +61,15 @@ public class TrackCalendar extends GregorianCalendar {
         return asTrackTime() + "." + get(MILLISECOND);
     }
 
-    public String asHMM() {
+    public String asClientDMY() {
+        return String.format(Locale.US, "%02d.%02d.%d"
+                , get(DAY_OF_MONTH)
+                , get(MONTH)+1
+                , get(YEAR)
+                );
+    }
+
+    public String asClientHMM() {
         return String.format(Locale.US, "%d:%02d", get(HOUR_OF_DAY), get(MINUTE));
     }
 
@@ -70,9 +85,11 @@ public class TrackCalendar extends GregorianCalendar {
         //http://www.piter.fm/station.xml.html?station=7835&day=20101218&r=0.47836548276245594
     }
 
+    public static final int SEGMENT_MINUTES = 4;
+
     /** Add one minute and set default time to seek for subsequent tracks */
     public void nextTrackTime() {
-        add(MINUTE, 1);
+        add(MINUTE, SEGMENT_MINUTES);
         set(SECOND, 2);
     }
 

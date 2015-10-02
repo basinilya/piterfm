@@ -71,13 +71,18 @@ public class Utils {
         }
     }
 
-    public static InputStream openConnection(String url) throws IOException {
-
-        InputStream content = null;
+    public static URLConnection getURLConnection(String url) throws IOException {
         URLConnection httpclient = new URL(url).openConnection();
         httpclient.setUseCaches(false);
         httpclient.setConnectTimeout(20000);
         httpclient.setReadTimeout(30000);
+        return httpclient;
+    }
+    
+    public static InputStream openConnection(String url) throws IOException {
+
+        InputStream content = null;
+        URLConnection httpclient = getURLConnection(url);
         content = httpclient.getInputStream();
         return content;
     }
