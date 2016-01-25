@@ -4,7 +4,7 @@ cat <<'EOF'
 package ru.piter.fm.radio;
 
 public class Tomsk {
-    static {
+    public static void init() {
 EOF
 
 
@@ -21,7 +21,6 @@ cat <<'EOF'
     }
 }
 EOF
-} | less
-# iconv -t >src/ru/piter/fm/radio/Tomsk.java
+} >src/ru/piter/fm/radio/Tomsk.java
 
 #<div title="Lost Frequencies &amp; Janieck Devy - Reality" class="mixer_rds" station_id="41">Lost Frequencies &amp; Janieck Devy - Reality</div>
