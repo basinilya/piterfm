@@ -12,16 +12,14 @@ import java.util.List;
  */
 public class Radio implements Serializable{
 
+    private static final long serialVersionUID = -5284411684704086564L;
+
     private String name;
-    private String hostUrl;
-    private String stationsUrl;
 
     private List<Channel> channels;
 
-    public Radio(String name, String hostUrl) {
+    public Radio(String name) {
         this.name = name;
-        this.hostUrl = hostUrl;
-        this.stationsUrl = hostUrl + "/stations";
     }
 
 
@@ -33,27 +31,11 @@ public class Radio implements Serializable{
         this.name = name;
     }
 
-    public String getHostUrl() {
-        return hostUrl;
-    }
-
-    public void setHostUrl(String hostUrl) {
-        this.hostUrl = hostUrl;
-    }
-
     public List<Channel> getChannels() {
         return channels;
     }
 
     public void setChannels(List<Channel> channels) {
         this.channels = channels;
-    }
-
-    public String getStationsUrl() {
-        return stationsUrl;
-    }
-
-    public void setStationsUrl(String stationsUrl) {
-        this.stationsUrl = stationsUrl;
     }
 }

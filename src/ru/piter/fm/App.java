@@ -23,7 +23,6 @@ import ru.piter.fm.player.PlayerPinner;
 import ru.piter.fm.radio.Channel;
 import ru.piter.fm.prototype.BuildConfig;
 import ru.piter.fm.prototype.R;
-import ru.piter.fm.util.DBAdapter;
 import ru.piter.fm.util.GetAllStackTracesTimer;
 import ru.piter.fm.util.SelfLogcatSaver;
 import ru.piter.fm.util.Settings;
@@ -42,7 +41,6 @@ public class App extends Application implements OnSharedPreferenceChangeListener
 
     private static Context context;
     private static PlayerInterface player;
-    private static DBAdapter db;
 
     static {
         if (BuildConfig.DEBUG)
@@ -92,16 +90,10 @@ public class App extends Application implements OnSharedPreferenceChangeListener
 
         // bind player service
         player = new PlayerPinner(this);
-
-        db = new DBAdapter(context);
     }
 
     public static PlayerInterface getPlayer() {
         return player;
-    }
-
-    public static DBAdapter getDb(){
-        return db;
     }
 
     public static boolean isPlaying(Channel ch) {

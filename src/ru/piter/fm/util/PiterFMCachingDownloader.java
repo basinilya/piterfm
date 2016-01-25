@@ -187,6 +187,7 @@ public class PiterFMCachingDownloader {
     public void releaseFile(String path, boolean badFile) {
         final String funcname = "releaseFile";
         Log.d(Tag, funcname + ",path = " + path + ", badFile = " + badFile);
+        if (badFile) sessionId = null;
         Log.v(Tag, funcname + ",synchronized before, dummyNo:197"); try {
         synchronized (lock) {
             Log.v(Tag, funcname + ",synchronized in, dummyNo:199");
@@ -256,6 +257,8 @@ public class PiterFMCachingDownloader {
         Log.d(Tag, funcname + ",All queued files alredy downloaded");
     }
 
+    private String sessionId;
+
     private class CacheEntry {
         /** if {@link #thread} == null, holds the data downloaded from {@link #m_url} */
         public final File file;
@@ -315,12 +318,10 @@ public class PiterFMCachingDownloader {
             }.start();
         }
 
-        private String sessionId;
-
         private synchronized String getSessionId() throws IOException {
             if (sessionId != null) return sessionId;
 
-            HttpURLConnection conn = (HttpURLConnection)Utils.getURLConnection("http://radiovtomske.ru/");
+            HttpURLConnection conn = (HttpURLConnection)Utils.getURLConnection("http://radio-archive.ru/include/mixer.php?city_id=29");
             String s;
             int i;
             conn.setRequestMethod("HEAD");
@@ -361,9 +362,9 @@ public class PiterFMCachingDownloader {
                 int pos = 0;
                 InputStream in = null;
                 try {
-                    String sessionId = getSessionId();
+                    String currentSessionId = getSessionId();
                     Log.d(Tag, funcname + ",before openConnection(), tryNo = " + tryNo + ", url: " + url);
-                    in = Utils.openConnection(url + "&session_id=" + sessionId);
+                    in = Utils.openConnection(url + "&session_id=" + currentSessionId);
                     Log.d(Tag, funcname + ",after openConnection()");
                     Log.v(Tag, funcname + ",synchronized before, dummyNo:345"); try {
                     synchronized (lock) {
@@ -406,6 +407,7 @@ public class PiterFMCachingDownloader {
                     } finally { Log.v(Tag, funcname + ",synchronized after, dummyNo:390"); }
                     return;
                 } catch(IOException e) {
+                    sessionId = null;
                     if (rethrowIO)
                         throw e; // This IOException is fatal
                     Log.d(Tag, funcname + ",download failed: " + e.toString());

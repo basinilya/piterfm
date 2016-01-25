@@ -9,22 +9,17 @@ package ru.piter.fm.radio;
  */
 public class RadioFactory {
 
+/*
     public static final String PITER_FM = "PiterFM";
     public static final String MOSKVA_FM = "MoskvaFM";
+*/
     public static final String FAVOURITE = "Favourite";
 
 
     public static Radio getRadio(String name) {
-        if (name.equals(PITER_FM))
-            return new Radio(PITER_FM, "http://piter.fm");
-
-        if (name.equals(MOSKVA_FM))
-            return new Radio(MOSKVA_FM, "http://moskva.fm");
-
         if (name.equals(FAVOURITE))
-            return new Radio(FAVOURITE, "");
-
-        return null;
+            return new Radio(FAVOURITE);
+        return new Radio(name);
     }
 
 }

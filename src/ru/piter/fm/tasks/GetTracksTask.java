@@ -42,12 +42,7 @@ public class GetTracksTask extends BaseTask<List<Track>> {
                 return tracks;
 
         }
-        String url = RadioUtils.getTracksUrl(day, channel);
-        tracks = RadioUtils.getTracks(url);
-        if (tracks != null){
-            TracksCache.put(channel.getChannelId(), day, tracks);
-            Collections.sort(tracks, new TrackComparator(Settings.getTrackSort()));
-        }
+        /* TODO: get tracks from tomsk */
         return tracks;
     }
 

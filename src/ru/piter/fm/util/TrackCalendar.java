@@ -13,7 +13,7 @@ import java.util.TimeZone;
  */
 public class TrackCalendar extends GregorianCalendar {
 
-    private GregorianCalendar serverCal = new GregorianCalendar(TimeZone.getTimeZone("GMT+6"));
+    private GregorianCalendar serverCal = new GregorianCalendar(TimeZone.getTimeZone("GMT+7"));
 
     private static final long serialVersionUID = -5323025958149225720L;
 

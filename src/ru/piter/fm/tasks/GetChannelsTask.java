@@ -7,10 +7,12 @@ import ru.piter.fm.exception.NoInternetException;
 import ru.piter.fm.radio.Channel;
 import ru.piter.fm.radio.Radio;
 import ru.piter.fm.radio.RadioFactory;
+import ru.piter.fm.radio.TomskStation;
 import ru.piter.fm.util.*;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.ArrayList;
 
 /**
  * Created by IntelliJ IDEA.
@@ -31,14 +33,22 @@ public class GetChannelsTask extends BaseTask<List<Channel>> {
     @Override
     public List<Channel> doWork(Object... objects) throws Exception {
         Radio radio = (Radio) objects[0];
-        DBAdapter db = App.getDb();
-        List<Channel> channels = null;
+        List<Channel> channels = new ArrayList<Channel>();
 
-        if (radio.getName().equals(RadioFactory.FAVOURITE))
-            channels = db.selectAllChannels(radio);
-        else {
-            boolean redownload = (Boolean)objects[1];
-            channels = RadioUtils.getRadioChannels(radio, context, redownload);
+        if (radio.getName().equals(RadioFactory.FAVOURITE)) {
+            for (String key : Settings.getFavorites()) {
+                TomskStation tst = TomskStation.stations.get(key);
+                if (tst != null) {
+                    channels.add(tst.mkChannel(RadioFactory.getRadio(tst.mixer_city)));
+                }
+            }
+        } else {
+            String city = radio.getName();
+            for (TomskStation tst: TomskStation.stations.values()) {
+                if (city.equals(tst.mixer_city)) {
+                    channels.add(tst.mkChannel(radio));
+                }
+            }
         }
 
         if (channels != null)

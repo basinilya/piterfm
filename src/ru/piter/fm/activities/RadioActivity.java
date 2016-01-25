@@ -74,14 +74,20 @@ public class RadioActivity extends SherlockFragmentActivity implements ViewPager
         getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
         getSupportActionBar().setDisplayShowTitleEnabled(true);
 
-        actionBar.addTab(actionBar.newTab().setText("PITER FM").setTabListener(this));
-        actionBar.addTab(actionBar.newTab().setText("MOSKVA FM").setTabListener(this));
+        int count = mAdapter.getCount();
+        for (int i = 0; i < count; i++) {
+            String caption = RadioAdapter.getCity(i);
+            if (RadioFactory.FAVOURITE.equals(caption)) caption = "FAV";
+            actionBar.addTab(actionBar.newTab().setText(caption).setTabListener(this));
+        }
 
-        mAdapter.count = 2;
+        //mAdapter.count = 2;
+        /*
         if(Settings.isFavouritesEnabled()){
             addFavTab();
             mAdapter.count = 3;
         }
+        */
 
         mPager.setAdapter(mAdapter);
         mPager.setOnPageChangeListener(this);
@@ -193,6 +199,7 @@ public class RadioActivity extends SherlockFragmentActivity implements ViewPager
     @Override
     public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
         if (key.equals(Settings.FAVOURITES)) {
+            /*
             if (Settings.isFavouritesEnabled()) {
                 if (mAdapter.count == 2) {
                     addFavTab();
@@ -206,6 +213,7 @@ public class RadioActivity extends SherlockFragmentActivity implements ViewPager
                     mAdapter.notifyDataSetChanged();
                 }
             }
+            */
         }
         if (key.equals(Settings.CHANNEL_SORT_TYPE))
         isSettingsChanged = true;

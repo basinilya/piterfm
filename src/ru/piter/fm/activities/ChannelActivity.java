@@ -27,6 +27,7 @@ import ru.piter.fm.prototype.R;
 import ru.piter.fm.radio.Channel;
 import ru.piter.fm.radio.Radio;
 import ru.piter.fm.radio.RadioFactory;
+import ru.piter.fm.radio.TomskStation;
 import ru.piter.fm.radio.Track;
 import ru.piter.fm.tasks.GetTracksTask;
 import ru.piter.fm.tasks.PlayerTask;
@@ -405,7 +406,7 @@ public class ChannelActivity extends SherlockListActivity implements
 
 
     private boolean isFavouriteChannel(Channel channel) {
-        return App.getDb().getChannel(channel.getChannelId(), favouriteRadio) != null;
+        return Settings.isFavoriteStation(channel.getKey());
     }
 
     @Override
@@ -437,10 +438,10 @@ public class ChannelActivity extends SherlockListActivity implements
                 break;
             case 300:
                 if (!isFavouriteChannel(channel)) {
-                    App.getDb().addChannel(channel, favouriteRadio);
+                    Settings.addFavorite(channel.getKey());
                     item.setIcon(R.drawable.ic_rating_important);
                 } else {
-                    App.getDb().deleteChannel(channel, favouriteRadio);
+                    Settings.deleteFavorite(channel.getKey());
                     item.setIcon(R.drawable.ic_rating_not_important);
                 }
                 break;

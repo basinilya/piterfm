@@ -34,14 +34,6 @@ public class Channel implements Serializable, Comparable, SearchFilter.Filterabl
         this.radio = radio;
     }
 
-    public String getTranslationUrl() {
-        return translationUrl;
-    }
-
-    public void setTranslationUrl(String translationUrl) {
-        this.translationUrl = translationUrl;
-    }
-
     public String getName() {
         return name;
     }
@@ -52,6 +44,14 @@ public class Channel implements Serializable, Comparable, SearchFilter.Filterabl
 
     public String getRange() {
         return range;
+    }
+
+    public float getRangeF() {
+        try {
+            return Float.parseFloat(range.split("\\s")[0]);
+        } catch (Exception e) {
+            return 0;
+        }
     }
 
     public void setRange(String range) {
@@ -108,7 +108,7 @@ public class Channel implements Serializable, Comparable, SearchFilter.Filterabl
         Channel channel = (Channel) o;
         try {
             float currentValue = Float.parseFloat(this.range.split("\\s")[0]);
-            float newValue = Float.parseFloat(channel.getRange().split("\\s")[0]);
+            float newValue = channel.getRangeF();
             if (currentValue < newValue)
                 return -1;
             else if (currentValue > newValue)
@@ -127,6 +127,10 @@ public class Channel implements Serializable, Comparable, SearchFilter.Filterabl
                 ", name='" + name + '\'' +
                 ", range='" + range + '\'' +
                 '}';
+    }
+
+    public String getKey() {
+        return TomskStation.getKey(radio.getName(), range);
     }
 
     public TomskStation getTomsk() {

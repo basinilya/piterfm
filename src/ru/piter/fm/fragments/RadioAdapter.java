@@ -2,6 +2,7 @@ package ru.piter.fm.fragments;
 
 import static ru.piter.fm.radio.RadioFactory.*;
 import ru.piter.fm.radio.RadioFactory;
+import ru.piter.fm.radio.TomskStation;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -16,11 +17,6 @@ import android.view.ViewGroup;
  */
 public class RadioAdapter extends FragmentPagerAdapter{
 
-    private final String radioNames[] = {
-            PITER_FM, MOSKVA_FM, FAVOURITE
-    };
-
-    public int count;
     private RadioFragment primaryFragment;
 
     public RadioAdapter(FragmentManager fm) {
@@ -37,14 +33,19 @@ public class RadioAdapter extends FragmentPagerAdapter{
         return primaryFragment;
     }
 
+    public static String getCity(int position) {
+        String s = position == 0 ? FAVOURITE : TomskStation.cities[position-1];
+        return s;
+    }
+    
     @Override
     public Fragment getItem(int position) {
-        return new RadioFragment(RadioFactory.getRadio(radioNames[position]));
+        return new RadioFragment(RadioFactory.getRadio(getCity(position)));
     }
 
     @Override
     public int getCount() {
-        return count;
+        return TomskStation.cities.length + 1;
     }
 
 }

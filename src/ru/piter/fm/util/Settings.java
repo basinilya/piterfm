@@ -1,6 +1,11 @@
 package ru.piter.fm.util;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.preference.PreferenceManager;
 import ru.piter.fm.App;
 
@@ -19,6 +24,7 @@ public class Settings {
     public static final String FAVOURITES = "favourites_key";
     public static final String NOTIFICATION = "notification_key";
     public static final String NOTIFICATION_SOUND = "notification_sound_key";
+    public static final String FAVORITES = "favorites";
     public static final String RECONNECT = "reconnect_key";
     public static final String RECONNECT_COUNT = "reconnect_count_key";
     public static final String RECONNECT_TIMEOUT = "reconnect_timeout_key";
@@ -60,6 +66,44 @@ public class Settings {
 
     public static boolean isNotificationsSoundEnabled() {
         return getBoolean(NOTIFICATION_SOUND);
+    }
+
+    public static void deleteFavorite(String key) {
+        HashSet<String> a = getFavorites();
+        a.remove(key);
+        setFavorites(a);
+    }
+
+    public static void addFavorite(String key) {
+        HashSet<String> a = getFavorites();
+        a.add(key);
+        setFavorites(a);
+    }
+
+    public static boolean isFavoriteStation(String key) {
+        HashSet<String> a = getFavorites();
+        return a.contains(key);
+    }
+
+    public static HashSet<String> getFavorites() {
+        String s = getString(FAVORITES);
+        HashSet<String> res = new HashSet<String>();
+        if (s.length() != 0) {
+            for (String fav : s.split("\n")) {
+                res.add(fav);
+            }
+        }
+        return res;
+    }
+
+    private static void setFavorites(HashSet<String> a) {
+        StringBuilder sb = new StringBuilder();
+        for (String s : a) {
+            sb.append(s).append('\n');
+        }
+        Editor ed = getPreferences().edit();
+        ed.putString(FAVORITES, sb.toString());
+        ed.commit();
     }
 
     public static boolean isReconnect(){

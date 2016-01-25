@@ -25,8 +25,8 @@ public class ChannelComparator implements Comparator {
 
         if (sortBy.equals("sort_by_range")) {
 
-            float currentValue = Float.parseFloat(channel_1.getRange().split("\\s")[0]);
-            float newValue = Float.parseFloat(channel_2.getRange().split("\\s")[0]);
+            float currentValue = channel_1.getRangeF();
+            float newValue = channel_2.getRangeF();
             
             if (currentValue < newValue)
                 return -1;
