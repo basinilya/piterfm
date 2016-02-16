@@ -89,12 +89,12 @@ public class TrackCalendar extends GregorianCalendar {
 
     /** Add one minute and set default time to seek for subsequent tracks */
     public void nextTrackTime() {
-        add(MINUTE, SEGMENT_MINUTES);
+        add(MINUTE, SEGMENT_MINUTES - (get(MINUTE) % SEGMENT_MINUTES));
         set(SECOND, 2);
     }
 
     /** @return time to seek */
     public int getSeekTo() {
-        return get(SECOND) * 1000;
+        return ((get(MINUTE) % SEGMENT_MINUTES )*60 + get(SECOND)) * 1000;
     }
 }

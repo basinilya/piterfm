@@ -200,8 +200,8 @@ public class PiterFMCachingDownloader {
                 entry.m_url = BADFILE;
             }
             if (entry.omniCount == 0) {
-                resumeOrCreateNextDownloadNoLock();
-                lock.notifyAll();
+                //resumeOrCreateNextDownloadNoLock();
+                //lock.notifyAll();
             }
         }
         } finally { Log.v(Tag, funcname + ",synchronized after, dummyNo:212"); }

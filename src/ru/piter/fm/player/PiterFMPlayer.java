@@ -67,6 +67,7 @@ abstract class PiterFMPlayer {
         } else {
             rslt = currentPlayer.chunkTime;
             rslt.set(Calendar.SECOND, 0);
+            rslt.set(Calendar.MINUTE, rslt.get(Calendar.MINUTE) / TrackCalendar.SEGMENT_MINUTES * TrackCalendar.SEGMENT_MINUTES);
             rslt.set(Calendar.MILLISECOND, currentPlayer.player.getCurrentPosition());
         }
         return rslt == null ? null : rslt.clone();
@@ -131,7 +132,6 @@ abstract class PiterFMPlayer {
             player.reset();
             if (path != null) {
                 Log.d(Tag, funcname + ",path != null, calling releaseFile('" + path + "')");
-                // PROBLEM: this invalidates current file and immediately replaces it with the next queued
                 cache.releaseFile(path, false);
                 path = null;
             }
