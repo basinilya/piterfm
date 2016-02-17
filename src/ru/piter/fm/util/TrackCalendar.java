@@ -49,7 +49,7 @@ public class TrackCalendar extends GregorianCalendar {
         serverCal.setTimeInMillis(getTimeInMillis());
 
         int h = serverCal.get(HOUR_OF_DAY);
-        int m = serverCal.get(MINUTE);
+        int m = serverCal.get(MINUTE) / SEGMENT_MINUTES * SEGMENT_MINUTES;
         int start = m * 60;
         int end = start + (SEGMENT_MINUTES*60+2);
         return String.format(Locale.US, "%d/%02d/%02d/%02d00.m4a?start=%d&end=%d", serverCal.get(YEAR),
