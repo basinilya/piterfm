@@ -131,6 +131,7 @@ abstract class PiterFMPlayer {
             player.reset();
             if (path != null) {
                 Log.d(Tag, funcname + ",path != null, calling releaseFile('" + path + "')");
+                // PROBLEM: this invalidates current file and immediately replaces it with the next queued
                 cache.releaseFile(path, false);
                 path = null;
             }
