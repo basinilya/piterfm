@@ -324,11 +324,12 @@ public class PiterFMCachingDownloader {
             HttpURLConnection conn = (HttpURLConnection)Utils.getURLConnection("http://radio-archive.ru/include/mixer.php?city_id=29");
             String s;
             int i;
-            conn.setRequestMethod("HEAD");
+            //conn.setRequestMethod("HEAD");
             s = conn.getHeaderField("Set-Cookie");
+            conn.disconnect();
             final String x = "PHPSESSID=";
             if ( s == null || (i = s.indexOf(x)) == -1 || (i = (s = s.substring(i + x.length())).indexOf(';')) == -1) {
-                throw new IOException();
+                throw new IOException("not found PHPSESSID cookie");
             }
             sessionId = s.substring(0, i);
             return sessionId;
@@ -362,9 +363,9 @@ public class PiterFMCachingDownloader {
                 int pos = 0;
                 InputStream in = null;
                 try {
-                    String currentSessionId = getSessionId();
-                    Log.d(Tag, funcname + ",before openConnection(), tryNo = " + tryNo + ", url: " + url);
-                    in = Utils.openConnection(url + "&session_id=" + currentSessionId);
+                    String sesUrl = url + "&session_id=" + getSessionId();
+                    Log.d(Tag, funcname + ",before openConnection(), tryNo = " + tryNo + ", url: " + sesUrl);
+                    in = Utils.openConnection(sesUrl);
                     Log.d(Tag, funcname + ",after openConnection()");
                     Log.v(Tag, funcname + ",synchronized before, dummyNo:345"); try {
                     synchronized (lock) {
