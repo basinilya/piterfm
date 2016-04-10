@@ -321,7 +321,7 @@ public class PiterFMCachingDownloader {
         private synchronized String getSessionId() throws IOException {
             if (sessionId != null) return sessionId;
 
-            HttpURLConnection conn = (HttpURLConnection)Utils.getURLConnection("http://radio-archive.ru/include/mixer.php?city_id=29");
+            HttpURLConnection conn = (HttpURLConnection)Utils.getURLConnection("http://radio-archive.ru/");
             String s;
             int i;
             //conn.setRequestMethod("HEAD");
