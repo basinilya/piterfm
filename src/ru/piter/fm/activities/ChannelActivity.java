@@ -396,6 +396,10 @@ public class ChannelActivity extends SherlockListActivity implements
                 return new TimePickerDialog(ChannelActivity.this, mTimeSetListener, day.get(Calendar.HOUR_OF_DAY), day.get(Calendar.MINUTE), true) {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        View v = getCurrentFocus();
+                        if (v != null) {
+                            v.clearFocus(); // clear NumberPicker focus
+                        }
                         dlgClicked = true;
                         super.onClick(dialog, which);
                     }
