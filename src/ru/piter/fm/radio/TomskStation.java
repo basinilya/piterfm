@@ -9,14 +9,15 @@ public class TomskStation {
     public final String mixer_city;
     public final String mixer_freq;
     public final String station_id;
-    public final String mixer_rds;
+    public final boolean station_master;
 
-    public TomskStation(String mixer_name, String mixer_city, String mixer_freq, String station_id, String mixer_rds) {
+    public TomskStation(String mixer_name, String mixer_city, String mixer_freq, String station_id, String station_master) {
+        mixer_freq += " FM";
         this.mixer_name = mixer_name;
         this.mixer_city = mixer_city;
         this.mixer_freq = mixer_freq;
         this.station_id = station_id;
-        this.mixer_rds = mixer_rds;
+        this.station_master = !"0".equals(station_master);
         stations.put(getKey(mixer_city, mixer_freq), this);
         // <range>101.2 FM</range>
         // <div class="mixer_freq">73.1 FM</div>

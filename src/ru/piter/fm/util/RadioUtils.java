@@ -34,7 +34,6 @@ import java.util.*;
  */
 public class RadioUtils {
 
-    public static final String CHANNEL_PREFIX = "http://stor.radio-archive.ru/station_";
     public static final long TIME_MINUTE = 60000;
 
     public static String getDuration(String durationInSeconds) {

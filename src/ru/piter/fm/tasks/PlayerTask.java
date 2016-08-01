@@ -46,7 +46,7 @@ public abstract class PlayerTask extends BaseTask<Void> {
         executeInternal(ch, tr);
     }
     public void execute(Channel ch) {
-        if (ch.getTomskStationId() != null) executeInternal(ch);
+        if (ch.getTomsk() != null) executeInternal(ch);
     }
 
     private static ArrayList<PlayerTask> startedTasks = new ArrayList<PlayerTask>();

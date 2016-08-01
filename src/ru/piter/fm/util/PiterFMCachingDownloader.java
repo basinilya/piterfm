@@ -1,7 +1,6 @@
 package ru.piter.fm.util;
 
 import static junit.framework.Assert.*;
-import static ru.piter.fm.util.RadioUtils.CHANNEL_PREFIX;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -124,16 +123,16 @@ public class PiterFMCachingDownloader {
      * Get and lock a file with the provided params. This function is
      * synchronous and may block forever, if 5 other files stay locked.
      */
-    public String getFile(String channelId, TrackCalendar trackTime) throws InterruptedException {
+    public String getFile(String prefix, TrackCalendar trackTime, boolean station_master) throws InterruptedException {
         final String funcname = "getFile";
-        Log.d(Tag, funcname + ",channelId = " + channelId + ", trackTime = " + trackTime.asURLPart());
+        Log.d(Tag, funcname + ",channelId = " + "?" + ", trackTime = " + trackTime.asURLPart());
         trackTime = trackTime.clone();
         Log.v(Tag, funcname + ",synchronized before, dummyNo:145"); try {
         synchronized (lock) {
             Log.v(Tag, funcname + ",synchronized in, dummyNo:147");
             String trackUrl;
             // update the queue. Not queued entries may become victims, if not locked
-            String prefix = CHANNEL_PREFIX + channelId + "/";
+            //String prefix = (station_master ? CHANNEL_PREFIX_MASTER : CHANNEL_PREFIX_SLAVE) + channelId + "/";
             int cacheSize = Settings.getCacheSize();
             urlQueue.clear();
             urlQueue.ensureCapacity(cacheSize);

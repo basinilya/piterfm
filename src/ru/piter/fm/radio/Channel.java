@@ -138,8 +138,11 @@ public class Channel implements Serializable, Comparable, SearchFilter.Filterabl
         return TomskStation.get(radio.getName(), range);
     }
 
-    public String getTomskStationId() {
+    public static final String CHANNEL_PREFIX_MASTER = "http://stor.radio-archive.ru/station_";
+    public static final String CHANNEL_PREFIX_SLAVE = "http://stor2.radio-archive.ru/station_";
+
+    public String getTomskUrlPrefix() {
         TomskStation t = getTomsk();
-        return t == null ? null : t.station_id;
+        return t == null ? null : ((t.station_master ? CHANNEL_PREFIX_MASTER : CHANNEL_PREFIX_SLAVE) + t.station_id + "/");
     }
 }

@@ -152,7 +152,7 @@ public class ChannelActivity extends SherlockListActivity implements
     }
 
     private void togglePlayButton() {
-        playButton.setImageResource(channel.getTomskStationId() == null ? R.drawable.ic_unavail : isGreen ? R.drawable.ic_pause : R.drawable.ic_play);
+        playButton.setImageResource(channel.getTomsk() == null ? R.drawable.ic_unavail : isGreen ? R.drawable.ic_pause : R.drawable.ic_play);
     }
 
     private PlayerTask newPlayerTask() {

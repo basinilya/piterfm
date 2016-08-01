@@ -141,9 +141,9 @@ abstract class PiterFMPlayer {
             final String funcname = "PlayerWrap," + dbgId + ",scheduleGetFile";
             Log.d(Tag, funcname + ",");
             assertNull(getFileTask);
-            final String channelId = PiterFMPlayer.this.channel.getTomskStationId();
+            final String urlPrefix = PiterFMPlayer.this.channel.getTomskUrlPrefix();
             chunkTime = nextChunkTime.clone();
-            Log.d(Tag, funcname + ",channelId = " + channelId + ", trackCal = " + chunkTime.asURLPart());
+            Log.d(Tag, funcname + ",channelId = " + "?" + ", trackCal = " + chunkTime.asURLPart());
 
             getFileTask = new AsyncTask<Void, Void, Void>() {
                 private String path;
@@ -151,9 +151,9 @@ abstract class PiterFMPlayer {
                 @Override
                 protected Void doInBackground(Void... params) {
                     final String funcname = "PlayerWrap," + dbgId + ",doInBackground";
-                    Log.d(Tag, funcname + ",channelId = " + channelId + ", trackCal = " + chunkTime.asURLPart());
+                    Log.d(Tag, funcname + ",channelId = " + "?" + ", trackCal = " + chunkTime.asURLPart());
                     try {
-                        path = cache.getFile(channelId, chunkTime);
+                        path = cache.getFile(urlPrefix, chunkTime, false);
                     } catch (Exception e) {
                         Log.e(Tag, funcname + ",Exception caught", e);
                     }
@@ -311,7 +311,7 @@ abstract class PiterFMPlayer {
         Log.d(Tag, funcname + ",");
         assertUIThread();
         assertNotNull(channel);
-        assertNotNull(channel.getTomskStationId());
+        assertNotNull(channel.getTomsk());
         if (isPaused) {
             Log.d(Tag, funcname + ",isPaused == true, maybe there is a player to resume");
             setPausedFalse();
