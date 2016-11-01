@@ -105,7 +105,7 @@ public class RadioActivity extends SherlockFragmentActivity implements ViewPager
         menu.add(0, 200, 200, R.string.ac_settings).setIcon(R.drawable.ic_action_settings).setShowAsAction(SHOW_AS_ACTION_IF_ROOM);
         menu.add(0, 300, 300, R.string.ac_search).setIcon(R.drawable.ic_action_search).setActionView(R.layout.action_search)
                                     .setShowAsAction(SHOW_AS_ACTION_IF_ROOM | SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
-        menu.add(0, 350, 350, R.string.ac_redownload).setIcon(R.drawable.ic_navigation_refresh).setShowAsAction(SHOW_AS_ACTION_IF_ROOM);
+        //menu.add(0, 350, 350, R.string.ac_redownload).setIcon(R.drawable.ic_navigation_refresh).setShowAsAction(SHOW_AS_ACTION_IF_ROOM);
         menu.add(0, 400, 400, R.string.ac_exit    ).setIcon(R.drawable.ic_cancel).setShowAsAction(SHOW_AS_ACTION_IF_ROOM);
 
         return super.onCreateOptionsMenu(menu);
