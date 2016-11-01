@@ -317,6 +317,7 @@ public class PiterFMCachingDownloader {
             }.start();
         }
 
+        /* TODO: why did I make it synchronized(CacheEntry.this) ? */
         private synchronized String getSessionId() throws IOException {
             if (sessionId != null) return sessionId;
 
