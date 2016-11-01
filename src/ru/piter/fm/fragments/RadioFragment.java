@@ -37,8 +37,7 @@ import java.util.List;
  * To change this template use File | Settings | File Templates.
  */
 public class RadioFragment extends ListFragment implements
-        PlayerInterface.EventHandler,
-        GetChannelsTask.ChannelsLoadingListener
+        PlayerInterface.EventHandler
         {
 
     private Radio radio;
@@ -57,7 +56,7 @@ public class RadioFragment extends ListFragment implements
 
     public void updateChannels(boolean redownload) {
         GetChannelsTask task = new GetChannelsTask(getActivity());
-        task.setChannelsLoadingListener(this);
+        task.setChannelsLoadingListener(adapter);
         task.execute(radio, redownload);
     }
 
@@ -86,33 +85,33 @@ public class RadioFragment extends ListFragment implements
 
 
     @Override
-    public void onChannelsLoaded(List<Channel> channels) {
-        if (channels == null)
-            return;
-        adapter.setNotifyOnChange(false);
-        adapter.clear();
-        for (int i = 0; i < channels.size(); i++) {
-            adapter.add(channels.get(i));
-        }
-        adapter.setNotifyOnChange(true);
-        adapter.notifyDataSetChanged();
-    }
-
-    @Override
     public ChannelAdapter getListAdapter() {
         return adapter;
     }
 
 
-    private class ChannelAdapter extends ArrayAdapter<Channel> {
+    private class ChannelAdapter extends ArrayAdapter<Channel> implements GetChannelsTask.ChannelsLoadingListener {
 
-        private Filter channelFilter;
+        private SearchFilter channelFilter;
 
         public ChannelAdapter(Context context, int textViewResourceId, List<Channel> objects) {
             super(context, textViewResourceId, objects);
             this.channelFilter = new SearchFilter(new ArrayList<SearchFilter.Filterable>(objects), this);
         }
 
+        @Override
+        public void onChannelsLoaded(List<Channel> channels) {
+            if (channels == null)
+                return;
+            setNotifyOnChange(false);
+            clear();
+            for (int i = 0; i < channels.size(); i++) {
+                add(channels.get(i));
+            }
+            channelFilter.objects = channels;
+            setNotifyOnChange(true);
+            notifyDataSetChanged();
+        }
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {

@@ -15,7 +15,7 @@ import java.util.List;
  */
 public class SearchFilter extends Filter{
 
-    private List<? extends Filterable> objects;
+    public List<? extends Filterable> objects;
     private ArrayAdapter adapter;
 
     public SearchFilter(List<? extends Filterable> objects, ArrayAdapter adapter) {
