@@ -9,6 +9,12 @@
                 android:title="@string/favourites_title"
                 android:summary="@string/favourites_summary"/>
 
+        <CheckBoxPreference
+                android:key="force_no_setnextmediaplayer_key"
+                android:defaultValue="false"
+                android:title="@string/force_no_setnextmediaplayer_title"
+                android:summary="@string/force_no_setnextmediaplayer_summary"/>
+
         <ListPreference
                 android:key="channel_sort_key"
                 android:defaultValue="sort_by_range"

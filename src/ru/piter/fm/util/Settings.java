@@ -25,6 +25,7 @@ public class Settings {
     public static final String NOTIFICATION = "notification_key";
     public static final String NOTIFICATION_SOUND = "notification_sound_key";
     public static final String FAVORITES = "favorites";
+    public static final String FORCE_NO_SETNEXTMEDIAPLAYER = "force_no_setnextmediaplayer_key";
     public static final String RECONNECT = "reconnect_key";
     public static final String RECONNECT_COUNT = "reconnect_count_key";
     public static final String RECONNECT_TIMEOUT = "reconnect_timeout_key";
@@ -104,6 +105,10 @@ public class Settings {
         Editor ed = getPreferences().edit();
         ed.putString(FAVORITES, sb.toString());
         ed.commit();
+    }
+
+    public static boolean isForceNoSetnextmediaplayer(){
+        return getBoolean(FORCE_NO_SETNEXTMEDIAPLAYER);
     }
 
     public static boolean isReconnect(){

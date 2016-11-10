@@ -3,6 +3,7 @@
  */
 package ru.piter.fm.player;
 
+import ru.piter.fm.util.Settings;
 import ru.piter.fm.util.StatsCalc;
 import ru.piter.fm.util.TrackCalendar;
 import android.annotation.SuppressLint;
@@ -177,7 +178,7 @@ public class SmoothMediaPlayer extends MediaPlayer {
     }
 
     public static SmoothMediaPlayer newInstance(int dbgId) {
-        if (HAVE_SETNEXTMEDIAPLAYER) {
+        if (HAVE_SETNEXTMEDIAPLAYER && !Settings.isForceNoSetnextmediaplayer()) {
             return new SmoothMediaPlayer(dbgId);
         } else {
             return new SmoothMediaPlayerImpl(dbgId);

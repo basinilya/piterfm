@@ -20,6 +20,7 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
     private CheckBoxPreference notificationPref;
     private CheckBoxPreference notificationSoundPref;
     private ListPreference sortChannelPref;
+    private CheckBoxPreference forceNoSetnextmediaplayerPref;
     private CheckBoxPreference reconnectPref;
     private ListPreference reconnectCountPref;
     private ListPreference reconnectTimeoutPref;
@@ -35,6 +36,7 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
         sortChannelPref = (ListPreference) getPreferenceScreen().findPreference(Settings.CHANNEL_SORT_TYPE);
         notificationPref = (CheckBoxPreference) getPreferenceScreen().findPreference(Settings.NOTIFICATION);
         notificationSoundPref = (CheckBoxPreference) getPreferenceScreen().findPreference(Settings.NOTIFICATION_SOUND);
+        forceNoSetnextmediaplayerPref = (CheckBoxPreference) getPreferenceScreen().findPreference(Settings.FORCE_NO_SETNEXTMEDIAPLAYER);
         reconnectPref = (CheckBoxPreference) getPreferenceScreen().findPreference(Settings.RECONNECT);
         reconnectCountPref = (ListPreference) getPreferenceScreen().findPreference(Settings.RECONNECT_COUNT);
         reconnectTimeoutPref = (ListPreference) getPreferenceScreen().findPreference(Settings.RECONNECT_TIMEOUT);
@@ -92,6 +94,8 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
             notificationPref.setSummary(sharedPreferences.getBoolean(key, false) ? on : off);
         } else if (key.equals(Settings.NOTIFICATION_SOUND)) {
             notificationSoundPref.setSummary(sharedPreferences.getBoolean(key, false) ? on : off);
+        } else if (key.equals(Settings.FORCE_NO_SETNEXTMEDIAPLAYER)) {
+            forceNoSetnextmediaplayerPref.setSummary(sharedPreferences.getBoolean(key, false) ? on : off);
         } else if (key.equals(Settings.RECONNECT)) {
             reconnectPref.setSummary(sharedPreferences.getBoolean(key, false) ? on : off);
         } else if (key.equals(Settings.RECONNECT_COUNT)) {

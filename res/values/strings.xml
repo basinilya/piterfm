@@ -23,6 +23,9 @@
     <string name="favourites_title">Избранное</string>
     <string name="favourites_summary">Вкл./Выкл. поддержку избранных станций</string>
 
+    <string name="force_no_setnextmediaplayer_title">Старая стыковка кусочков</string>
+    <string name="force_no_setnextmediaplayer_summary">Включите, если на Android 4.4+ заметны швы на стыке кусочков аудио; это принудительно включает старый способ</string>
+
     <string name="sort_title">Сортировка каналов</string>
     <string name="sort_summary">Выберите критерий для сортировки каналов</string>
     <string name="sort_dialog_title">Критерий</string>
