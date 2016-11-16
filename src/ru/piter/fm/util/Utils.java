@@ -13,6 +13,8 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
+import ru.piter.fm.prototype.R;
+
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
@@ -26,7 +28,12 @@ import java.net.URLConnection;
  */
 public class Utils {
 
-    public static final File SD_DIR = Environment.getExternalStorageDirectory();
+    public static final File SD_DIR =
+            Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED) ?
+            Environment.getExternalStorageDirectory() : new File("/data/data/" + R.class.getPackage().getName());
+    static {
+        Log.i("XXX", "SD_DIR: " + SD_DIR);
+    }
     public static final File APP_DIR = new File(SD_DIR + "/piterfm");
     public static final File CACHE_DIR = new File(APP_DIR + "/cache");
     public static final File CHUNKS_DIR = new File(APP_DIR + "/chunks");
