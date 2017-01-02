@@ -321,7 +321,7 @@ public class PiterFMCachingDownloader {
         private synchronized String getSessionId() throws IOException {
             if (sessionId != null) return sessionId;
 
-            HttpURLConnection conn = (HttpURLConnection)Utils.getURLConnection("http://radio-archive.ru/");
+            HttpURLConnection conn = (HttpURLConnection)Utils.getURLConnection("https://vse.fm/");
             String s;
             int i;
             //conn.setRequestMethod("HEAD");

@@ -11,8 +11,9 @@ for(var propertyName in stations) {
     var station = stations[propertyName];
     if (station.station_archive == "0" && station.station_archive_available == "1" && station.station_available == "1")
     {
+        var city = tomsk_objs.cities[station.city_id];
         document.write("new TomskStation( " + JSON.stringify(station.station_name)
-        + ",\n" + JSON.stringify(station.city.city_name)
+        + ",\n" + JSON.stringify(city.city_name)
         + ",\n" + JSON.stringify(station.station_frequency)
         + ",\n" + JSON.stringify(station.station_id)
         + ",\n" + JSON.stringify(station.station_master)
