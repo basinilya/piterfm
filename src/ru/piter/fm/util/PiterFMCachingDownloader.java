@@ -11,6 +11,7 @@ import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import ru.piter.fm.radio.Channel;
 import android.util.Log;
 
 /**
@@ -123,7 +124,7 @@ public class PiterFMCachingDownloader {
      * Get and lock a file with the provided params. This function is
      * synchronous and may block forever, if 5 other files stay locked.
      */
-    public String getFile(String prefix, TrackCalendar trackTime, boolean station_master) throws InterruptedException {
+    public String getFile(String urlPart, TrackCalendar trackTime) throws InterruptedException {
         final String funcname = "getFile";
         Log.d(Tag, funcname + ",channelId = " + "?" + ", trackTime = " + trackTime.asURLPart());
         trackTime = trackTime.clone();
@@ -137,7 +138,7 @@ public class PiterFMCachingDownloader {
             urlQueue.clear();
             urlQueue.ensureCapacity(cacheSize);
             for (int i = cacheSize - 1;; i--) {
-                trackUrl = prefix + trackTime.asURLPart();
+                trackUrl = urlPart + trackTime.asURLPart();
                 urlQueue.add(trackUrl);
                 if (i == 0)
                     break;
@@ -256,7 +257,32 @@ public class PiterFMCachingDownloader {
         Log.d(Tag, funcname + ",All queued files alredy downloaded");
     }
 
+    private static final String[] masterAndSlave = {
+        "http://stor.radio-archive.ru/station_",
+        "http://stor2.radio-archive.ru/station_"
+    };
+
     private String sessionId;
+    private int currentNPrefix = 0;
+
+    private synchronized String getCompleteUrl(String urlPart) throws IOException {
+        if (sessionId == null) { // failure or initial
+            // try switching to another stor server
+            currentNPrefix = (currentNPrefix + 1) % 2;
+
+            HttpURLConnection conn = (HttpURLConnection)Utils.getURLConnection("https://vse.fm/");
+            String s;
+            int i;
+            s = conn.getHeaderField("Set-Cookie");
+            conn.disconnect();
+            final String x = "PHPSESSID=";
+            if ( s == null || (i = s.indexOf(x)) == -1 || (i = (s = s.substring(i + x.length())).indexOf(';')) == -1) {
+                throw new IOException("not found PHPSESSID cookie");
+            }
+            sessionId = s.substring(0, i);
+        }
+        return masterAndSlave[currentNPrefix] + urlPart + "&session_id=" + sessionId;
+    }
 
     private class CacheEntry {
         /** if {@link #thread} == null, holds the data downloaded from {@link #m_url} */
@@ -317,24 +343,6 @@ public class PiterFMCachingDownloader {
             }.start();
         }
 
-        /* TODO: why did I make it synchronized(CacheEntry.this) ? */
-        private synchronized String getSessionId() throws IOException {
-            if (sessionId != null) return sessionId;
-
-            HttpURLConnection conn = (HttpURLConnection)Utils.getURLConnection("https://vse.fm/");
-            String s;
-            int i;
-            //conn.setRequestMethod("HEAD");
-            s = conn.getHeaderField("Set-Cookie");
-            conn.disconnect();
-            final String x = "PHPSESSID=";
-            if ( s == null || (i = s.indexOf(x)) == -1 || (i = (s = s.substring(i + x.length())).indexOf(';')) == -1) {
-                throw new IOException("not found PHPSESSID cookie");
-            }
-            sessionId = s.substring(0, i);
-            return sessionId;
-        }
-        
         private void downloadTrack(OutputStream fos) throws InterruptedException, IOException {
             final String funcname = CacheEntry.this + ",downloadTrack";
             Log.d(Tag, funcname + ",");
@@ -363,7 +371,7 @@ public class PiterFMCachingDownloader {
                 int pos = 0;
                 InputStream in = null;
                 try {
-                    String sesUrl = url + "&session_id=" + getSessionId();
+                    String sesUrl = getCompleteUrl(url);
                     Log.d(Tag, funcname + ",before openConnection(), tryNo = " + tryNo + ", url: " + sesUrl);
                     in = Utils.openConnection(sesUrl);
                     Log.d(Tag, funcname + ",after openConnection()");

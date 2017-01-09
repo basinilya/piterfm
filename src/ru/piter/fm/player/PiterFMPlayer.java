@@ -141,7 +141,7 @@ abstract class PiterFMPlayer {
             final String funcname = "PlayerWrap," + dbgId + ",scheduleGetFile";
             Log.d(Tag, funcname + ",");
             assertNull(getFileTask);
-            final String urlPrefix = PiterFMPlayer.this.channel.getTomskUrlPrefix();
+            final String urlPart = PiterFMPlayer.this.channel.getTomskUrlPart();
             chunkTime = nextChunkTime.clone();
             Log.d(Tag, funcname + ",channelId = " + "?" + ", trackCal = " + chunkTime.asURLPart());
 
@@ -153,7 +153,7 @@ abstract class PiterFMPlayer {
                     final String funcname = "PlayerWrap," + dbgId + ",doInBackground";
                     Log.d(Tag, funcname + ",channelId = " + "?" + ", trackCal = " + chunkTime.asURLPart());
                     try {
-                        path = cache.getFile(urlPrefix, chunkTime, false);
+                        path = cache.getFile(urlPart, chunkTime);
                     } catch (Exception e) {
                         Log.e(Tag, funcname + ",Exception caught", e);
                     }
