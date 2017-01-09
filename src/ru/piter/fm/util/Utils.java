@@ -83,6 +83,8 @@ public class Utils {
         httpclient.setUseCaches(false);
         httpclient.setConnectTimeout(20000);
         httpclient.setReadTimeout(30000);
+        // Required since 2017-01-08 or get 401 unauthorized
+        httpclient.setRequestProperty("Accept-Language", "ru-RU,ru;q=0.8,en-US;q=0.6,en;q=0.4");
         return httpclient;
     }
     
