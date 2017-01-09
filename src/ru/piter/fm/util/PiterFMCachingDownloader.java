@@ -257,6 +257,7 @@ public class PiterFMCachingDownloader {
         Log.d(Tag, funcname + ",All queued files alredy downloaded");
     }
 
+    // TODO: get prefix from server: https://vse.fm/config/archive.php?station_id=20&start=2017/01/06/19
     private static final String[] masterAndSlave = {
         "http://stor.radio-archive.ru/station_",
         "http://stor2.radio-archive.ru/station_"
