@@ -16,6 +16,7 @@ import org.apache.http.params.HttpParams;
 import ru.piter.fm.prototype.R;
 
 import java.io.*;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -78,21 +79,30 @@ public class Utils {
         }
     }
 
-    public static URLConnection getURLConnection(String url) throws IOException {
-        URLConnection httpclient = new URL(url).openConnection();
+    public static HttpURLConnection getURLConnection(String url) throws IOException {
+        HttpURLConnection httpclient = (HttpURLConnection)new URL(url).openConnection();
         httpclient.setUseCaches(false);
         httpclient.setConnectTimeout(20000);
         httpclient.setReadTimeout(30000);
-        // Required since 2017-01-08 or get 401 unauthorized
-        httpclient.setRequestProperty("Accept-Language", "ru-RU,ru;q=0.8,en-US;q=0.6,en;q=0.4");
         return httpclient;
     }
-    
-    public static InputStream openConnection(String url) throws IOException {
 
+    /**
+     * Perform request and throw something more informative than FileNotFoundException
+     * 
+     * @param urlconn
+     * @return
+     * @throws IOException
+     */
+    public static InputStream openConnection(URLConnection urlconn) throws IOException {
         InputStream content = null;
-        URLConnection httpclient = getURLConnection(url);
-        content = httpclient.getInputStream();
+        try {
+            content = urlconn.getInputStream();
+        } catch (IOException e) {
+            // getHeaderField(0) doesn't work in Android
+            String statusLine = urlconn.getHeaderField(null);
+            throw new IOException(statusLine + " opening " + urlconn.getURL());
+        }
         return content;
     }
 

@@ -271,11 +271,16 @@ public class PiterFMCachingDownloader {
             // try switching to another stor server
             currentNPrefix = (currentNPrefix + 1) % 2;
 
-            HttpURLConnection conn = (HttpURLConnection)Utils.getURLConnection("https://vse.fm/");
             String s;
             int i;
-            s = conn.getHeaderField("Set-Cookie");
-            conn.disconnect();
+
+            HttpURLConnection conn = (HttpURLConnection)Utils.getURLConnection("https://vse.fm/");
+            try {
+                Utils.openConnection(conn); // will throw on http error
+                s = conn.getHeaderField("Set-Cookie");
+            } finally {
+                conn.disconnect();
+            }
             final String x = "PHPSESSID=";
             if ( s == null || (i = s.indexOf(x)) == -1 || (i = (s = s.substring(i + x.length())).indexOf(';')) == -1) {
                 throw new IOException("not found PHPSESSID cookie");
@@ -370,11 +375,15 @@ public class PiterFMCachingDownloader {
                 } finally { Log.v(Tag, funcname + ",synchronized after, dummyNo:337"); }
 
                 int pos = 0;
-                InputStream in = null;
+                HttpURLConnection conn = null;
                 try {
                     String sesUrl = getCompleteUrl(url);
                     Log.d(Tag, funcname + ",before openConnection(), tryNo = " + tryNo + ", url: " + sesUrl);
-                    in = Utils.openConnection(sesUrl);
+                    conn = Utils.getURLConnection(sesUrl);
+                    // Required since 2017-01-08 or get 401 unauthorized
+                    conn.setRequestProperty("Accept-Language", "ru-RU,ru;q=0.8,en-US;q=0.6,en;q=0.4");
+
+                    InputStream in = Utils.openConnection(conn);
                     Log.d(Tag, funcname + ",after openConnection()");
                     Log.v(Tag, funcname + ",synchronized before, dummyNo:345"); try {
                     synchronized (lock) {
@@ -422,7 +431,7 @@ public class PiterFMCachingDownloader {
                         throw e; // This IOException is fatal
                     Log.d(Tag, funcname + ",download failed: " + e.toString());
                 } finally {
-                    if (in != null) try { in.close(); } catch (IOException e) {}
+                    if (conn != null) try { conn.disconnect(); } catch (Exception e) {}
                 }
                 if (oldpos < pos)
                     oldpos = pos;
