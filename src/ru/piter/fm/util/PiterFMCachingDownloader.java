@@ -259,8 +259,8 @@ public class PiterFMCachingDownloader {
 
     // TODO: get prefix from server: https://vse.fm/config/archive.php?station_id=20&start=2017/01/06/19
     private static final String[] masterAndSlave = {
-        "http://stor.radio-archive.ru/station_",
-        "http://stor2.radio-archive.ru/station_"
+        "http://stor-1.radio-archive.ru/station_",
+        "http://stor-2.radio-archive.ru/station_"
     };
 
     private String sessionId;
@@ -362,7 +362,7 @@ public class PiterFMCachingDownloader {
                 synchronized (lock) {
                     Log.v(Tag, funcname + ",synchronized in, dummyNo:326");
                     //tryNo = omniCount;
-                    int attemptCount = Settings.isReconnect() ? Settings.getReconnectCount() : 0;
+                    int attemptCount = Settings.isReconnect() ? Settings.getReconnectCount() + 1 : 1;
                     if (fos == m_fos && omniCount >= attemptCount && url.equals(currentUrl)) {
                         Log.w(Tag, funcname + ",not cancelled, exceed attempts, and is current,, pausing");
                         currentUrl = null; // This should tell thi loop in getFile(), that we failed
@@ -435,7 +435,9 @@ public class PiterFMCachingDownloader {
                 }
                 if (oldpos < pos)
                     oldpos = pos;
-                int attemptDelay = Settings.getReconnectTimeout() * 1000;
+                int attemptDelay = 2000;
+                if (tryNo != 0)
+                    attemptDelay = Settings.getReconnectTimeout() * 1000;
                 Log.d(Tag, funcname + ",sleeping " + attemptDelay + "ms");
                 Thread.sleep(attemptDelay);
             }
