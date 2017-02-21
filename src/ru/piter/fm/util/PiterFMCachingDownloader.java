@@ -2,10 +2,12 @@ package ru.piter.fm.util;
 
 import static junit.framework.Assert.*;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
@@ -267,6 +269,7 @@ public class PiterFMCachingDownloader {
     private int currentNPrefix = 0;
 
     private synchronized String getCompleteUrl(String urlPart) throws IOException {
+        final String funcname = "getCompleteUrl";
         if (sessionId == null) { // failure or initial
             // try switching to another stor server
             currentNPrefix = (currentNPrefix + 1) % 2;
@@ -276,14 +279,29 @@ public class PiterFMCachingDownloader {
 
             HttpURLConnection conn = (HttpURLConnection)Utils.getURLConnection("https://vse.fm/");
             try {
+                // Required since 2017-02-20 or get no PHPSESSID
+                conn.setRequestProperty("User-Agent","Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36");
                 Utils.openConnection(conn); // will throw on http error
                 s = conn.getHeaderField("Set-Cookie");
+
+                final String x = "PHPSESSID=";
+                if ( s == null || (i = s.indexOf(x)) == -1 || (i = (s = s.substring(i + x.length())).indexOf(';')) == -1) {
+                    final String msg = "not found PHPSESSID cookie";
+                    Log.w(Tag, funcname + "," + msg);
+                    try {
+                        Log.w(Tag, funcname + "," + conn.getHeaderFields());
+                        //new BufferedInputStream(null).rea
+                        BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                        while (null != (s = br.readLine())) {
+                            Log.w(Tag, funcname + "," + s);
+                        }
+                    } catch (Exception e) {
+                        Log.e(Tag, funcname, e);
+                    }
+                    throw new IOException(msg);
+                }
             } finally {
                 conn.disconnect();
-            }
-            final String x = "PHPSESSID=";
-            if ( s == null || (i = s.indexOf(x)) == -1 || (i = (s = s.substring(i + x.length())).indexOf(';')) == -1) {
-                throw new IOException("not found PHPSESSID cookie");
             }
             sessionId = s.substring(0, i);
         }
