@@ -261,8 +261,8 @@ public class PiterFMCachingDownloader {
 
     // TODO: get prefix from server: https://vse.fm/config/archive.php?station_id=20&start=2017/01/06/19
     private static final String[] masterAndSlave = {
-        "http://stor-1.radio-archive.ru/station_",
-        "http://stor-2.radio-archive.ru/station_"
+        "https://stor-1.srv.vse.fm/station_",
+        "https://stor-2.srv.vse.fm/station_"
     };
 
     private String sessionId;
