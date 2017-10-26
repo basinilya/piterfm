@@ -3,7 +3,7 @@
           package="ru.piter.fm.prototype"
           android:installLocation="auto"
           android:versionCode="10"
-          android:versionName="2.0.5">
+          android:versionName="v20170313">
 
 
     <uses-sdk android:minSdkVersion="3" android:targetSdkVersion="4"/>
@@ -16,7 +16,7 @@
     <uses-permission android:name="android.permission.READ_LOGS" />
     <uses-permission android:name="android.permission.VIBRATE"/>
 
-    <application android:icon="@drawable/icon" android:label="PITER FM (testver)" android:name="ru.piter.fm.App" android:theme="@style/PiterFM.Theme">
+    <application android:icon="@drawable/icon" android:label="PITER FM (v20170313)" android:name="ru.piter.fm.App" android:theme="@style/PiterFM.Theme">
 
         <activity android:name="ru.piter.fm.activities.RadioActivity"
                   android:configChanges="keyboardHidden|orientation">
