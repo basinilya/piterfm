@@ -100,7 +100,11 @@ public class Utils {
             content = urlconn.getInputStream();
         } catch (IOException e) {
             // getHeaderField(0) doesn't work in Android
-            String statusLine = urlconn.getHeaderField(null);
+            String statusLine = null;
+            try {
+                statusLine = urlconn.getHeaderField(null);
+            } catch (Exception e2) {
+            }
             throw new IOException(statusLine + " opening " + urlconn.getURL());
         }
         return content;
