@@ -1,0 +1,39 @@
+# Please keep in mind:
+# - If you need to ignore files on your local machine only, please use .git/info/exclude instead .gitignore
+# - Project specified ignore rules must be located in project directory only
+
+hs_err_pid*.log
+
+# ant-specific files
+ant.properties
+build.xml
+local.properties
+proguard-project.txt
+
+# Eclipse project files
+.settings
+.classpath
+.project
+.metadata
+/bin/**
+/build/
+
+# IntelliJ Idea project files
+.idea
+*.iml
+*.ipr
+*.iws
+
+# Netbeans project files
+nbproject
+
+# Always ignore these directories/files
+target
+logs
+gen
+out
+antarcticle-view/antarcticle-web-view/overlays
+
+# Maven release plugin files
+release.properties
+pom.xml.releaseBackup
